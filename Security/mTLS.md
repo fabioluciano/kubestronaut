@@ -1,0 +1,2 @@
+-  Usar um service mesh para habilitar a comunicaçào criptografada entre pods
+- o istio vai criar um sidecar em todos os pods, que captura as comunicações e as criptografa e descriptografa no proximo

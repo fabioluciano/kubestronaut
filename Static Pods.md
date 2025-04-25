@@ -1,0 +1,9 @@
+- Quando não há API server, o kubelet, agindo sozinho no cluster, pode criar pods usando staticpod
+- Voce pode configurar  o kubelet para ler um diretório contendo manifestos. 
+- Somente PODS podem ser criados usando esse método
+- Como o Kubelet só entende sobre PODS ele não conhece outros elementos
+	- Por isso, quem mexe com o replicasets é  o controller
+- O diretório pode ser configurado utilizando a flag `--pod-manifest-path` do systemd service do kubelet
+- Também pode ser configurado utilizando um arquivo de configuração, utilizando a flag `--config`, e dentro desse arquivo setar a chave `staticPodPath`
+- Como não temos [[kube-apiserver]]para responder os comandos, você tem que usar o [[crictl]]pra poder ver os pods sendo criados
+- Os pods estaticos têm o seu nome acrescido do nome do nó ao qual foi criado

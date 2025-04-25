@@ -1,0 +1,2 @@
+- Os arquivos de configuração utilizados para subir os componentes do cluster estão em `/etc/kubernetes/manifests`
+	- Esses são chamados static pods

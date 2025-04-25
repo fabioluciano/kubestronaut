@@ -1,0 +1,8 @@
+ - Projeto opensource de uso gen'erico, N~ao precisa ser especifico do kubernetes
+ - Prov^e uma linaguagem declarativa de politicas para validar o que está sentrndo no cluster.
+ - Trabalha junto ao Admission Controller, promovendo validações e mutações de objetos
+ - Só bloqueia se for true
+ - A política é escrita usando REGO
+ - O Kubernetes usa o OPA gatekeeper
+- É necessario criar um `ConstraintTemplate`, que conterá uma contraint...
+- A contraint será criada e pode ser usada para definir os troços

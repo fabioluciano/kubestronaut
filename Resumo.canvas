@@ -1,0 +1,45 @@
+{
+  "nodes": [
+    {
+      "id": "2eef9938f67e24e0",
+      "type": "group",
+      "styleAttributes": {},
+      "x": -840,
+      "y": -5200,
+      "width": 861,
+      "height": 1080,
+      "label": "Untitled group"
+    },
+    {
+      "id": "a963f2224890dea8",
+      "type": "file",
+      "file": "Kubernetes/Pods.md",
+      "styleAttributes": {},
+      "x": -760,
+      "y": -5140,
+      "width": 680,
+      "height": 660
+    },
+    {
+      "id": "5bbefd5463881bcf",
+      "type": "file",
+      "file": "Kubernetes/Containers.md",
+      "styleAttributes": {},
+      "x": -691,
+      "y": -4420,
+      "width": 542,
+      "height": 197
+    }
+  ],
+  "edges": [
+    {
+      "id": "c466c4bc70459315",
+      "styleAttributes": {},
+      "fromNode": "a963f2224890dea8",
+      "fromSide": "bottom",
+      "toNode": "5bbefd5463881bcf",
+      "toSide": "top"
+    }
+  ],
+  "metadata": {}
+}
