@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deploy-with-nodeselector
+spec:
+  replicas: 20
+  selector:
+    matchLabels:
+      app: deploy-with-nodeselector
+  template:
+    metadata:
+      labels:
+        app: deploy-with-nodeselector
+    spec:
+      containers:
+      - image: nginx
+        name: nginx
+      nodeSelector:
+        disk: nvme

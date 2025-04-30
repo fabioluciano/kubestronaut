@@ -1,0 +1,134 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: old-version
+data:
+  index.html: |
+    old version
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: new-version
+data:
+  index.html: |
+    new version
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: canary-old-version
+  name: canary-old-version
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: canary-old-version
+  template:
+    metadata:
+      labels:
+        app: canary-old-version
+    spec:
+      containers:
+      - image: nginx
+        name: nginx
+        volumeMounts:
+          - name: site
+            mountPath: /usr/share/nginx/html
+      volumes:
+        - name: site
+          configMap:
+            name: old-version
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: canary-new-version
+  name: canary-new-version
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: canary-new-version
+  template:
+    metadata:
+      labels:
+        app: canary-new-version
+    spec:
+      containers:
+      - image: nginx
+        name: nginx
+        volumeMounts:
+          - name: site
+            mountPath: /usr/share/nginx/html
+      volumes:
+        - name: site
+          configMap:
+            name: new-version
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: canary-old-version
+  name: canary-old-version
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: canary-old-version
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: canary-new-version
+  name: canary-new-version
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: canary-new-version
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: canary-old-version
+spec:
+  rules:
+  - host: site.info
+    http:
+      paths:
+      - backend:
+          service:
+            name: canary-old-version
+            port:
+              number: 80
+        path: /
+        pathType: Exact
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: canary-new-version
+  annotations:
+    nginx.ingress.kubernetes.io/canary: "true"
+    nginx.ingress.kubernetes.io/canary-weight: "10"
+spec:
+  rules:
+  - host: site.info
+    http:
+      paths:
+      - backend:
+          service:
+            name: canary-new-version
+            port:
+              number: 80
+        path: /
+        pathType: Exact

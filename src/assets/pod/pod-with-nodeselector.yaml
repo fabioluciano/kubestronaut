@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-with-nodeselector-webapp
+spec:
+  containers:
+  - image: nginx
+    name: pod-with-nodeselector-webapp
+  nodeSelector:
+    disk: ssd
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-with-nodeselector-database
+spec:
+  containers:
+  - image: nginx
+    name: pod-with-nodeselector-database
+  nodeSelector:
+    disk: nvme
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-with-nodeselector-data
+spec:
+  containers:
+  - image: nginx
+    name: pod-with-nodeselector-data
+  nodeSelector:
+    disk: nvme

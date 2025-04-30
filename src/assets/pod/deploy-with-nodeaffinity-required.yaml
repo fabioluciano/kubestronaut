@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deploy-with-nodeaffinity-required
+spec:
+  replicas: 10
+  strategy:
+    rollingUpdate: 
+      maxUnavailable: 100%
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: deploy-with-nodeaffinity-required
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: deploy-with-nodeaffinity-required
+    spec:
+      containers:
+      - image: nginx
+        name: nginx
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                - key: disk
+                  operator: In
+                  values:
+                    - optical

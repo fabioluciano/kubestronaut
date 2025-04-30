@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: hostpath-volume-pod
+spec:
+  containers:
+    - command: ["sh"]
+      args:
+        - -c
+        - echo "this is a dog here" > /data/file
+      image: busybox
+      name: write
+      volumeMounts:
+        - mountPath: /data
+          name: data-volume
+    - command: ["sh"]
+      args:
+        - -c
+        -  cat /data/file
+      image: busybox
+      name: read
+      volumeMounts:
+        - mountPath: /data
+          name: data-volume
+  volumes:
+    - name: data-volume
+      hostPath: 
+        path: /data
+        type: DirectoryOrCreate

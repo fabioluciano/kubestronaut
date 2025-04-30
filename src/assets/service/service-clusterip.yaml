@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: service-test-clusterip
+  labels:
+    type: webapp
+    svcType: ClusterIP
+spec:
+  containers:
+    - name: nginx
+      image: nginx
+      ports:
+        - name: http
+          containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: servicetest-clusterip
+spec:
+  type: ClusterIP
+  selector:
+    type: webapp
+    svcType: ClusterIP
+  ports:
+    - name: name
+      port: 8080 # Porta que o serviço exportará para escuta
+      targetPort: 80 # Porta do container

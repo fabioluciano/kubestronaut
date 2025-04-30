@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sleep
+spec:
+  containers:
+  - args:
+    - sleep
+    - "1000"
+    image: busybox
+    name: sleep
+    env:
+     - name: teste
+       value: " rapidam teste"

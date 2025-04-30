@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: limitrange-container-test
+spec:
+  limits:
+    - type: Container 
+      default:
+        cpu: 100m
+        memory: 100M
+      defaultRequest:
+        cpu: 100m
+        memory: 100M
+      min:
+        cpu: 100m
+        memory: 100M
+      max:
+        cpu: 100m
+        memory: 100M
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: limitrange-container-test
+  namespace: hokage
+spec:
+  containers:
+  - image: nginx
+    name: limitrange-container-test
+    resources:
+      requests:
+        cpu: 200m
+        memory: 400M

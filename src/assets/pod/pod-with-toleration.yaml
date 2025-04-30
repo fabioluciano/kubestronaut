@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-with-toleration-webapp
+spec:
+  containers:
+  - image: nginx
+    name: pod-with-toleration-webapp
+  tolerations:
+    - key: component
+      value: webapp
+      operator: Equal
+      effect: PreferNoSchedule
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-with-toleration-database
+spec:
+  containers:
+  - image: nginx
+    name: pod-with-toleration-database
+  tolerations:
+    - key: component
+      value: database
+      operator: Equal
+      effect: NoSchedule 
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-with-toleration-data
+spec:
+  containers:
+  - image: nginx
+    name: pod-with-toleration-data
+  tolerations:
+    - key: component
+      value: data
+      operator: Equal
+      effect: NoExecute

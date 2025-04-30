@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: teste-replicaset-matchexpressions
+  labels:
+    tier: "backend"
+spec:
+  replicas: 10
+  selector:
+    matchExpressions:
+      - { key: tier, operator: In, values: [backend]}  
+  template:
+    metadata:
+      name: pod-replicaset-matchexpressions
+      labels:
+        tier: "backend"
+    spec:
+      containers:
+        - image: nginx
+          name: nginx
+        - image: redis
+          name: redis

@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: pod-with-expr
+  name: pod-with-expr
+spec:
+  containers:
+  - command:
+    - "expr"
+    - "3"
+    - "+"
+    - "4"
+    image: ubuntu
+    name: pod-with-expr
+    resources: {}
+  dnsPolicy: ClusterFirst
+  restartPolicy: Never
+status: {}

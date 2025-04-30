@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-and-pvc-recycle-policy
+spec:
+  storageClassName: standard
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 1Gi
+  persistentVolumeReclaimPolicy: Recycle
+  hostPath:
+    path: /tmp/teste
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pv-and-pvc-recycle-policy
+spec:
+  storageClassName: standard
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi

@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: limitrange-pvc-test
+spec:
+  limits:
+    - type: PersistentVolumeClaim
+      default:
+        storage: 8G
+      defaultRequest:
+        storage: 1G
+      min:
+        storage: 10M
+      max:
+        storage: 8G
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: limitrange-pvc-test
+spec:
+  storageClassName: standard
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 15M
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: limitrange-pvc-test
+  namespace: hokage
+spec:
+  containers:
+  - image: nginx
+    name: limitrange-pvc-test
+    volumeMounts:
+      - name: myclaim
+        mountPath: /data
+    resources:
+      limits:
+        cpu: 500m
+        memory: 700M
+  volumes:
+    - name: myclaim
+      persistentVolumeClaim:
+        claimName: limitrange-pvc-test

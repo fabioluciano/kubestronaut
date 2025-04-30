@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: teste-replicaset-matchlabels
+  labels:
+    tier: "frontend"
+spec:
+  replicas: 10
+  selector:
+    matchLabels:
+      tier: frontend
+  template:
+    metadata:
+      name: pod-replicaset-matchlabels
+      labels:
+        tier: "frontend"
+    spec:
+      containers:
+        - image: nginx
+          name: nginx
+        - image: redis
+          name: redis

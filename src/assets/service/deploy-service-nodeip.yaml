@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: deploy-service-nodeip
+  name: deploy-service-nodeip
+spec:
+  replicas: 10
+  selector:
+    matchLabels:
+      app: deploy-service-nodeip
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: deploy-service-nodeip
+    spec:
+      containers:
+      - image: nginx
+        name: nginx
+        resources: {}

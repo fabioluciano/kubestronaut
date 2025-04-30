@@ -1,0 +1,66 @@
+name: Deploy static content to Pages
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      - uses: actions-rs/cargo@v1
+        with:
+          command: install
+          args: mdbook-admonish mdbook-plantuml
+
+      - run: mdbook-admonish install
+
+      - name: Setup mdBook
+        uses: peaceiris/actions-mdbook@v2
+        with:
+          mdbook-version: "latest"
+
+      - run: mdbook build
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "book"
+
+      # Etapa real de deploy (roda só no GitHub Actions)
+      - name: Deploy to GitHub Pages
+        if: ${{ env.ACT != 'true' }}
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      # Etapa alternativa para simular deploy local (roda só no act)
+      - name: Simular deploy local
+        if: ${{ env.ACT == 'true' }}
+        run: |
+          echo "Simulando deploy local..."
+          mkdir -p /tmp/deploy-preview
+          cp -r book/* /tmp/deploy-preview/
+          echo "Conteúdo copiado para /tmp/deploy-preview"

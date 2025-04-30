@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deploy-blue
+spec:
+  replicas: 10
+  selector:
+    matchLabels:
+      version: v1
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        version: v1
+    spec:
+      containers:
+      - image: kodekloud/webapp-color:v1
+        name: application
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deploy-green
+spec:
+  replicas: 10
+  selector:
+    matchLabels:
+      version: v2
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        version: v2
+    spec:
+      containers:
+      - image: kodekloud/webapp-color:v2
+        name: application
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bluegreen
+spec:
+  ports:
+  - name: http
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    version: v1
+  type: NodePort

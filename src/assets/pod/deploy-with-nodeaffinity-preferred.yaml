@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deploy-with-nodeaffinity-preferred
+spec:
+  replicas: 10
+  strategy:
+    rollingUpdate: 
+      maxUnavailable: 100%
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: deploy-with-nodeaffinity-preferred
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: deploy-with-nodeaffinity-preferred
+    spec:
+      containers:
+      - image: nginx
+        name: nginx
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              preference:
+                matchExpressions:
+                  - key: disk
+                    operator: In
+                    values:
+                      - optical
+            - weight: 2
+              preference:
+                matchExpressions:
+                  - key: disk
+                    operator: In
+                    values:
+                      - sata

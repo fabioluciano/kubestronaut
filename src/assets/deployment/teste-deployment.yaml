@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: teste-deployment
+  labels:
+    tier: data
+spec: 
+  replicas: 10
+  selector:
+    matchLabels:
+      tier: data
+  template:
+    metadata:
+      name: teste-deployment-pod
+      labels:
+        tier: data
+    spec:
+      containers:
+        - image: nginx
+          name: nginx

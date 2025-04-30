@@ -1,0 +1,129 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: webapp-allow-all
+  name: webapp-allow-all
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: webapp-allow-all
+  template:
+    metadata:
+      labels:
+        app: webapp-allow-all
+    spec:
+      containers:
+      - image: nginx
+        name: nginx
+        ports:
+        - containerPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: database-allow-all
+  name: database-allow-all
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: database-allow-all
+  template:
+    metadata:
+      labels:
+        app: database-allow-all
+    spec:
+      containers:
+      - image: nginx
+        name: nginx
+        ports:
+        - containerPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: kafka-allow-all
+  name: kafka-allow-all
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka-allow-all
+  template:
+    metadata:
+      labels:
+        app: kafka-allow-all
+    spec:
+      containers:
+      - image: nginx
+        name: nginx
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: webapp-allow-all
+  name: webapp-allow-all
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: webapp-allow-all
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: database-allow-all
+  name: database-allow-all
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: database-allow-all
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: kafka-allow-all
+  name: kafka-allow-all
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: kafka-allow-all
+---
+apiversion: networking.k8s.io/v1
+kind: networkpolicy
+metadata:
+  name: ingress-to-database
+spec:
+  podselector: {}
+  policytypes:
+    - Ingress
+  ingress: 
+   - {}
+---
+apiversion: networking.k8s.io/v1
+kind: networkpolicy
+metadata:
+  name: egress-to-database
+spec:
+  podselector: {}
+  policytypes:
+    - Egress
+  egress: 
+    - {}

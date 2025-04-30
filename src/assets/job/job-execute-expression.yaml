@@ -1,0 +1,21 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  creationTimestamp: null
+  name: job-execute-expression
+spec:
+  template:
+    metadata:
+      creationTimestamp: null
+    spec:
+      containers:
+      - command:
+        - expr
+        - "3"
+        - +
+        - "4"
+        image: ubuntu
+        name: job-execute-expression
+        resources: {}
+      restartPolicy: Never
+status: {}

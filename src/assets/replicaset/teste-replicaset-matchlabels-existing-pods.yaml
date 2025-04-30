@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: teste-replicaset-matchlabels-existing-pods-1
+  labels:
+    tier: teste
+spec:
+  containers:
+    - name: nginx
+      image: nginx
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: teste-replicaset-matchlabels-existing-pods-2
+  labels:
+    tier: teste
+spec:
+  containers:
+    - name: nginx
+      image: nginx
+---
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: teste-replicaset-matchlabels-existing-pods
+  labels:
+    tier: teste
+    teste: teste
+spec:
+  replicas: 10
+  selector:
+    matchExpressions:
+      - {key: tier, operator: In, values: [teste]}
+  template:
+    metadata:
+      name: pod-with-existing-replicaset
+      labels:
+        tier: teste
+        teste: teste
+    spec:
+      containers:
+        - image: nginx
+          name: teste

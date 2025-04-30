@@ -1,0 +1,9 @@
+kubeProxyReplacement: true
+cluster:
+  name: kubernetes
+  id: 1
+hubble:
+  relay:
+    enabled: true
+  ui:
+    enabled: true

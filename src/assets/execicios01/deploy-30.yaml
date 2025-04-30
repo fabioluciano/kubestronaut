@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: deploy-30
+  name: deploy-30
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: deploy-30
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: deploy-30
+    spec:
+      containers:
+      - image: nginx
+        name: nginx
+        ports:
+        - containerPort: 80
+        env:
+          - name: tier
+            value: web
+          - name: enviroment
+            value: prod
+      - image: nginx
+        name: sleep
+        command:
+          - "sleep"
+          - "3600"
