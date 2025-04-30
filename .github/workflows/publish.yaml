@@ -43,8 +43,10 @@ jobs:
         with:
           mdbook-version: "latest"
 
+      - name: Install PlantUML
+        run: |
+          sudo apt-get update && sudo apt-get install -y plantuml
       - run: mdbook build
-
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
