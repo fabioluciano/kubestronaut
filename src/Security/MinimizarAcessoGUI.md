@@ -1,0 +1,1 @@
+# Minimizar acesso ao GUI

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: apparmor-test-annotations
+  annotations:
+    container.apparmor.security.beta.kubernetes.io/apparmor-test-container: localhost/k8s-apparmor-example-deny-write
+spec:
+  containers:
+    - args:
+        - sh
+        - -c
+        - sleep infinity
+      image: busybox
+      name: apparmor-test-annotations-container
+  restartPolicy: Always

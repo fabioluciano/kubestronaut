@@ -1,0 +1,15 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: job-execute-expression-completions
+spec:
+  completions: 10
+  backoffLimit: 10000000
+  template:
+    metadata:
+      name: job-execute-expression-completions
+    spec:
+      containers:
+        - image: kodekloud/random-error
+          name: job-execute-expression-completions
+      restartPolicy: Never

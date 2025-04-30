@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: teste-replication-controller
+  labels:
+    teste: oi
+spec:
+  replicas: 10
+  template:
+    metadata:
+      name: teste-replication-controller-pod
+      labels:
+        teste: oi
+    spec:
+      containers:
+        - name: teste
+          image: nginx

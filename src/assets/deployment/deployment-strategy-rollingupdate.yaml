@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-strategy-rollingupdate
+spec:
+  replicas: 20
+  selector:
+    matchLabels: 
+      tier: web
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        tier: web
+    spec:
+      containers:
+        - image: nginx
+          name: nginx
+          env:
+            - name: tier
+              value: weib

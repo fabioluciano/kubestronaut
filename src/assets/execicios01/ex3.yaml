@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ex-3
+spec:
+  containers:
+  - image: nginx
+    name: nginx
+    ports:
+    - containerPort: 80
+  - image: redis
+    name: redis
+    ports:
+    - containerPort: 6379
+status: {}

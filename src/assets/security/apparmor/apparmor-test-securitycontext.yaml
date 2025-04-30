@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: apparmor-test-securitycontext
+spec:
+  containers:
+    - args:
+        - sh
+        - -c
+        - sleep infinity
+      image: busybox
+      name: apparmor-test-securycontext-container
+  securityContext:
+    appArmorProfile:
+      type: Localhost
+      localhostProfile: k8s-apparmor-example-deny-write
+  restartPolicy: Always

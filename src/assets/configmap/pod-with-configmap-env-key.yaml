@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pod-with-configmap-env-key
+data:
+  ip: "10.0.0.1"
+  server: "web"
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-with-configmap-env-key
+spec:
+  containers:
+  - image: nginx
+    name: pod-with-configmap
+    env:
+      - name: MEUIP
+        valueFrom:
+          configMapKeyRef:
+            name: pod-with-configmap-env-key
+            key: ip

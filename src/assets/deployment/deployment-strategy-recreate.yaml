@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-strategy-recreate
+spec:
+  replicas: 20
+  selector:
+    matchLabels: 
+      tier: web
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        tier: web
+    spec:
+      containers:
+        - image: nginx
+          name: nginx
+          env:
+            - name: tier
+              value: web

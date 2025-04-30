@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: rbac-cli-access
+  name: rbac-cli-access
+spec:
+  containers:
+    - args:
+        - sh
+        - -c
+        - sleep infinity
+      image: alpine
+      name: rbac-cli-access
+      resources: {}
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always

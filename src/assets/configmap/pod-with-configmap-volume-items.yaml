@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pod-with-configmap-volume-items
+data:
+  ip: "10.0.0.1"
+  server: "web"
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-with-configmap-volume-items
+spec:
+  containers:
+  - image: nginx
+    name: pod-with-configmap
+    volumeMounts:
+      - name: configmap
+        mountPath: /config
+  volumes:
+    - name: configmap
+      configMap:
+        name: pod-with-configmap-volume-items     
+        items:
+          - key: ip
+            path: meuip.config
