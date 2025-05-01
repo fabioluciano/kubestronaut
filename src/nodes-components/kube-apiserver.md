@@ -1,4 +1,6 @@
-- Quando você está utilizando o `kubectl`você está interagindo o `kube-apiserver`.
+# kube-apiserver
+
+- Quando você está utilizando o `kubectl` você está interagindo o `kube-apiserver`.
 - Quando uma requisição é criada, primeiro ela é autentica e validada pelo [[Admission Controllers]]
 - É possível criar objetos utilizando o curl fazendo uma requisição para a api
 	- usa o [[kubectl]]proxy e faz as requisições

@@ -1,6 +1,3 @@
----
-sticker: emoji//1f512
----
 
 - Secrets não são exatamente seguras. Se usa `base64 -n`  para codificar, o que pode ser facilmente "descodificado" usando o comando `base64 -d`
 - Secrets não são criptografadas no ETCd

@@ -21,7 +21,7 @@ openssl rsa -in mykey.key -pubout > pub.pem
 
 - Todos os componentes do cluster têm um par de certificados
 
-```shell title:"imprime informações sobre um sertificado"
+```shell title:"imprime informações sobre um certificado"
 openssl x509 -in cert.crt -text -noout
 ```
 

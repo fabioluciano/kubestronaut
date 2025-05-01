@@ -6,6 +6,7 @@
 
 
 Propriedades padrão de qualquer objeto definido no cluster: **`apiVersion`**, **`kind`**, **`metadata`** e **`spec`**
+
 ``` yml
 apiVersion: v1 # Versão da API do Kubernetes, que está sendo utilizada para criar o objeto
 kind: Pod # Referencia o tipo de objeto que está sendo descrito no documento

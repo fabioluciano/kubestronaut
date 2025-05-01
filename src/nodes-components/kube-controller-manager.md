@@ -1,3 +1,5 @@
+# kube-controller-manager
+
 - Observa o estado dos recursos
 - toma medidas para remediar situações específicas. atingir o [[Desired State]]
 - São os cérebros do cluster

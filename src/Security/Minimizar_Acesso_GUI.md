@@ -1,7 +1,4 @@
----
-sticker: emoji//1f4a5
-color: var(--mk-color-red)
----
+
 - Criar service account
 - k create sa admin-dashboard
 - criar clusterolebinding clusterrole

@@ -11,16 +11,15 @@
 - [Labels](Label.md)
 - [Metadata](Metadata.md)
 - [Namespaces](Namespace.md)
+- [Cluster](Cluster.md)
 
 # Componentes do Cluster
 
 ## Nós (Nodes)
-- [Cluster](Cluster.md)
   - [kubelet](nodes-components/kubelet.md)
   - [kube-proxy](nodes-components/kube-proxy.md)
 
 ## Control Plane
-- [Control Plane](nodes-components/nodes-components.md)
   - [kube-apiserver](nodes-components/kube-apiserver.md)
   - [kube-controller-manager](nodes-components/kube-controller-manager.md)
   - [kube-scheduler](nodes-components/kube-scheduler.md)
@@ -61,28 +60,27 @@
 
 # Segurança
 
-- [Visão Geral](Security/Security.md)
 - [RBAC](Security/RBAC.md)
 - [ServiceAccount](Security/ServiceAccount.md)
 - [NetworkPolicy](Security/NetworkPolicy.md)
-- [Pod Security Admission](Security/PodSecurityAdmission.md)
-- [OPA - Open Policy Agent](Security/OpenPolicyAgent.md)
+- [Pod Security Admission](Security/Pod_Security_Admission.md)
+- [OPA - Open Policy Agent](Security/Open_Policy_Agent.md)
 - [Certificados e TLS](Security/TLS.md)
-  - [Certificate API](Security/CertificateAPI.md)
+  - [Certificate API](Security/Certificate_API.md)
   - [mTLS](Security/mTLS.md)
 - [Hardening](Security/Hardening.md)
-  - [CIS Benchmark](Security/CisBenchmark.md)
+  - [CIS Benchmark](Security/CIS_Benchmark.md)
   - [AppArmor](Security/AppArmor.md)
   - [Seccomp](Security/Seccomp.md)
-  - [Runtime Classes](Security/RuntimeClasses.md)
-- [Auditoria e Monitoramento](Security/MonitoringLogging.md)
+  - [Runtime Classes](Security/Runtime-Classes.md)
+- [Auditoria e Monitoramento](Security/Monitoring_Logging.md)
   - [Audit](Security/Audit.md)
-  - [Minimizar acesso ao GUI](Security/MinimizarAcessoGUI.md)
+  - [Minimizar acesso ao GUI](Security/Minimizar_Acesso_GUI.md)
 - [Conceitos Complementares](Security/Misc.md)
-  - [Os Quatro Cs](Security/OsQuatroCs.md)
-  - [Primitivos de Segurança](Security/PrimitivosSeguranca.md)
-  - [Supply Chain Security](Security/SupplyChainSecurity.md)
-  - [Multi Tenancy](Security/MultiTenancy.md)
+  - [Os Quatro Cs](Security/Os_Quatro_Cs.md)
+  - [Primitivos de Segurança](Security/Primitivos_Seguranca.md)
+  - [Supply Chain Security](Security/Supply_Chain_Security.md)
+  - [Multi Tenancy](Security/Multi_Tenancy.md)
 
 # Operações
 

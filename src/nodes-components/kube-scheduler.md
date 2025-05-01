@@ -1,3 +1,5 @@
+# Kube-scheduler
+
 - Decide onde um pod deve ser colocado. Ele não coloca. Quem coloca é o kubelet;
 - Observa cada pod e tentar encontrar qual o melhor nó para ele;
 - Ranqueia os nós pra identificar qual o melhor nó para se colocar o pod

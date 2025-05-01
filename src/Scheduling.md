@@ -1,11 +1,12 @@
-## Selecionando nós
+## Scheduling
 
 ### Utilizando o Taints e `spec.tolerations`
 
+```admonish danger title="IMPORTANTE"
+PARA GARANTIR QUE UM POD SEJA ALOCADO EM UM NÓ É NECESSÁRIO CONFIGURAR TANTO A `TOLERATION`QUANTO O `NODESELECTOR`
 
-> [!danger] 
->  PARA GARANTIR QUE UM POD SEJA ALOCADO EM UM NÓ É NECESSÁRIO CONFIGURAR TANTO A `TOLERATION`QUANTO O `NODESELECTOR`
->A TOLERATION GARANTE QUE O POD TENHA A TOLERANCIA AO TAINT DEFINIDO NO NÓ, E O NODESELECTOR GARANTE QUE O POD SEJA ADICIONADO A UM NÓ QUE TENHA OS LABELS DEFINIDOS
+A TOLERATION GARANTE QUE O POD TENHA A TOLERANCIA AO TAINT DEFINIDO NO NÓ, E O NODESELECTOR GARANTE QUE O POD SEJA ADICIONADO A UM NÓ QUE TENHA OS LABELS DEFINIDOS
+```
 
 - Define uma relação entre pods e nodes, restringindo quais pods pertencem a quais nós
 - Define quais pods são scheduled em um pod
@@ -15,12 +16,15 @@
 - O efeito é o que acontecerá com os pods que não tiverem essa tolerância
 - Não há garantia de que um pod vá para um nó em particular, mesmo com a tolerância aplicada;
 - Caso seja um pod sem um replication controller, ele será simplesmente apagado :)
+
+---
+
 - Tipos de efeitos de taint:
 	- `NoSchedule`: Os pods que não tiverem essa tolerância não serão alocados a este pod.
 	- `PreferNoSchedule`:  O Scheduler vai tentar não alocar um pod no nó, mas não é garantido
 	- `NoExecute`: Os pods que não tiverem essa tolerância não serão alocados a este pod. Se existirem pods existentes no nó, serão migrados.
 
-```shell
+```bash
 kubectl taint nodes node-name key=VALUE:TAINT-EFFECT
 kubectl taint nodes node-name app=blue:NoSchedule
 ```

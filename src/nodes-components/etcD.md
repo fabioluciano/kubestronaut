@@ -1,3 +1,5 @@
+# Etcd
+
 - Banco de dados que guarda os dados  em formato `chave/valor`
 - Roda na porta `2379`
 - `etcdctl` controla o etcd
