@@ -28,7 +28,11 @@
     "startuml",
     "enduml",
     "skinparam",
-    "linetype"
+    "linetype",
+    "KCSA",
+    "Kubestronaut",
+    "Kubestronauts",
+    "mdbook"
   ],
   "files": ["**/*.md"]
 }
