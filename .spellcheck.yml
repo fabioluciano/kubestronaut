@@ -1,12 +1,20 @@
+
 matrix:
-  include:
-    - name: Markdown
-      sources:
-        - '**/*.md'
-      dictionary: pt_BR
-      encoding: utf-8
-      aspell:
-        lang: pt_BR
-        mode: markdown
-        extra-dicts:
-          - ./ignored-words.txt
+- name: Markdown
+  aspell:
+    lang: pt_BR
+    mode: markdown
+    extra-dicts:
+      - ./ignored-words.txt
+  dictionary:
+    encoding: utf-8
+  pipeline:
+  - pyspelling.filters.markdown:
+  - pyspelling.filters.html:
+      comments: false
+      ignores:
+      - code
+      - pre
+  sources:
+  - '**/*.md'
+  default_encoding: utf-8
