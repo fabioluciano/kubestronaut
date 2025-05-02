@@ -1,0 +1,16 @@
+name: Validação de Markdown
+
+on:
+  pull_request:
+    paths:
+      - '**/*.md'
+
+jobs:
+  markdown-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Instalar markdownlint
+        run: npm install -g markdownlint-cli
+      - name: Executar markdownlint
+        run: markdownlint '**/*.md'
