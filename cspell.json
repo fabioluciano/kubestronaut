@@ -1,0 +1,13 @@
+{
+  "version": "0.2",
+  "language": "pt",
+  "dictionaries": ["pt", "software-terms"],
+  "ignorePaths": ["node_modules", ".git"],
+  "ignoreWords": [
+    "Kubernetes",
+    "kubectl",
+    "CKA",
+    "CKAD"
+  ],
+  "files": ["**/*.md"]
+}
