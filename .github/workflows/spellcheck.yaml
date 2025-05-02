@@ -12,7 +12,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Instalar dependências
-        run: npm install --save-dev @cspell/dict-pt-b
+        run: npm install --save-dev @cspell/dict-pt-br
 
       - name: Executar verificação ortográfica
         uses: streetsidesoftware/cspell-action@v6
