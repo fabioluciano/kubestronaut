@@ -1,5 +1,11 @@
 # Semantic Versioning Changelog
 
+## [1.2.2](https://github.com/fabioluciano/kubestronaut/compare/v1.2.1...v1.2.2) (2025-05-02)
+
+### Bug Fix(es) 🐛️
+
+* corrige o workflow publish ([#11](https://github.com/fabioluciano/kubestronaut/issues/11)) ([c442da4](https://github.com/fabioluciano/kubestronaut/commit/c442da43245dac4e7861a7045f5fa5302e3c867a))
+
 ## 1.0.0 (2025-05-02)
 
 ### New Feature(s) 🚀
