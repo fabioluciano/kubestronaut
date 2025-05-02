@@ -15,15 +15,13 @@
 
 # Componentes do Cluster
 
-## Nós (Nodes)
-  - [kubelet](nodes-components/kubelet.md)
-  - [kube-proxy](nodes-components/kube-proxy.md)
-
-## Control Plane
-  - [kube-apiserver](nodes-components/kube-apiserver.md)
-  - [kube-controller-manager](nodes-components/kube-controller-manager.md)
-  - [kube-scheduler](nodes-components/kube-scheduler.md)
-  - [etcd](nodes-components/etcD.md)
+- [Componentes dos Nós](node-components.md)
+    - [kubelet](nodes-components/kubelet.md)
+    - [kube-proxy](nodes-components/kube-proxy.md)
+    - [kube-apiserver](nodes-components/kube-apiserver.md)
+    - [kube-controller-manager](nodes-components/kube-controller-manager.md)
+    - [kube-scheduler](nodes-components/kube-scheduler.md)
+    - [etcd](nodes-components/etcD.md)
 
 # Objetos da API
 

@@ -9,16 +9,17 @@ jobs:
   spellcheck:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout do repositório
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Instalar dependências
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y aspell aspell-pt-br
+        run: npm install --save-dev @cspell/dict-pt-br
 
       - name: Executar verificação ortográfica
-        uses: rojopolis/spellcheck-github-actions@0.23.0
+        uses: streetsidesoftware/cspell-action@v6
         with:
-          config_path: .spellcheck.yml
-          task_name: Markdown
+          config: './cspell.json'
+          files: |
+            **/*.md
+          inline: error
+          strict: true
+          suggestions: true
