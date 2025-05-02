@@ -4,6 +4,7 @@
 skinparam linetype ortho
 skinparam monochrome true
 skinparam packageStyle rectangle
+skinparam backgroundColor white
 
 ' Control Plane
 package "Control Plane" {

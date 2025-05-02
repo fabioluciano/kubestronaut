@@ -5,6 +5,9 @@
 
 ```plantuml
 @startuml
+
+skinparam backgroundColor white
+
 start
 :Instalar Container Runtime Interface;
 :Configurar o Container Runtime;

@@ -7,6 +7,7 @@
 ```plantuml
 
 @startuml
+skinparam backgroundColor white
 
 :O Cliente envia o comando ""kubectl""\npara criação de um ""deployment"";
 :O Api server manda envia o objeto\na ser criado para o ""etcd"";

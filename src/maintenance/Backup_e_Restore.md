@@ -30,7 +30,7 @@ ETCDCTL_API=3 etcdctl snapshot restore snapshot.db --data-dir /var/lib/etcd-from
 ```plantuml
 @startuml
 skinparam defaultTextAlignment center
-
+skinparam backgroundColor white
 
 start
 :Identificar se o ""etcd"" está rodando\n como um pod estático ou como\n um serviço do ""systemd"";
