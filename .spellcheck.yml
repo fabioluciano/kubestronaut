@@ -1,0 +1,12 @@
+matrix:
+  include:
+    - name: Markdown
+      sources:
+        - '**/*.md'
+      dictionary: pt_BR
+      encoding: utf-8
+      aspell:
+        lang: pt_BR
+        mode: markdown
+        extra-dicts:
+          - ./ignored-words.txt
