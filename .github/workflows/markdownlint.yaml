@@ -19,5 +19,5 @@ jobs:
       - name: Executar markdownlint-cli2 nos arquivos modificados
         uses: DavidAnson/markdownlint-cli2-action@v19
         with:
-          globs: ${{ steps.changed-files.outputs.files }}
+          globs: '**/*.md'
           config: '.markdownlint.json'
