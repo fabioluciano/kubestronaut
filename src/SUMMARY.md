@@ -8,7 +8,6 @@
 - [Containers](Containers.md)
   - [Docker](Docker.md)
   - [containerd](nodes-components/ContainerD.md)
-- [Labels](Label.md)
 - [Metadata](Metadata.md)
 - [Namespaces](Namespace.md)
 - [Cluster](Cluster.md)
@@ -89,7 +88,7 @@
 - [Atualização do SO](maintenance/OS_Upgrade.md)
 - [Backup e Restore](maintenance/Backup_e_Restore.md)
 - [Alta Disponibilidade](High_Availability.md)
-- [Troubleshooting](Troubleshooting.md)
+- [Troubleshooting](maintenance/Troubleshooting.md)
 
 # Observabilidade
 
@@ -103,6 +102,7 @@
 - [crictl](crictl.md)
 - [Helm](Helm.md)
 - [Kustomize](Kustomize.md)
+- [Configuração do vim](META.md)
 
 # Outros Tópicos
 

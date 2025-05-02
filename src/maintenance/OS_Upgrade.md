@@ -1,3 +1,5 @@
+# Atualização do Sistema Operacional
+
 - Se os nó ficar mais de cinco minutos sem reponder. Os pods daquele nós serão terminados. 
 	- Caso sejam partes de um replicaset, serão recriados em outro nó;
 	- Caso seja um pod que não seja parte de um replication controller, ele vai ser perdido

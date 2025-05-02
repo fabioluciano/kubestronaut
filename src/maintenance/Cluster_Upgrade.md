@@ -1,3 +1,5 @@
+# Upgrade do Cluster
+
 - os componentes do controlplane não precisam todos estarem na mesma versão
 - porém nenhum outro componente pode estar acima da versão do [[kube-apiserver]]
 - o [[kube-controller-manager]] e o [[kube-scheduler]] podem estar em uma versão abaixo
@@ -9,7 +11,6 @@
 	- durante a atualização, o [[kube-apiserver]] e o [[kube-scheduler]] ficarão fora por um tempo
 	- TODAS as funcionalidades de manutenção serão paradas, porém, as aplicações nos worker nodes continuarão a funcionar
 - O Kubeadm NÃO vai atualizar o kubelet
-
 
 
 ```plantuml

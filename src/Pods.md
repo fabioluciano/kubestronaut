@@ -13,11 +13,14 @@
 * Geralmente um `pod` possui uma relação `1:1` com containers rodando a aplicação. Para `scale up` você adiciona um pod, para `scale down` remove-se o pod.
 * Um `pod` pode conter mais que um container, geralmente com tarefas de suporte ao container principal da aplicação; Os containers dentro do `pod` escalarão juntos.
 * Pode-se referenciar os containers por `localhost` para comunicação, já que compartilham o mesmo namespace de rede. Assim como o namespace de storage (IPS?) 
-* Existem alguns tipos de padrões para pods com multicontainers, os principais são:
-	* Ambassor - Funciona como um proxy do cotainer principal com outros componentes. funciona como faixada para o container principal
-	* Adapter - Padroniza e normaliza as saidas do container principal
-	* Sidecar - Extende e melhora o container principal
-		* **É um initcontainer que têm o restartPolicy set to Always** DESDE a versão 1.29 - PESQUISAR SIDECAR NA DOCUMENTAÇÃO
+
+
+Existem alguns tipos de padrões para pods com multicontainers, os principais são:
+ - **Ambassor** - Funciona como um proxy do container principal com outros componentes. funciona como faixada para o container principal
+ - **Adapter** - Padroniza e normaliza as saídas do container principal
+ - **Sidecar** - Estende e melhora o container principal - **É um initcontainer que têm o restartPolicy set to Always** DESDE a versão 1.29 
+
+---
 
 ### InitContainer
 - São containers que rodarão antes dos containers normais
@@ -25,62 +28,42 @@
 - Se existir mais de um, vai rodar em sequência
 - Caso falhe, o pod entrará em Crashloop, e  o container principal nunca se iniciará  
 
+> [!TIP]
+> Pods com initcontainers
+> ```yaml
+> {{#include assets/pod/pod-with-initcontainer.yaml}}
+> ```
 
-> [!NOTE]- Pod with multiple containers
-```reference
-filePath: "@/Attachments/Kubernetes/pod/pod-with-initcontainer.yaml"
-```
+Os valores editáveis de um pod são: 
+ - `spec.containers[*].image`
+ - `spec.initContainers[*].image`
+ - `spec.tolerations`
+ - `spec.terminationGracePeriodSeconds`
 
-
-## Pod Definition
-```yml
-apiVersion: v1
-kind: Pod
-metadata:
-  name: myapp
-  labels:
-    application: myapp
-    tier: frontend
-spec:
-  containers:
-  	- name: nginx
-	  image: nginx:latest
-	- name: redis
-	  image: redis:latest
-```
-
-
-- Os valores editáveis de um pod são: 
-	- `spec.containers[*].image`
-	- `spec.initContainers[*].image`
-	- `spec.tolerations`
-	- `spec.terminationGracePeriodSeconds`
-
+---
 
 Quando há mais de um container no mesmo Pod, eles sempre compartilharão o mesmo nó, visto que compartilharão a mesma camada de rede(namespace?)
+
+---
 
 - `spec.containers[*].command` é uma alternativa para sobrescrever o entrypoint dos containers que estiverem rodando em um pod.
 - `spec.containers[*].command` é o programa a ser executado ao container subir, e `spec.containers[*].args` são os argumentos a serem passados para o `spec.containers[*].command`
 - `spec.containers[*].command` vai substituir o `entrypoint`definido no `Dockerfile` da imagem utilizada e `spec.containers[*].args` vai substituir o `CMD` do `Dockerfile`.
 
+---
 
-> [!NOTE]- Pod with multiple containers
-```reference
-filePath: "@/Attachments/Kubernetes/pod/pod-multiple-containers.yaml"
-```
+> [!TIP]
+> Pod com múltiplos containers
+> ```yaml
+> {{#include assets/pod/pod-multiple-containers.yaml}}
+> ```
 
+> [!TIP]
+> Pod com argumentos
+> ```yaml
+> {{#include assets/pod/pod-sleep.yaml}}
+> ```
 
-
-> [!NOTE]- Pod with arguments
-```reference
-filePath: "@/Attachments/Kubernetes/pod/pod-sleep.yaml"
-```
-
-
-> [!NOTE]- Pod patch
-```reference
-filePath: "@/Attachments/Kubernetes/pod/pod-sleep-patch.yaml"
-```
 
 ## Security Context
 
@@ -91,18 +74,19 @@ filePath: "@/Attachments/Kubernetes/pod/pod-sleep-patch.yaml"
 * `pod.spec.securityContext.runAsUser`: Faz com que o usuário seja um numero especfico
 * `pod.spec.securityContext.runAsGroup`: Faz com queo grupo seja um numero especifico
 * `pod.spec.securityContext.fsGroup`: Faz com que o sistema de arquivos esteja em um numero especifico
-* `pod.spec.containers.securityContext.readOnlyFilesystem`
+* Para garantir a imutabilidade do container, deve-se aplicar `pod.spec.securityContext.readOnlyRootFilesystem`para true, e o que for modificável, montar um volume `emptyDir`
 
-> [!NOTE]- Pod security context
-```reference
-filePath: "@/Attachments/Kubernetes/pod/pod-with-security-context.yaml"
-```
+> [!TIP]
+> Pod com security context
+> ```yaml
+> {{#include assets/pod/pod-with-security-context.yaml}}
+> ```
 
-
-> [!NOTE]- Pod com volumes projetados
-```reference
-filePath: "@/Attachments/Kubernetes/pod/pod-with-projected-volumes.yaml"
-```
+> [!TIP]
+> Pod com volumes projetados
+> ```yaml
+> {{#include assets/pod/pod-with-projected-volumes.yaml}}
+> ```
 
 ##  Resource Request
 
@@ -117,22 +101,23 @@ filePath: "@/Attachments/Kubernetes/pod/pod-with-projected-volumes.yaml"
 * Para CPU, o melhor cenário é fazer o request necessário de CPU, mas não limitar, visto que pode haver recursos não utlizados, que podem ser utilizados pelo POD.
 * É possível definir que um pod tenha um conjunto de recursos garantidos. Para isso é necessário definir um [[LimitRange]]]
 
-> [!NOTE]- Pod with resource requests
-```reference
-filePath: "@/Attachments/Kubernetes/pod/pod-with-resource-request.yaml"
-```
+> [!TIP]
+> Pod com resource request
+> ```yaml
+> {{#include assets/pod/pod-with-resource-request.yaml}}
+> ```
 
+> [!TIP]
+> Pod com resource request
+> ```yaml
+> {{#include assets/pod/pod-with-resource-request-and-limits.yaml}}
+> ```
 
-> [!NOTE]- Pod security context
-```reference
-filePath: "@/Attachments/Kubernetes/pod/pod-with-resource-request-and-limits.yaml"
-```
-
-
-```shell
-kubectl set resources deployment nginx -c=nginx --limits=cpu=200m,memory=512Mi
-```
-
+> [!TIP]
+> Setando os limits de um container imperativamente
+> ```shell
+> kubectl set resources deployment nginx -c=nginx --limits=cpu=200m,memory=512Mi
+> ```
 
 ## Restart Policy
 
@@ -141,47 +126,75 @@ kubectl set resources deployment nginx -c=nginx --limits=cpu=200m,memory=512Mi
 
 ## Comandos úteis
 
-```shell title:"Encapsula uma docker image em um Pod e a executa no cluster"
-kubectl run nginx --image nginx`
-```
-> 
-> 
+> [!TIP]  
+> Cria um pod a partir de uma imagem
+> ```shell
+> kubectl run nginx --image nginx`
+> ```
+
+> [!TIP]
 > Recupera a lista de todos os Pods
-> `kubectl get pods`
+> ```shell 
+> kubectl get pods
+> ```
 
+> [!TIP]
 > Edita um pod a partir de sua definição
->  `kubectl edit pod podname`
+>  ```shell 
+> kubectl edit pod podname
+> ```
 
-> Aplica(cria ou atualiza) uma [[ApiObjects | definição de um objeto]] no cluster
-> `kubectl apply -f pod-definition.yaml`
- 
- > Cria uma [[ ApiObjects | definição de um objeto]] no cluster
-> `kubectl create -f pod-definition.yaml`
- 
- 
-> Descreve todas as informações de todos os pods em um determinado namespaces (padrão: default)
-> `kubectl describe pod`
+> [!TIP]
+> Aplica(cria ou atualiza) uma definição de um objeto no cluster
+> ```
+> kubectl apply -f pod-definition.yaml
+> ```
 
-> Descreve todas as informações de um pod em um determinado namespaces (padrão: default)
->  `kubectl describe pod/pod-name`
 
-> Recupera todos os pods de todos os [[Namespace | `namespaces`]] e imprime mais informações
-> `kubectl get pods --all-namespaces -o wide`
+> [!TIP]
+> Cria uma definição de um objeto no cluster
+> ```
+> kubectl create -f pod-definition.yaml
+> ```
 
+> [!TIP]
+> Descreve todas as informações de todos os pods em um determinado namespaces
+> ```
+> kubectl describe pod
+> ```
+
+> [!TIP]
+> Descreve todas as informações de um pod em um determinado namespaces
+>  ```
+> kubectl describe pod/pod-name
+> ```
+
+> [!TIP]
+> Recupera todos os pods de todos os namespaces e imprime mais informações
+> ```
+> kubectl get pods --all-namespaces -o wide
+> ```
+
+> [!TIP]
 > Recupera todos os pods com a informação das labels
-> `kubectl get pods --show-labels`
+> ```
+> kubectl get pods --show-labels
+> ```
 
+> [!TIP]
 > Recupera todos os pods que estão estão rodando
-> `kubectl get pods --field-selector status.phase==Running`
+> ```
+> kubectl get pods --field-selector status.phase==Running
+> ```
 
+> [!TIP]
 > Recupera todos os pods que estão estão rodando no namespace default
-> `kubectl get pods --field-selector status.phase==Running,metadata.namespace=default`
+> ```
+> kubectl get pods --field-selector status.phase==Running,metadata.namespace=default
+> ```
 
-kubectl exec -ti nginx -c container -- bash
-
-curl telnet://localhost:porta WTFFFFF
-
-
-
-
-Para garantir a imutabilidade do container, deve-se aplicar `pod.spec.securityContext.readOnlyRootFilesystem`para true, e o que for modificável, montar um volume `emptyDir`
+> [!TIP]
+> Executa um comando no container principal do pod
+> ```
+> kubectl exec -ti nginx -c container -- bash
+> ```
