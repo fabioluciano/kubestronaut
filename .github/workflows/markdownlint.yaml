@@ -1,4 +1,4 @@
-name: Validação de Markdown
+name: Lint de Markdown
 
 on:
   pull_request:
@@ -6,11 +6,18 @@ on:
       - '**/*.md'
 
 jobs:
-  markdown-lint:
+  markdownlint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Instalar markdownlint
-        run: npm install -g markdownlint-cli
-      - name: Executar markdownlint
-        run: markdownlint '**/*.md'
+      - uses: actions/checkout@v4
+
+      - name: Obter arquivos modificados
+        id: changed-files
+        run: |
+          echo "::set-output name=files::$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '\.md$' | tr '\n' ' ')"
+
+      - name: Executar markdownlint-cli2 nos arquivos modificados
+        uses: DavidAnson/markdownlint-cli2-action@v19
+        with:
+          globs: ${{ steps.changed-files.outputs.files }}
+          config: '.markdownlint.json'
