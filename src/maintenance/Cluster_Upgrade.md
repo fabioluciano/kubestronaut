@@ -17,6 +17,7 @@
 @startuml
 
 skinparam defaultTextAlignment center
+skinparam backgroundColor white
 
 start
 
