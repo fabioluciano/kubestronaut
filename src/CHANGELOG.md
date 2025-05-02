@@ -1,5 +1,11 @@
 # Semantic Versioning Changelog
 
+## [1.2.3](https://github.com/fabioluciano/kubestronaut/compare/v1.2.2...v1.2.3) (2025-05-02)
+
+### Bug Fix(es) 🐛️
+
+* adiciona fundo branco aos diagramas plantuml ([#12](https://github.com/fabioluciano/kubestronaut/issues/12)) ([04a7eb4](https://github.com/fabioluciano/kubestronaut/commit/04a7eb4509614203dae959f115f676533d488f7f))
+
 ## [1.2.2](https://github.com/fabioluciano/kubestronaut/compare/v1.2.1...v1.2.2) (2025-05-02)
 
 ### Bug Fix(es) 🐛️
