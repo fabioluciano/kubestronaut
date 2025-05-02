@@ -15,51 +15,67 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Cache Rust tools
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/
+          key: ${{ runner.os }}-rust-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Parallel Installation
+        run: |
+          # Executar instalações em paralelo
+          {
+            actions-rs/toolchain@v1 stable
+            cargo install mdbook-admonish &
+            cargo install mdbook-plantuml &
+            cargo install mdbook-alerts &
+            wait
+          }
+
+      - name: Setup mdBook and dependencies
+        run: |
+          mdbook-admonish install
+          sudo apt-get update && sudo apt-get install -y plantuml
+
+      - name: Install mdBook
+        uses: peaceiris/actions-mdbook@v2
+        with:
+          mdbook-version: "latest"
+
+      - name: Build mdBook documentation
+        run: mdbook build
+
+      - name: Upload build artifacts
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "book"
+
   deploy:
+    needs: build
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-
-      - uses: actions-rs/cargo@v1
-        with:
-          command: install
-          args: mdbook-admonish mdbook-plantuml mdbook-alerts
-
-      - run: mdbook-admonish install
-
-      - name: Setup mdBook
-        uses: peaceiris/actions-mdbook@v2
-        with:
-          mdbook-version: "latest"
-
-      - name: Install PlantUML
-        run: |
-          sudo apt-get update && sudo apt-get install -y plantuml
-      - run: mdbook build
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: "book"
-
-      # Etapa real de deploy (roda só no GitHub Actions)
       - name: Deploy to GitHub Pages
         if: ${{ env.ACT != 'true' }}
         id: deployment
         uses: actions/deploy-pages@v4
 
-      # Etapa alternativa para simular deploy local (roda só no act)
-      - name: Simular deploy local
+      - name: Local deployment simulation
         if: ${{ env.ACT == 'true' }}
         run: |
           echo "Simulando deploy local..."
