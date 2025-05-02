@@ -18,7 +18,7 @@ jobs:
           sudo apt-get install -y aspell aspell-pt-br
 
       - name: Executar verificação ortográfica
-        uses: rojopolis/spellcheck-github-actions@0.23.0
+        uses: rojopolis/spellcheck-github-actions@0.47.0
         with:
           config_path: .spellcheck.yml
           task_name: Markdown
