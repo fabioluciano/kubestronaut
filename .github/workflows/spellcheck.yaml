@@ -15,7 +15,10 @@ jobs:
       - name: Instalar dependências
         run: |
           sudo apt-get update
-          sudo apt-get install -y aspell aspell-pt-br
+          sudo apt-get install -y aspell aspell-pt aspell-pt-br
+
+      - name: Verificar dicionários disponíveis
+        run: aspell dicts
 
       - name: Executar verificação ortográfica
         uses: rojopolis/spellcheck-github-actions@0.47.0
