@@ -20,6 +20,16 @@ jobs:
       - name: Verificar dicionários disponíveis
         run: aspell dicts
 
+      - name: Verificar se aspell reconhece pt_BR
+        run: aspell --lang=pt_BR dump dicts
+
+
+      - name: Setar localidade
+        run: |
+          export LANG=pt_BR.UTF-8
+          export LC_ALL=pt_BR.UTF-8
+
+
       - name: Executar verificação ortográfica
         uses: rojopolis/spellcheck-github-actions@0.47.0
         with:
