@@ -5,55 +5,54 @@ on:
     branches: ["main"]
   workflow_dispatch:
 
+# Define required permissions for GitHub Pages deployment
 permissions:
   contents: read
   pages: write
   id-token: write
 
+# Ensure only one deployment happens at a time
 concurrency:
   group: "pages"
   cancel-in-progress: false
 
 jobs:
-  build:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0 # Fetch all history for proper versioning
 
-      - name: Setup Pages
+      - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
-      - name: Cache Rust tools
-        uses: actions/cache@v3
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
         with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/
-          key: ${{ runner.os }}-rust-${{ hashFiles('**/Cargo.lock') }}
+          toolchain: stable
 
-      - name: Parallel Installation
-        run: |
-          # Executar instalações em paralelo
-          {
-            actions-rs/toolchain@v1 stable
-            cargo install mdbook-admonish &
-            cargo install mdbook-plantuml &
-            cargo install mdbook-alerts &
-            wait
-          }
+      - name: Install mdBook plugins
+        uses: actions-rs/cargo@v1
+        with:
+          command: install
+          args: mdbook-admonish mdbook-plantuml mdbook-alerts
 
-      - name: Setup mdBook and dependencies
-        run: |
-          mdbook-admonish install
-          sudo apt-get update && sudo apt-get install -y plantuml
+      - name: Setup mdBook Admonish plugin
+        run: mdbook-admonish install
 
       - name: Install mdBook
         uses: peaceiris/actions-mdbook@v2
         with:
           mdbook-version: "latest"
+
+      - name: Install PlantUML dependencies
+        run: |
+          sudo apt-get update && sudo apt-get install -y plantuml
 
       - name: Build mdBook documentation
         run: mdbook build
@@ -63,13 +62,6 @@ jobs:
         with:
           path: "book"
 
-  deploy:
-    needs: build
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    steps:
       - name: Deploy to GitHub Pages
         if: ${{ env.ACT != 'true' }}
         id: deployment
