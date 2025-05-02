@@ -2,7 +2,7 @@ name: Deploy static content to Pages
 
 on:
   workflow_run:
-    workflows: ["Semantic Release"]
+    workflows: ["semantic-release"]
     types:
       - completed
     branches: ["main"]
