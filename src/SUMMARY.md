@@ -1,6 +1,7 @@
 # Sumário
 
 [Página inicial](index.md)
+[Atualizações](CHANGELOG.md)
 
 # Fundamentos
 - [Introdução](introduction.md)
