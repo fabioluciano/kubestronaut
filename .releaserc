@@ -1,0 +1,65 @@
+{
+  "branches": [
+    "main"
+  ],
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    [
+    "@semantic-release/release-notes-generator",
+    {
+        "preset": "conventionalcommits",
+        "presetConfig": {
+          "types": [
+            {
+              "type": "feat",
+              "section": "New Feature(s) 🚀"
+            },
+            {
+              "type": "fix",
+              "section": "Bug Fix(es) 🐛️"
+            },
+            {
+              "type": "docs",
+              "section": "Documentation Changes 📝"
+            },
+            {
+              "type": "refactor",
+              "section": "Code Refactor 💅"
+            },
+            {
+              "type": "test",
+              "section": "Tests 📡️"
+            },
+            {
+              "type": "perf",
+              "section": "Performance Improvement(s) 🚄️"
+            },
+            {
+              "type": "build",
+              "section": "Build system 🛠️"
+            },
+            {
+              "type": "refactoring",
+              "section": "Refactoring \uD83D\uDEE0"
+            }
+          ]
+        }
+      }
+    ],
+    [
+      "@semantic-release/changelog",
+      {
+        "changelogFile": "CHANGELOG.md",
+        "changelogTitle": "# Semantic Versioning Changelog"
+      }
+    ],
+    [
+      "@semantic-release/git",
+      {
+        "assets": [
+          "CHANGELOG.md"
+        ]
+      }
+    ],
+  ]
+}
