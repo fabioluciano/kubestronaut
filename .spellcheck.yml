@@ -2,7 +2,7 @@
 matrix:
 - name: Markdown
   aspell:
-    lang: pt_BR
+    lang: pt
     mode: markdown
     extra-dicts:
       - ./ignored-words.txt
