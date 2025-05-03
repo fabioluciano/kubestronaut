@@ -13,13 +13,18 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Obter arquivos modificados
+      - name: Get changed files
         id: changed-files
-        run: |
-          echo "files=$(git diff --name-only origin/${{ github.base_ref }}..HEAD | grep '\.md$' | tr '\n' ' ')" >> $GITHUB_OUTPUT
-
-      - name: Executar markdownlint-cli2 nos arquivos modificados
-        uses: DavidAnson/markdownlint-cli2-action@v19
+        uses: tj-actions/changed-files@v41
         with:
-          command: "${{ steps.changed-files.outputs.files }} '#node_modules'"
+          files: |
+            src/**/*.md
+          separator: ","
+
+      - name: Executar markdownlint-cli2
+        uses: DavidAnson/markdownlint-cli2-action@v19
+        if: steps.changed-files.outputs.all_changed_files != ''
+        with:
+          globs: "${{ steps.changed-files.outputs.all_changed_files }}"
           config: ".markdownlint.json"
+          separator: ","
