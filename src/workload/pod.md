@@ -31,7 +31,7 @@ Existem alguns tipos de padrões para pods com multicontainers, os principais s�
 > [!TIP]
 > Pods com initcontainers
 > ```yaml
-> {{#include assets/pod/pod-with-initcontainer.yaml}}
+> {{#include ../assets/pod/pod-with-initcontainer.yaml}}
 > ```
 
 Os valores editáveis de um pod são: 
@@ -55,13 +55,13 @@ Quando há mais de um container no mesmo Pod, eles sempre compartilharão o mesm
 > [!TIP]
 > Pod com múltiplos containers
 > ```yaml
-> {{#include assets/pod/pod-multiple-containers.yaml}}
+> {{#include ../assets/pod/pod-multiple-containers.yaml}}
 > ```
 
 > [!TIP]
 > Pod com argumentos
 > ```yaml
-> {{#include assets/pod/pod-sleep.yaml}}
+> {{#include ../assets/pod/pod-sleep.yaml}}
 > ```
 
 
@@ -79,13 +79,13 @@ Quando há mais de um container no mesmo Pod, eles sempre compartilharão o mesm
 > [!TIP]
 > Pod com security context
 > ```yaml
-> {{#include assets/pod/pod-with-security-context.yaml}}
+> {{#include ../assets/pod/pod-with-security-context.yaml}}
 > ```
 
 > [!TIP]
 > Pod com volumes projetados
 > ```yaml
-> {{#include assets/pod/pod-with-projected-volumes.yaml}}
+> {{#include ../assets/pod/pod-with-projected-volumes.yaml}}
 > ```
 
 ##  Resource Request
@@ -104,13 +104,13 @@ Quando há mais de um container no mesmo Pod, eles sempre compartilharão o mesm
 > [!TIP]
 > Pod com resource request
 > ```yaml
-> {{#include assets/pod/pod-with-resource-request.yaml}}
+> {{#include ../assets/pod/pod-with-resource-request.yaml}}
 > ```
 
 > [!TIP]
 > Pod com resource request
 > ```yaml
-> {{#include assets/pod/pod-with-resource-request-and-limits.yaml}}
+> {{#include ../assets/pod/pod-with-resource-request-and-limits.yaml}}
 > ```
 
 > [!TIP]
@@ -149,7 +149,6 @@ Quando há mais de um container no mesmo Pod, eles sempre compartilharão o mesm
 > ```
 > kubectl apply -f pod-definition.yaml
 > ```
-
 
 > [!TIP]
 > Cria uma definição de um objeto no cluster

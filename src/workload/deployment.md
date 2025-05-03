@@ -1,11 +1,14 @@
+# Deployment
 
-* Deployments são recursos capazes de realizar a manipulação de pods e [[ReplicaSet]]. Configurando o estado desejado de um deployment ele permite de maneira controlada a implantação/alteração do estado atual do recurso para o estado desejado.
+Deployments são recursos capazes de realizar a manipulação de pods e [[ReplicaSet]], configurando o estado desejado de um deployment ele permite de maneira controlada a implantação/alteração do estado atual do recurso para o estado desejado.
+
 * Possui quase a mesma estrutura básica de um [[ReplicaSet]]
-* Deployments utiliza apiVersion: apps/v1
+* Deployments utiliza `apiVersion: apps/v1`
 * Controla e versiona [[ReplicaSet]], sempre criando um novo, quando houver modificações.
 * `.spec.revisionHistoryLimit`, quantas versões serão guardadas no deploy
 * É possível com o comando `kubectl rollout pause`, fazer com que modificações feitas no deployment, não sejam refletidas nos replicasets/pods. O comportamento normal do deployment pode ser retormado com `kubectl rollout resume`
-* Existem duas estrategias de deploy(`.spec.strategy.type`), `Recreate` e `RollingUpdate`. O padrão é `RollingUpdate`.
+
+Existem duas estrategias de deploy(`.spec.strategy.type`), `Recreate` e `RollingUpdate`. O padrão é `RollingUpdate`.
 	* `Recreate` - Vai apagar todos os [[Pods]] existentes substituindo pelos novos, quando modificado. Blue-green. Têm **downtime**
 	* `RollingUpdate` - Define quantos pods estarão indisponíveis e quantos pods serão criados por vez. 
 		* Caso haja um erro apresente erro durante o rollout, os pods não subirão se o maxUnavailable não estiver com 100%
