@@ -4,6 +4,7 @@
 [Atualizações](CHANGELOG.md)
 
 # Fundamentos
+
 - [Introdução](introduction.md)
 - [Arquitetura](Arquitetura.md)
 - [Containers](Containers.md)
@@ -16,12 +17,12 @@
 # Componentes do Cluster
 
 - [Componentes dos Nós](node-components.md)
-    - [kubelet](nodes-components/kubelet.md)
-    - [kube-proxy](nodes-components/kube-proxy.md)
-    - [kube-apiserver](nodes-components/kube-apiserver.md)
-    - [kube-controller-manager](nodes-components/kube-controller-manager.md)
-    - [kube-scheduler](nodes-components/kube-scheduler.md)
-    - [etcd](nodes-components/etcD.md)
+  - [kubelet](nodes-components/kubelet.md)
+  - [kube-proxy](nodes-components/kube-proxy.md)
+  - [kube-apiserver](nodes-components/kube-apiserver.md)
+  - [kube-controller-manager](nodes-components/kube-controller-manager.md)
+  - [kube-scheduler](nodes-components/kube-scheduler.md)
+  - [etcd](nodes-components/etcD.md)
 
 # Objetos da API
 
@@ -30,10 +31,10 @@
 
 # Workloads
 
-- [Pods](Pods.md)
-  - [Static Pods](Static_Pods.md)
-- [ReplicaSet](ReplicaSet.md)
-- [Deployments](Deployments.md)
+- [Pods](workload/pod.md)
+- [Static Pods](Static_Pods.md)
+- [ReplicaSet](workload/replicaset.md)
+- [Deployments](workload/deployment.md)
 - [StatefulSet](StatefulSet.md)
 - [DaemonSet](DaemonSet.md)
 - [Job](Job.md)
@@ -50,11 +51,11 @@
 
 # Rede
 
-- [Networking](Networking.md)
-  - [Services](Services.md)
-  - [DNS](DNS.md)
-  - [Endpoints](Endpoints.md)
-  - [Gateway API](Gateway_API.md)
+- [Networking](networking.md)
+- [Services](network/service.md)
+- [DNS](DNS.md)
+- [Endpoints](network/endpoint.md)
+- [Gateway API](Gateway_API.md)
 
 # Segurança
 

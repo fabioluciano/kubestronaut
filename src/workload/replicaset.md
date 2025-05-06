@@ -1,10 +1,9 @@
 # ReplicaSet
+
 - É um controller (Replication Controller);
 - Garante que um determinado número de pods esteja rodando;
 * ReplicaSet é um conjunto de pods que possibilita a execução e controle de réplicas. Visando garantir a disponibilidade de um número especificado/desejado de pods.
-
-* ReplicaSet utiliza apiVersion: apps/v1
-
+* ReplicaSet utiliza `apiVersion: apps/v1`
 
 ```yaml
 apiVersion: apps/v1
