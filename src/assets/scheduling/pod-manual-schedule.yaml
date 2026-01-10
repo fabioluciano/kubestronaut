@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: manual-schedule
+spec:
+  nodeName: worker-1  # Scheduling direto, sem scheduler
+  containers:
+  - name: nginx
+    image: nginx

@@ -1,0 +1,16 @@
+rules:
+  - matches:
+      # Exact - caminho exato
+      - path:
+          type: Exact
+          value: /api/v1/users
+      
+      # PathPrefix - prefixo (mais comum)
+      - path:
+          type: PathPrefix
+          value: /api
+      
+      # RegularExpression (quando suportado)
+      - path:
+          type: RegularExpression
+          value: /api/v[0-9]+/.*

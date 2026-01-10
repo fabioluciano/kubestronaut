@@ -1,0 +1,17 @@
+# Pod com toleration e nodeSelector
+apiVersion: v1
+kind: Pod
+metadata:
+  name: tenant-a-pod
+  namespace: tenant-a
+spec:
+  nodeSelector:
+    tenant: team-a
+  tolerations:
+  - key: "tenant"
+    operator: "Equal"
+    value: "team-a"
+    effect: "NoSchedule"
+  containers:
+  - name: app
+    image: nginx

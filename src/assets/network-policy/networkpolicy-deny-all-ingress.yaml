@@ -1,0 +1,10 @@
+# Exemplo: Deny all ingress
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: deny-all-ingress
+spec:
+  podSelector: {}  # Seleciona todos os pods
+  policyTypes:
+  - Ingress
+  # Sem regras ingress = deny all

@@ -1,0 +1,13 @@
+# Seccomp profile customizado
+apiVersion: v1
+kind: Pod
+metadata:
+  name: custom-seccomp
+spec:
+  securityContext:
+    seccompProfile:
+      type: Localhost
+      localhostProfile: profiles/custom.json
+  containers:
+  - name: app
+    image: nginx

@@ -1,0 +1,26 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DISTRIBUTED TRACING
+
+note as intro
+  Trace: Jornada completa de uma requisição
+end note
+
+rectangle "Trace ID: abc123" as trace {
+  rectangle "Span: Frontend (50ms)" as frontend {
+    rectangle "Span: API Gateway (45ms)" as gateway {
+      rectangle "Span: Auth Service (10ms)" as auth
+      rectangle "Span: Product Service (30ms)" as product {
+        rectangle "Span: Database (20ms)" as db
+      }
+    }
+  }
+}
+
+note bottom of trace
+  Cada Span contém: nome, duração, tags, logs, baggage
+end note
+
+@enduml

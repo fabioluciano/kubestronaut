@@ -1,0 +1,24 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title ATUALIZAÇÃO DE CONFIGMAPS
+
+rectangle "VOLUMES MONTADOS" {
+  card "Atualização automática (kubelet sync period ~1min)" as v1
+  card "Usa symlinks para atualização atômica" as v2
+  card "Aplicação precisa detectar mudança no arquivo" as v3
+}
+
+rectangle "VARIÁVEIS DE AMBIENTE" {
+  card "NÃO são atualizadas automaticamente" as e1
+  card "Requer restart do Pod" as e2
+  card "Variáveis são definidas no início do container" as e3
+}
+
+rectangle "SUBPATH" {
+  card "NÃO é atualizado automaticamente" as s1
+  card "Requer restart do Pod" as s2
+}
+
+@enduml

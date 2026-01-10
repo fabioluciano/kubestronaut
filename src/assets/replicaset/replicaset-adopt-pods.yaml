@@ -1,0 +1,17 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: adopt-rs
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: adopt-me
+  template:
+    metadata:
+      labels:
+        app: adopt-me
+    spec:
+      containers:
+      - name: nginx
+        image: nginx

@@ -1,0 +1,39 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title CONTAINERS vs VMs
+
+rectangle "MAQUINA VIRTUAL" {
+  rectangle "VM 1" {
+    card "App A" as va
+    card "Bins/Libs" as vb1
+    card "Guest OS" as vos1
+  }
+  rectangle "VM 2" {
+    card "App B" as vb
+    card "Bins/Libs" as vb2
+    card "Guest OS" as vos2
+  }
+  rectangle "Hypervisor" as hyp
+  rectangle "Host OS" as hos
+  rectangle "Hardware" as hw1
+}
+
+rectangle "CONTAINERS" {
+  rectangle "Container 1" {
+    card "App A" as ca
+    card "Bins/Libs" as cb1
+  }
+  rectangle "Container 2" {
+    card "App B" as cb
+    card "Bins/Libs" as cb2
+  }
+  rectangle "Container Runtime" as crt
+  rectangle "Host OS" as cos
+  rectangle "Hardware" as hw2
+}
+
+@enduml

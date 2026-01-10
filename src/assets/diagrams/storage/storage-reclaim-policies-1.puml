@@ -1,0 +1,27 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title RECLAIM POLICIES
+
+rectangle "RETAIN" {
+  card "1. PVC deletado" as r1
+  card "2. PV vai para Released" as r2
+  card "3. Dados preservados" as r3
+  card "4. Admin limpa manualmente" as r4
+  card "5. Admin recria PV ou deleta" as r5
+  r1 --> r2
+  r2 --> r3
+  r3 --> r4
+  r4 --> r5
+}
+
+rectangle "DELETE" {
+  card "1. PVC deletado" as d1
+  card "2. PV deletado automaticamente" as d2
+  card "3. Storage backend deletado" as d3
+  d1 --> d2
+  d2 --> d3
+}
+
+@enduml

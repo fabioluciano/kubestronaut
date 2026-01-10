@@ -1,0 +1,17 @@
+# No manifesto do etcd, verificar se o volumeMount aponta para o novo path
+# etcd.yaml (seção relevante)
+
+spec:
+  containers:
+  - command:
+    - etcd
+    - --data-dir=/var/lib/etcd-from-backup  # Novo path
+    ...
+    volumeMounts:
+    - mountPath: /var/lib/etcd-from-backup  # Deve corresponder
+      name: etcd-data
+  volumes:
+  - hostPath:
+      path: /var/lib/etcd-from-backup       # Novo path no host
+      type: DirectoryOrCreate
+    name: etcd-data

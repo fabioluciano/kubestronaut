@@ -1,0 +1,25 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title DICAS CKA - CLUSTER
+
+rectangle "SABER FAZER" {
+  card "1. Criar cluster com kubeadm" as d1
+  card "2. Adicionar worker nodes" as d2
+  card "3. Backup/restore etcd" as d3
+  card "4. Drain e cordon nodes" as d4
+  card "5. Troubleshooting de nodes" as d5
+}
+
+rectangle "COMANDOS RAPIDOS" {
+  card "kubectl get nodes -o wide" as c1
+  card "kubectl describe node <name>" as c2
+  card "kubectl drain <node> --ignore-daemonsets" as c3
+  card "kubectl cordon/uncordon <node>" as c4
+  card "journalctl -u kubelet" as c5
+}
+
+@enduml

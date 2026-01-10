@@ -1,0 +1,28 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Seccomp no Kubernetes
+
+rectangle "Container" as container {
+    rectangle "Aplicacao" as app
+}
+
+rectangle "Kernel Linux" as kernel {
+    rectangle "Seccomp Filter" as filter
+    rectangle "System Calls" as syscalls
+}
+
+app --> filter : Requisicao
+filter --> syscalls : Permitido
+filter -[#red]-> app : Bloqueado (EPERM/KILL)
+
+note right of filter
+  O filtro Seccomp intercepta
+  todas as syscalls e decide
+  se permite ou bloqueia
+end note
+
+@enduml

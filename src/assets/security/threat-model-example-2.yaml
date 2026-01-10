@@ -1,0 +1,11 @@
+# INSEGURO: Permissões excessivas
+rules:
+- apiGroups: ["*"]
+  resources: ["*"]
+  verbs: ["*"]
+
+# SEGURO: Least privilege
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list"]

@@ -1,0 +1,44 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Funcoes do kubelet
+
+start
+
+partition "Registro do Node" {
+    :Registra node no cluster;
+    :Envia informacoes de capacidade;
+}
+
+partition "Watch de Pods" {
+    :Observa pods assignados ao node;
+    :Recebe specs via API Server;
+    :Le Static Pods de diretorio local;
+}
+
+partition "Gerenciamento de Pods" {
+    :Cria/atualiza/deleta pods;
+    :Gerencia containers via CRI;
+    :Monta volumes necessarios;
+    :Configura rede (CNI);
+}
+
+partition "Health Checks" {
+    :Executa liveness probes;
+    :Executa readiness probes;
+    :Executa startup probes;
+    :Reinicia containers se necessario;
+}
+
+partition "Status Report" {
+    :Reporta status do node;
+    :Reporta status dos pods;
+    :Envia metricas (via cAdvisor);
+}
+
+stop
+
+@enduml

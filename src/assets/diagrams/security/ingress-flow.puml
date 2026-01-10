@@ -1,0 +1,15 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Fluxo de Requisição Ingress
+
+Cliente -> HTTP : requisição
+HTTP -> Ingress : encaminha
+Ingress -> Rules : aplica regras
+Rules -> Service : roteia
+Service -> Pods : distribui
+
+@enduml

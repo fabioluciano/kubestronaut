@@ -1,0 +1,19 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title SERVERLESS
+
+rectangle "Características" {
+  card "Scale to Zero" as s1
+  card "Pay per Use" as s2
+  card "Event-Driven" as s3
+  card "No Server Management" as s4
+}
+
+note bottom
+  FaaS (Function as a Service)
+  é um tipo de serverless
+end note
+
+@enduml

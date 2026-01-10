@@ -1,0 +1,67 @@
+# /etc/kubernetes/manifests/etcd.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: etcd
+  namespace: kube-system
+  labels:
+    component: etcd
+    tier: control-plane
+spec:
+  hostNetwork: true
+  priorityClassName: system-node-critical
+  containers:
+  - name: etcd
+    image: registry.k8s.io/etcd:3.5.10-0
+    command:
+    - etcd
+    # Configuracoes de identidade
+    - --name=controlplane
+    - --data-dir=/var/lib/etcd
+    # URLs para comunicacao entre membros
+    - --initial-advertise-peer-urls=https://192.168.1.10:2380
+    - --listen-peer-urls=https://192.168.1.10:2380
+    # URLs para clientes
+    - --advertise-client-urls=https://192.168.1.10:2379
+    - --listen-client-urls=https://127.0.0.1:2379,https://192.168.1.10:2379
+    # Configuracao inicial do cluster
+    - --initial-cluster=controlplane=https://192.168.1.10:2380
+    - --initial-cluster-state=new
+    - --initial-cluster-token=etcd-cluster-1
+    # Certificados TLS
+    - --cert-file=/etc/kubernetes/pki/etcd/server.crt
+    - --key-file=/etc/kubernetes/pki/etcd/server.key
+    - --trusted-ca-file=/etc/kubernetes/pki/etcd/ca.crt
+    - --client-cert-auth=true
+    - --peer-cert-file=/etc/kubernetes/pki/etcd/peer.crt
+    - --peer-key-file=/etc/kubernetes/pki/etcd/peer.key
+    - --peer-trusted-ca-file=/etc/kubernetes/pki/etcd/ca.crt
+    - --peer-client-cert-auth=true
+    # Snapshot automatico
+    - --snapshot-count=10000
+    - --auto-compaction-retention=8
+    volumeMounts:
+    - name: etcd-data
+      mountPath: /var/lib/etcd
+    - name: etcd-certs
+      mountPath: /etc/kubernetes/pki/etcd
+      readOnly: true
+    livenessProbe:
+      httpGet:
+        host: 127.0.0.1
+        path: /health
+        port: 2381
+        scheme: HTTP
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      timeoutSeconds: 15
+      failureThreshold: 8
+  volumes:
+  - name: etcd-data
+    hostPath:
+      path: /var/lib/etcd
+      type: DirectoryOrCreate
+  - name: etcd-certs
+    hostPath:
+      path: /etc/kubernetes/pki/etcd
+      type: DirectoryOrCreate

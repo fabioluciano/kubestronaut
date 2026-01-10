@@ -1,0 +1,28 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Modo iptables - Fluxo de Trafego
+
+actor Cliente
+participant "iptables\nPREROUTING" as pre
+participant "iptables\nKUBE-SERVICES" as svc
+participant "iptables\nKUBE-SVC-XXX" as chain
+participant "iptables\nKUBE-SEP-XXX" as sep
+participant "Pod" as pod
+
+Cliente -> pre : Pacote para ClusterIP
+pre -> svc : -j KUBE-SERVICES
+svc -> chain : Match ClusterIP:Port
+chain -> sep : Random selection\n(probability)
+sep -> pod : DNAT para Pod IP:Port
+
+note right of chain
+  Selecao aleatoria
+  com probabilidade
+  igual entre pods
+end note
+
+@enduml

@@ -1,0 +1,27 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title DEPRECATION POLICY
+
+rectangle "Regras de Depreciacao" {
+  card "1. APIs GA (v1, v2) sao suportadas\npor pelo menos 12 meses\nou 3 releases" as r1
+
+  card "2. APIs Beta sao suportadas\npor pelo menos 9 meses\nou 3 releases" as r2
+
+  card "3. APIs Alpha podem ser\nremovidas a qualquer momento" as r3
+
+  card "4. Depreciation warnings\ndevem ser emitidos antes\nda remocao" as r4
+}
+
+note bottom
+  Sempre verifique as release notes
+  antes de atualizar o cluster!
+
+  Use: kubectl deprecations
+  (plugin kubectl-deprecations)
+end note
+
+@enduml

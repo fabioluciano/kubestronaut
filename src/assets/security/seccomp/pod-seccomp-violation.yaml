@@ -1,0 +1,14 @@
+# Pod que tenta usar chmod
+apiVersion: v1
+kind: Pod
+metadata:
+  name: seccomp-violation
+spec:
+  securityContext:
+    seccompProfile:
+      type: Localhost
+      localhostProfile: profiles/block-chmod.json
+  containers:
+  - name: test
+    image: busybox
+    command: ["sh", "-c", "chmod 777 /tmp && echo ok || echo blocked"]

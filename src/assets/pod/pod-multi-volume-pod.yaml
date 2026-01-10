@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: multi-volume-pod
+spec:
+  containers:
+  - name: app
+    image: nginx
+    volumeMounts:
+    - name: data
+      mountPath: /data
+    - name: cache
+      mountPath: /cache
+    - name: config
+      mountPath: /etc/app
+    - name: secrets
+      mountPath: /etc/secrets
+      readOnly: true
+  volumes:
+  # Volume persistente
+  - name: data
+    persistentVolumeClaim:
+      claimName: data-pvc
+  # Volume temporario
+  - name: cache
+    emptyDir:
+      medium: Memory
+      sizeLimit: 100Mi
+  # ConfigMap
+  - name: config
+    configMap:
+      name: app-config
+  # Secret
+  - name: secrets
+    secret:
+      secretName: app-secret

@@ -1,0 +1,32 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Horizontal Pod Autoscaler
+
+rectangle "HPA Controller" as HPA
+
+rectangle "Deployment" as D {
+  card "Pod 1" as P1
+  card "Pod 2" as P2
+  card "Pod 3" as P3
+  card "Pod N..." as PN #lightgray
+}
+
+cloud "Metricas" as M {
+  card "CPU: 80%" as CPU
+  card "Memoria: 70%" as MEM
+}
+
+M --> HPA : Monitora
+HPA --> D : Scale Up/Down
+
+note bottom of HPA
+  Kubernetes ajusta automaticamente
+  o numero de pods baseado em
+  metricas como CPU e memoria
+end note
+
+@enduml

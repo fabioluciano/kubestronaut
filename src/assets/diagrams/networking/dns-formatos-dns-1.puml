@@ -1,0 +1,38 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title FORMATOS DNS
+
+rectangle "SERVICES" {
+  note as svc
+    <service>.<namespace>.svc.cluster.local
+    
+    Exemplos:
+    • backend.default.svc.cluster.local
+    • mysql.database.svc.cluster.local
+    • api.production.svc.cluster.local
+  end note
+}
+
+rectangle "PODS (quando habilitado)" {
+  note as pod
+    <pod-ip-com-dash>.<namespace>.pod.cluster.local
+    
+    Exemplo:
+    • Pod IP: 10.244.1.5
+    • DNS: 10-244-1-5.default.pod.cluster.local
+  end note
+}
+
+rectangle "HEADLESS SERVICE (StatefulSet)" {
+  note as sts
+    <pod-name>.<service>.<namespace>.svc.cluster.local
+    
+    Exemplo:
+    • mysql-0.mysql.database.svc.cluster.local
+    • mysql-1.mysql.database.svc.cluster.local
+  end note
+}
+
+@enduml

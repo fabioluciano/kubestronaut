@@ -1,0 +1,8 @@
+# Ajustar stabilizationWindowSeconds
+behavior:
+  scaleDown:
+    stabilizationWindowSeconds: 60  # Reduzir de 300 (default)
+    policies:
+    - type: Percent
+      value: 50  # Aumentar de 10%
+      periodSeconds: 30

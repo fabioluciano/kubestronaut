@@ -1,0 +1,22 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title ARQUITETURA K8S
+
+rectangle "CONTROL PLANE" {
+  component "kube-apiserver\n(API Gateway)" as api
+  component "etcd\n(Key-Value DB)" as etcd
+  component "kube-scheduler\n(Pod Placement)" as sched
+  component "controller-mgr\n(Controllers)" as ctrl
+}
+
+rectangle "WORKER NODES" {
+  component "kubelet\n(Node Agent)" as kubelet
+  component "kube-proxy\n(Network Rules)" as proxy
+  component "Container Runtime\n(CRI)" as cri
+}
+
+api <--> kubelet
+
+@enduml

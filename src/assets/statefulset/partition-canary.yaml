@@ -1,0 +1,8 @@
+# Atualizar apenas Pod-2 (partition: 2)
+# Pods 0 e 1 mantêm versão antiga
+updateStrategy:
+  type: RollingUpdate
+  rollingUpdate:
+    partition: 2
+
+# Para atualizar todos, definir partition: 0

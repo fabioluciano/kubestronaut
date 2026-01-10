@@ -1,0 +1,31 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DICAS CKS - OPA
+
+map "Conceitos chave" as conceitos {
+  ConstraintTemplate => define a política (Rego)
+  Constraint => aplica a política com parâmetros
+  violation => [{"msg": msg}] sintaxe para negar
+}
+
+map "Rego essencial" as rego {
+  input.review.object => recurso sendo admitido
+  input.parameters => parâmetros do Constraint
+  iteração => container := spec.containers[_]
+}
+
+map "Match seletores" as match {
+  match.kinds => tipos de recursos
+  match.namespaces => namespaces incluídos
+  match.excludedNamespaces => namespaces excluídos
+}
+
+map "Enforcement" as enforcement {
+  deny => bloqueia
+  dryrun => apenas audita
+  warn => permite com aviso
+}
+
+@enduml

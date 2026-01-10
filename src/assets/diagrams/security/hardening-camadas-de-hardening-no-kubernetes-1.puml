@@ -1,0 +1,38 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Camadas de Hardening no Kubernetes
+
+rectangle "Infraestrutura" as infra #lightblue {
+    rectangle "Sistema Operacional" as os
+    rectangle "Rede" as network
+    rectangle "Storage" as storage
+}
+
+rectangle "Cluster Kubernetes" as cluster #lightgreen {
+    rectangle "Control Plane" as cp
+    rectangle "Worker Nodes" as workers
+    rectangle "etcd" as etcd
+}
+
+rectangle "Workloads" as workloads #lightyellow {
+    rectangle "Pods" as pods
+    rectangle "Containers" as containers
+    rectangle "Imagens" as images
+}
+
+rectangle "Acesso" as access #pink {
+    rectangle "Autenticacao" as authn
+    rectangle "Autorizacao" as authz
+    rectangle "Auditoria" as audit
+}
+
+infra -down-> cluster
+cluster -down-> workloads
+access -right-> cluster
+access -right-> workloads
+
+@enduml

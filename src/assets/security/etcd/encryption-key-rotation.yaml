@@ -1,0 +1,14 @@
+# Passo 1: Adicionar nova chave (key2) como primeira
+apiVersion: apiserver.config.k8s.io/v1
+kind: EncryptionConfiguration
+resources:
+  - resources:
+      - secrets
+    providers:
+      - aescbc:
+          keys:
+            - name: key2                    # Nova chave (primeira)
+              secret: bm92YWNoYXZlc2VjcmV0YQ==
+            - name: key1                    # Chave antiga (segunda)
+              secret: c2VjcmV0a2V5MTIzNDU2Nzg5
+      - identity: {}

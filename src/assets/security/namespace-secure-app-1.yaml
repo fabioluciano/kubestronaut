@@ -1,0 +1,7 @@
+# Namespace com injection automatico
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: secure-app
+  annotations:
+    linkerd.io/inject: enabled

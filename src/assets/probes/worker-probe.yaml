@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: worker
+spec:
+  containers:
+  - name: worker
+    image: my-worker
+    
+    livenessProbe:
+      exec:
+        command:
+        - /bin/sh
+        - -c
+        - "pidof worker-process"
+      periodSeconds: 30
+      failureThreshold: 3

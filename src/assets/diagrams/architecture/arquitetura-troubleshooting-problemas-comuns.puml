@@ -1,0 +1,25 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title TROUBLESHOOTING - PROBLEMAS COMUNS
+
+rectangle "API Server" {
+  card "Connection refused\n→ Verificar porta 6443" as p1
+  card "Certificate expired\n→ kubeadm certs renew" as p2
+  card "etcd connection failed\n→ Verificar etcd health" as p3
+}
+
+rectangle "Scheduler" {
+  card "Pods nao schedulam\n→ Verificar recursos/taints" as p4
+  card "Leader election failing\n→ Verificar lease" as p5
+}
+
+rectangle "kubelet" {
+  card "Node NotReady\n→ journalctl -u kubelet" as p6
+  card "Container runtime error\n→ crictl info" as p7
+}
+
+@enduml

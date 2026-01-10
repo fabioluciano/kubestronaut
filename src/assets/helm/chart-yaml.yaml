@@ -1,0 +1,23 @@
+apiVersion: v2
+name: my-app
+description: Minha aplicação em Helm
+type: application
+version: 0.1.0          # Versão do Chart
+appVersion: "1.0.0"     # Versão da aplicação
+
+# Dependências (subchart)
+dependencies:
+  - name: postgresql
+    version: "12.x.x"
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: postgresql.enabled
+
+# Palavras-chave para busca
+keywords:
+  - web
+  - nginx
+
+# Mantenedores
+maintainers:
+  - name: DevOps Team
+    email: devops@example.com

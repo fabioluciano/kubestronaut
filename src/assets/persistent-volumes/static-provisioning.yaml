@@ -1,0 +1,46 @@
+# 1. Admin cria PV
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: static-pv
+  labels:
+    type: local
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""  # Importante: sem StorageClass
+  hostPath:
+    path: /mnt/data
+---
+# 2. Usuário cria PVC
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: static-pvc
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: ""  # Match com PV
+---
+# 3. Pod usa PVC
+apiVersion: v1
+kind: Pod
+metadata:
+  name: app
+spec:
+  containers:
+  - name: app
+    image: nginx
+    volumeMounts:
+    - name: data
+      mountPath: /data
+  volumes:
+  - name: data
+    persistentVolumeClaim:
+      claimName: static-pvc

@@ -1,0 +1,16 @@
+@startuml
+skinparam monochrome true
+
+map "NODE AUTHORIZER" as node {
+}
+
+note bottom of node
+  **Autoriza requisições de kubelets:**
+  • Usuário: system:node:<nodename>
+  • Grupo: system:nodes
+
+  **Permissões:**
+  • READ: Services, Endpoints, Nodes, Pods
+  • WRITE: Node status, Pod status, Events
+end note
+@enduml

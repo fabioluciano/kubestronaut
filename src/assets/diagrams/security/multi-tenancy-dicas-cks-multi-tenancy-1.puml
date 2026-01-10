@@ -1,0 +1,37 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DICAS CKS - MULTI-TENANCY
+
+map "CAMADAS DE ISOLAMENTO" as camadas {
+  Control Plane => Namespace, RBAC, Quotas
+  Data Plane => NetworkPolicy, Storage, Nodes
+  Runtime => PSA, RuntimeClass, Seccomp
+}
+
+map "QoS Classes (ordem de eviction)" as qos {
+  1 => BestEffort (primeiro)
+  2 => Burstable
+  3 => Guaranteed (último)
+}
+
+map "Definições QoS" as defqos {
+  Guaranteed => requests == limits
+  Burstable => requests < limits
+  BestEffort => sem resources
+}
+
+map "PriorityClass" as priority {
+  value => maior = prioridade maior
+  preemption => pode evictar pods de menor prioridade
+}
+
+note as N1
+  **NetworkPolicy default deny:**
+  spec:
+    podSelector: {}
+    policyTypes: [Ingress, Egress]
+end note
+
+@enduml

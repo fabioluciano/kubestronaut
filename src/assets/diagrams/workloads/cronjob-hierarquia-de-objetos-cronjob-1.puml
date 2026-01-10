@@ -1,0 +1,16 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title HIERARQUIA DE OBJETOS CRONJOB
+
+rectangle "CronJob" as cj
+rectangle "Job (criado automaticamente pelo schedule)" as job
+rectangle "Pod (criado pelo Job)" as pod
+rectangle "Container (executa a tarefa)" as container
+
+cj --> job
+job --> pod
+pod --> container
+
+@enduml

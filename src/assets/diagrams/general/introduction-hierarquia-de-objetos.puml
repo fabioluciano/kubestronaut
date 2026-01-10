@@ -1,0 +1,33 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Hierarquia de Objetos
+
+rectangle "Deployment" as D {
+  rectangle "ReplicaSet v2 (atual)" as RS2 {
+    rectangle "Pod 1" as P1 {
+      card "Container" as C1
+    }
+    rectangle "Pod 2" as P2 {
+      card "Container" as C2
+    }
+    rectangle "Pod 3" as P3 {
+      card "Container" as C3
+    }
+  }
+
+  rectangle "ReplicaSet v1 (antiga)" as RS1 #lightgray {
+    note "Mantido para rollback" as N1
+  }
+}
+
+note right of D
+  Deployment gerencia ReplicaSets
+  ReplicaSet gerencia Pods
+  Pod contem Containers
+end note
+
+@enduml

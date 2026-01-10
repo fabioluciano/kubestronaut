@@ -1,0 +1,24 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title KUBERNETES + CONTAINERD (AGORA)
+
+rectangle "Kubernetes" {
+  card "kubelet" as kl
+}
+
+rectangle "containerd" as cd
+rectangle "runc" as runc
+
+kl --> cd : CRI (nativo)
+cd --> runc : OCI
+
+note bottom of cd
+  Comunicacao direta
+  Sem overhead
+end note
+
+@enduml

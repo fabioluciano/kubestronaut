@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: external-service
+spec:
+  ports:
+  - port: 80
+# Sem selector
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: external-service  # Mesmo nome do Service
+subsets:
+- addresses:
+  - ip: 192.168.1.100
+  - ip: 192.168.1.101
+  ports:
+  - port: 80

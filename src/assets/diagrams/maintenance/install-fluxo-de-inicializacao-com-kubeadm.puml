@@ -1,0 +1,19 @@
+@startuml
+
+skinparam backgroundColor white
+
+title Fluxo de Inicializacao com kubeadm
+
+start
+:kubeadm init;
+:Gerar certificados;
+:Configurar etcd;
+:Iniciar kube-apiserver;
+:Iniciar kube-controller-manager;
+:Iniciar kube-scheduler;
+:Gerar token de join;
+:Configurar kubeconfig;
+:Instalar CNI Plugin;
+stop
+
+@enduml

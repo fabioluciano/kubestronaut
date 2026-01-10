@@ -1,0 +1,12 @@
+metadata:
+  labels:
+    # Formato: key: value
+    app: frontend
+    env: production
+    tier: web
+    version: v1.2.3
+    
+    # Labels com prefixo (DNS subdomain)
+    app.kubernetes.io/name: nginx
+    app.kubernetes.io/version: "1.25"
+    app.kubernetes.io/component: webserver

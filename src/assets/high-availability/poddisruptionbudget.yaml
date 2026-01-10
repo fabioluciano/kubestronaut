@@ -1,0 +1,12 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: web-pdb
+spec:
+  # Mínimo disponível
+  minAvailable: 2
+  # OU máximo indisponível
+  # maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: web

@@ -1,0 +1,13 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: onfailure-job
+spec:
+  backoffLimit: 3
+  template:
+    spec:
+      containers:
+      - name: worker
+        image: busybox
+        command: ["sh", "-c", "if [ $RANDOM -gt 16000 ]; then exit 0; else exit 1; fi"]
+      restartPolicy: OnFailure  # Reinicia container no mesmo pod

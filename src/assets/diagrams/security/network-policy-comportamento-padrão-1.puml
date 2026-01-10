@@ -1,0 +1,32 @@
+@startuml
+skinparam monochrome true
+skinparam defaultTextAlignment center
+skinparam rectangle {
+  roundCorner 10
+}
+
+title COMPORTAMENTO PADRÃO
+
+rectangle "SEM NetworkPolicy" {
+  rectangle "Pod A" as PA1
+  rectangle "Pod B" as PB1
+  rectangle "Pod C" as PC1
+  
+  PA1 <--> PB1
+  PB1 <--> PC1
+  PA1 <--> PC1
+  
+  note bottom of PB1 : Todos se comunicam livremente
+}
+
+rectangle "COM NetworkPolicy" {
+  rectangle "Pod A\n(frontend)" as PA2
+  rectangle "Pod B\n(backend)" as PB2
+  rectangle "Pod C\n(database)" as PC2
+  
+  PA2 --> PB2 : permitido
+  PB2 ..> PC2 : bloqueado
+  
+  note bottom of PB2 : Tráfego controlado por políticas
+}
+@enduml

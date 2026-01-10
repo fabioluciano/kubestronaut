@@ -1,0 +1,3 @@
+# Enviar eventos para serviço externo
+- --audit-webhook-config-file=/etc/kubernetes/audit/webhook-config.yaml
+- --audit-webhook-batch-max-wait=5s

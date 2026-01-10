@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spread-deployment
+spec:
+  replicas: 6
+  selector:
+    matchLabels:
+      app: spread
+  template:
+    metadata:
+      labels:
+        app: spread
+    spec:
+      topologySpreadConstraints:
+      - maxSkew: 1  # Diferença máxima entre zonas
+        topologyKey: topology.kubernetes.io/zone
+        whenUnsatisfiable: DoNotSchedule  # ou ScheduleAnyway
+        labelSelector:
+          matchLabels:
+            app: spread
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: ScheduleAnyway
+        labelSelector:
+          matchLabels:
+            app: spread
+      containers:
+      - name: nginx
+        image: nginx

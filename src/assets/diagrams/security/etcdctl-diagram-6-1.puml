@@ -1,0 +1,54 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+
+rectangle "PROBLEMAS COMUNS" {
+  rectangle "context deadline exceeded" as p1
+  rectangle "permission denied" as p2
+  rectangle "connection refused" as p3
+  rectangle "certificate signed by unknown authority" as p4
+}
+
+note right of p1
+  Causas:
+  - Certificados incorretos
+  - etcd nao esta rodando
+  - Firewall bloqueando
+
+  Solucao:
+  - Verificar certificados
+  - crictl ps | grep etcd
+  - Verificar porta 2379
+end note
+
+note right of p2
+  Causas:
+  - Usuario sem permissao
+  - Diretorio de dados bloqueado
+
+  Solucao:
+  - sudo ou root
+  - chown nos diretorios
+end note
+
+note right of p3
+  Causas:
+  - etcd nao iniciou
+  - Endpoint incorreto
+
+  Solucao:
+  - Verificar logs do etcd
+  - Confirmar endpoint
+end note
+
+note right of p4
+  Causas:
+  - CA certificate incorreto
+  - Certificados expirados
+
+  Solucao:
+  - Verificar --cacert
+  - Renovar certificados
+end note
+
+@enduml

@@ -1,0 +1,44 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Ameacas Mitigadas pelo mTLS
+
+left to right direction
+
+actor "Atacante" as attacker
+
+rectangle "Sem mTLS" as sem {
+  component "Pod A" as podA1
+  component "Pod B" as podB1
+  component "Pod Malicioso" as malicious
+
+  podA1 --> podB1 : texto plano
+  attacker --> malicious
+  malicious --> podB1 : se passa por A
+}
+
+rectangle "Com mTLS" as com {
+  component "Pod A" as podA2
+  component "Pod B" as podB2
+
+  podA2 --> podB2 : criptografado + autenticado
+}
+
+note bottom of sem
+  Vulneravel a:
+  - Sniffing
+  - Man-in-the-middle
+  - Spoofing
+end note
+
+note bottom of com
+  Protegido contra:
+  - Interceptacao
+  - Falsificacao de identidade
+  - Ataques de replay
+end note
+
+@enduml

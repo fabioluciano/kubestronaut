@@ -1,0 +1,60 @@
+# RuntimeClass com nodeSelector e tolerations
+---
+apiVersion: node.k8s.io/v1
+kind: RuntimeClass
+metadata:
+  name: gvisor-isolated
+  labels:
+    security-level: high
+handler: runsc
+overhead:
+  podFixed:
+    cpu: "100m"
+    memory: "50Mi"
+scheduling:
+  # Pods so serao agendados em nodes com este label
+  nodeSelector:
+    runtime.class/gvisor: "true"
+    node-type: worker
+---
+apiVersion: node.k8s.io/v1
+kind: RuntimeClass
+metadata:
+  name: kata-secure
+  labels:
+    security-level: maximum
+handler: kata-qemu
+overhead:
+  podFixed:
+    cpu: "250m"
+    memory: "160Mi"
+scheduling:
+  # Nodes precisam ter VT-x/AMD-V
+  nodeSelector:
+    runtime.class/kata: "true"
+    virtualization: "enabled"
+  # Tolerates para nodes dedicados
+  tolerations:
+  - key: "runtime"
+    operator: "Equal"
+    value: "kata"
+    effect: "NoSchedule"
+  - key: "security"
+    operator: "Equal"
+    value: "high"
+    effect: "NoSchedule"
+---
+# RuntimeClass sem restricoes (pode rodar em qualquer node)
+apiVersion: node.k8s.io/v1
+kind: RuntimeClass
+metadata:
+  name: gvisor-any
+  labels:
+    security-level: medium
+handler: runsc
+overhead:
+  podFixed:
+    cpu: "100m"
+    memory: "50Mi"
+# Sem scheduling = pode rodar em qualquer node
+# (desde que tenha gVisor configurado)

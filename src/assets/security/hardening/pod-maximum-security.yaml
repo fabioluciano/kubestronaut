@@ -1,0 +1,221 @@
+# Pod com TODAS as restricoes de seguranca
+# Nivel: Restricted (mais seguro)
+apiVersion: v1
+kind: Pod
+metadata:
+  name: maximum-security-pod
+  namespace: production
+  labels:
+    app: secure-app
+    security-level: restricted
+  annotations:
+    # AppArmor profile
+    container.apparmor.security.beta.kubernetes.io/app: runtime/default
+spec:
+  # === SERVICE ACCOUNT ===
+  # Nao montar token automaticamente
+  automountServiceAccountToken: false
+  # Usar service account especifico com permissoes minimas
+  serviceAccountName: minimal-sa
+
+  # === HOST ISOLATION ===
+  # Nao usar rede do host
+  hostNetwork: false
+  # Nao usar PID namespace do host
+  hostPID: false
+  # Nao usar IPC namespace do host
+  hostIPC: false
+
+  # === SECURITY CONTEXT DO POD ===
+  securityContext:
+    # Executar como usuario non-root
+    runAsNonRoot: true
+    runAsUser: 10000
+    runAsGroup: 10000
+    fsGroup: 10000
+
+    # Seccomp profile
+    seccompProfile:
+      type: RuntimeDefault
+
+    # SELinux (se habilitado)
+    # seLinuxOptions:
+    #   level: "s0:c123,c456"
+
+    # Supplemental groups
+    supplementalGroups:
+      - 10000
+
+    # fsGroupChangePolicy
+    fsGroupChangePolicy: OnRootMismatch
+
+  containers:
+  - name: app
+    image: gcr.io/distroless/static:nonroot@sha256:abc123
+    # Usar digest em vez de tag
+    imagePullPolicy: Always
+
+    # === SECURITY CONTEXT DO CONTAINER ===
+    securityContext:
+      # Nao executar como root
+      runAsNonRoot: true
+      runAsUser: 10000
+      runAsGroup: 10000
+
+      # Nao permitir modo privilegiado
+      privileged: false
+
+      # Nao permitir escalacao de privilegio
+      allowPrivilegeEscalation: false
+
+      # Filesystem read-only
+      readOnlyRootFilesystem: true
+
+      # Dropar TODAS as capabilities
+      capabilities:
+        drop:
+          - ALL
+        # Adicionar apenas se necessario:
+        # add:
+        #   - NET_BIND_SERVICE  # Para portas < 1024
+
+      # Proc mount (default)
+      procMount: Default
+
+      # Seccomp profile no container
+      seccompProfile:
+        type: RuntimeDefault
+
+    # === RECURSOS ===
+    resources:
+      requests:
+        cpu: 100m
+        memory: 64Mi
+        ephemeral-storage: 100Mi
+      limits:
+        cpu: 500m
+        memory: 128Mi
+        ephemeral-storage: 500Mi
+
+    # === PORTAS ===
+    ports:
+    - containerPort: 8080
+      protocol: TCP
+      name: http
+
+    # === PROBES ===
+    livenessProbe:
+      httpGet:
+        path: /healthz
+        port: 8080
+        scheme: HTTP
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 3
+
+    readinessProbe:
+      httpGet:
+        path: /ready
+        port: 8080
+        scheme: HTTP
+      initialDelaySeconds: 5
+      periodSeconds: 5
+      timeoutSeconds: 3
+      failureThreshold: 3
+
+    startupProbe:
+      httpGet:
+        path: /healthz
+        port: 8080
+      failureThreshold: 30
+      periodSeconds: 10
+
+    # === VOLUMES ===
+    # Montar apenas diretorios necessarios
+    volumeMounts:
+    # Diretorio temporario (writable)
+    - name: tmp
+      mountPath: /tmp
+    # Cache (writable)
+    - name: cache
+      mountPath: /var/cache/app
+    # Configuracao (read-only)
+    - name: config
+      mountPath: /etc/app
+      readOnly: true
+    # Secrets (read-only)
+    - name: secrets
+      mountPath: /etc/secrets
+      readOnly: true
+
+    # === ENVIRONMENT ===
+    env:
+    - name: APP_ENV
+      value: "production"
+    # Referencia de ConfigMap
+    - name: CONFIG_VALUE
+      valueFrom:
+        configMapKeyRef:
+          name: app-config
+          key: value
+    # Referencia de Secret (cuidado!)
+    - name: SECRET_VALUE
+      valueFrom:
+        secretKeyRef:
+          name: app-secrets
+          key: api-key
+
+  # === VOLUMES ===
+  volumes:
+  # emptyDir para tmp (memoria)
+  - name: tmp
+    emptyDir:
+      medium: Memory
+      sizeLimit: 100Mi
+  # emptyDir para cache
+  - name: cache
+    emptyDir:
+      sizeLimit: 500Mi
+  # ConfigMap
+  - name: config
+    configMap:
+      name: app-config
+      defaultMode: 0444  # Read-only
+  # Secret
+  - name: secrets
+    secret:
+      secretName: app-secrets
+      defaultMode: 0400  # Read-only, apenas owner
+
+  # === DNS ===
+  dnsPolicy: ClusterFirst
+
+  # === RESTART POLICY ===
+  restartPolicy: Always
+
+  # === PRIORITY ===
+  # Usar PriorityClass se necessario
+  # priorityClassName: high-priority
+
+  # === TOLERATIONS ===
+  # Nao tolerar taints desnecessarios
+  tolerations: []
+
+  # === NODE SELECTOR ===
+  # Executar apenas em nodes especificos
+  nodeSelector:
+    kubernetes.io/os: linux
+    node-type: worker
+
+  # === AFFINITY ===
+  affinity:
+    # Nao agendar em nodes com pods do mesmo app
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchLabels:
+              app: secure-app
+          topologyKey: kubernetes.io/hostname

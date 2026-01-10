@@ -1,0 +1,12 @@
+- rule: Write below etc
+  desc: Detect writes to /etc directory
+  condition: >
+    open_write and 
+    container and 
+    fd.name startswith /etc
+  output: >
+    File modified under /etc 
+    (user=%user.name container=%container.name 
+    file=%fd.name)
+  priority: ERROR
+  tags: [filesystem, mitre_persistence]

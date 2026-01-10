@@ -1,0 +1,30 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title FLUXO DO KUBECTL
+
+rectangle "kubectl" as kubectl
+rectangle "API Server" as api
+database "etcd" as etcd
+
+kubectl -right-> api : HTTPS
+api -right-> etcd
+etcd -left-> api
+api -left-> kubectl : Response
+
+note bottom of kubectl
+  ~/.kube/config
+end note
+
+rectangle "kubeconfig" as kubeconfig {
+  note as N1
+    - clusters (onde conectar)
+    - users (como autenticar)
+    - contexts (cluster + user + namespace)
+  end note
+}
+
+kubectl -down-> kubeconfig
+
+@enduml

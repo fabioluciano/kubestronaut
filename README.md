@@ -33,10 +33,42 @@ O material está organizado nas seguintes seções principais:
 
 Este material está estruturado como um livro digital usando [mdBook](https://github.com/rust-lang/mdBook). Para visualizar localmente:
 
-1. Instale o mdBook
-2. Clone este repositório
-3. Execute `mdbook serve` na raiz do projeto
-4. Acesse [http://localhost:3000](http://localhost:3000)
+### Instalação
+
+```bash
+# Instale o Rust (se ainda não tiver)
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+# Instale o mdBook e plugins
+cargo install mdbook
+cargo install mdbook-admonish
+cargo install mdbook-plantuml
+
+# Configure o mdbook-admonish
+mdbook-admonish install .
+```
+
+### Visualização
+
+```bash
+# Clone este repositório
+git clone https://github.com/fabioluciano/kubestronaut.git
+cd kubestronaut
+
+# Execute o servidor local
+mdbook serve
+
+# Acesse http://localhost:3000
+```
+
+### Build
+
+```bash
+# Gera os arquivos HTML estáticos
+mdbook build
+
+# Os arquivos estarão em ./book/
+```
 
 ## 🤝 Contribuições
 

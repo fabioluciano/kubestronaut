@@ -1,0 +1,16 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: allow-external-dns
+spec:
+  endpointSelector:
+    matchLabels:
+      app: my-app
+  egress:
+  - toFQDNs:
+    - matchName: "api.example.com"
+    - matchPattern: "*.googleapis.com"
+    toPorts:
+    - ports:
+      - port: "443"
+        protocol: TCP

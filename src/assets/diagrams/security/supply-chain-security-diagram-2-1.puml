@@ -1,0 +1,12 @@
+@startuml
+skinparam monochrome true
+
+map "BENEFÍCIOS" as benefits {
+  1 => Identificação precoce de vulnerabilidades
+  2 => Melhor gestão de dependências
+  3 => Compliance (SOC2, PCI-DSS, HIPAA)
+  4 => Resposta efetiva a incidentes
+  5 => Rastreabilidade completa
+  6 => Redução de superfície de ataque
+}
+@enduml

@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ssd-pod
+spec:
+  nodeSelector:
+    disk: ssd  # Pod só vai para nodes com disk=ssd
+  containers:
+  - name: nginx
+    image: nginx

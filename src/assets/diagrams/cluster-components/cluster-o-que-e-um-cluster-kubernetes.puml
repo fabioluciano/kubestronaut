@@ -1,0 +1,43 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title O QUE E UM CLUSTER KUBERNETES
+
+cloud "Cluster Kubernetes" as cluster {
+  rectangle "Control Plane" as cp {
+    component "Decisoes globais" as d1
+    component "Gerenciamento" as d2
+    component "API centralizada" as d3
+  }
+
+  rectangle "Worker Nodes" as workers {
+    rectangle "Node 1" as n1 {
+      card "Pods" as p1
+    }
+    rectangle "Node 2" as n2 {
+      card "Pods" as p2
+    }
+    rectangle "Node N" as nn {
+      card "Pods" as pn
+    }
+  }
+}
+
+actor "Usuario" as user
+actor "Aplicacoes" as apps
+
+user --> cluster : gerencia via kubectl
+cluster --> apps : executa
+
+note bottom of cluster
+  O cluster abstrai:
+  - Hardware individual
+  - Localizacao dos pods
+  - Falhas de nodes
+  - Escalonamento
+end note
+
+@enduml

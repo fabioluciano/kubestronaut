@@ -1,0 +1,20 @@
+# Validating Webhook (ImagePolicyWebhook)
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: image-policy
+webhooks:
+- name: image-policy.example.com
+  rules:
+  - apiGroups: [""]
+    apiVersions: ["v1"]
+    operations: ["CREATE", "UPDATE"]
+    resources: ["pods"]
+  clientConfig:
+    service:
+      name: image-policy
+      namespace: kube-system
+      path: "/validate"
+    caBundle: <base64-encoded-ca>
+  admissionReviewVersions: ["v1"]
+  sideEffects: None

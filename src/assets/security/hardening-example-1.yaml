@@ -1,0 +1,15 @@
+# Adicionar ao kube-apiserver.yaml:
+spec:
+  containers:
+  - command:
+    - kube-apiserver
+    - --encryption-provider-config=/etc/kubernetes/enc/encryption-config.yaml
+    volumeMounts:
+    - name: enc
+      mountPath: /etc/kubernetes/enc
+      readOnly: true
+  volumes:
+  - name: enc
+    hostPath:
+      path: /etc/kubernetes/enc
+      type: DirectoryOrCreate

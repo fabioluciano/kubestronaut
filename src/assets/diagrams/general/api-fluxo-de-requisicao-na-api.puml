@@ -1,0 +1,49 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title FLUXO DE REQUISICAO NA API
+
+actor "Cliente\n(kubectl)" as client
+
+rectangle "kube-apiserver" {
+  component "1. Authentication\n(quem e voce?)" as auth
+  component "2. Authorization\n(pode fazer isso?)" as authz
+  component "3. Admission Control\n(deve permitir?)" as adm
+  component "4. Validation\n(objeto valido?)" as valid
+  component "5. Persistence\n(salvar no etcd)" as persist
+}
+
+database "etcd" as etcd
+
+client --> auth
+auth --> authz : Usuario identificado
+authz --> adm : Autorizado
+adm --> valid : Admitido
+valid --> persist : Valido
+persist --> etcd : Persistir
+
+note right of auth
+  Metodos:
+  - Certificados X509
+  - Tokens
+  - OIDC
+end note
+
+note right of authz
+  Modos:
+  - RBAC
+  - ABAC
+  - Node
+  - Webhook
+end note
+
+note right of adm
+  Controllers:
+  - Mutating
+  - Validating
+end note
+
+@enduml

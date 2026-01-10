@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: immutable-config
+immutable: true  # Não pode ser alterado após criação
+data:
+  key: "value"

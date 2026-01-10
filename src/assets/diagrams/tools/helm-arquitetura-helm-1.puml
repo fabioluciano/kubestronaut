@@ -1,0 +1,25 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title ARQUITETURA HELM
+
+rectangle "Chart (Pacote)" {
+  card "templates/ - Manifests com placeholders" as c1
+  card "values.yaml - Valores padrão" as c2
+  card "Chart.yaml - Metadados do chart" as c3
+}
+
+rectangle "Release (Instalação)" {
+  note as n1
+    Chart + Values aplicados no cluster
+  end note
+}
+
+rectangle "Repository (Repositório)" {
+  note as n2
+    Coleção de charts disponíveis
+  end note
+}
+
+@enduml

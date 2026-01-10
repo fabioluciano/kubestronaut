@@ -1,0 +1,14 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title PCI DSS - REQUISITOS CHAVE
+
+card "1. Firewall\nNetwork segmentation" as r1
+card "2. No default passwords\nCredential management" as r2
+card "3. Protect stored data\nEncryption" as r3
+card "4. Encrypt transmission\nTLS" as r4
+card "5. Anti-malware\nImage scanning" as r5
+card "6. Secure development\nCI/CD security" as r6
+
+@enduml

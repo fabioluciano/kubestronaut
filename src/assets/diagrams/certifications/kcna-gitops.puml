@@ -1,0 +1,28 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title GITOPS
+
+rectangle "Princípios" {
+  card "1. Git como single source of truth" as p1
+  card "2. Declarative configuration" as p2
+  card "3. Automated sync (reconciliation)" as p3
+  card "4. Continuous verification" as p4
+}
+
+rectangle "Fluxo" {
+  actor "Dev" as dev
+  component "Git" as git
+  component "Cluster" as cluster
+  
+  dev --> git : push
+  git <--> cluster : sync
+  cluster --> git : reconcile
+}
+
+note bottom
+  Ferramentas: ArgoCD, Flux
+end note
+
+@enduml

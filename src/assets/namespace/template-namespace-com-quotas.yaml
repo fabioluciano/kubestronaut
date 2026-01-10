@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: NOME
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: quota
+  namespace: NOME
+spec:
+  hard:
+    pods: "10"
+    requests.cpu: "4"
+    requests.memory: 8Gi

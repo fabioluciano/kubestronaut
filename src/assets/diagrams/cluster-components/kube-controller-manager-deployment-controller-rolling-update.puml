@@ -1,0 +1,33 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Deployment Controller - Rolling Update
+
+participant "Deployment\nController" as dc
+participant "API Server" as api
+participant "Old ReplicaSet" as old
+participant "New ReplicaSet" as new
+
+dc -> api : Watch Deployment
+api -> dc : Deployment updated (new image)
+
+dc -> api : Cria novo ReplicaSet
+api -> new : ReplicaSet created
+
+loop Rolling Update
+    dc -> new : Scale up (+1 pod)
+    dc -> dc : Aguarda pod Ready
+    dc -> old : Scale down (-1 pod)
+end
+
+dc -> api : Atualiza Deployment status
+
+note right of dc
+  Respeita maxSurge
+  e maxUnavailable
+end note
+
+@enduml

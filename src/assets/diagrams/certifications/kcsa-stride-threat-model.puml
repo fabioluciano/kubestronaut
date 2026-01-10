@@ -1,0 +1,14 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title STRIDE THREAT MODEL
+
+card "S - Spoofing\nFingir ser outra entidade" as s
+card "T - Tampering\nModificar dados" as t
+card "R - Repudiation\nNegar ações" as r
+card "I - Information Disclosure\nVazamento de dados" as i
+card "D - Denial of Service\nIndisponibilidade" as d
+card "E - Elevation of Privilege\nEscalação" as e
+
+@enduml

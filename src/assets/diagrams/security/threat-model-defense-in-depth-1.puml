@@ -1,0 +1,32 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DEFENSE IN DEPTH
+
+rectangle "Camada 1: Network" {
+  card "Firewall, Network Policy" as c1
+}
+
+rectangle "Camada 2: Identity" {
+  card "RBAC, mTLS, OIDC" as c2
+}
+
+rectangle "Camada 3: Workload" {
+  card "Pod Security, Seccomp" as c3
+}
+
+rectangle "Camada 4: Data" {
+  card "Encryption, Secrets Mgmt" as c4
+}
+
+rectangle "Camada 5: Detection" {
+  card "Audit, Monitoring, Falco" as c5
+}
+
+c1 -[hidden]down-> c2
+c2 -[hidden]down-> c3
+c3 -[hidden]down-> c4
+c4 -[hidden]down-> c5
+
+@enduml

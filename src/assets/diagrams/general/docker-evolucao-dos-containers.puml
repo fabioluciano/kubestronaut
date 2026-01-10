@@ -1,0 +1,34 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title EVOLUCAO DOS CONTAINERS
+
+rectangle "2008" as y2008 {
+  card "LXC\n(Linux Containers)" as lxc
+}
+
+rectangle "2013" as y2013 {
+  card "Docker\nlancado" as docker
+}
+
+rectangle "2015" as y2015 {
+  card "OCI fundada\nKubernetes 1.0" as oci
+}
+
+rectangle "2017" as y2017 {
+  card "containerd\ndoado a CNCF" as cncf
+}
+
+rectangle "2020+" as y2020 {
+  card "Kubernetes remove\nDockershim" as k8s
+}
+
+lxc --> docker
+docker --> oci
+oci --> cncf
+cncf --> k8s
+
+@enduml

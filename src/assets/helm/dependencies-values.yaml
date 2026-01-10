@@ -1,0 +1,13 @@
+# values.yaml
+postgresql:
+  auth:
+    postgresPassword: "secretpassword"
+    database: "myapp"
+  primary:
+    persistence:
+      size: 10Gi
+
+redis:
+  enabled: true
+  auth:
+    password: "redispassword"

@@ -1,0 +1,29 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Snapshots - Layers de Imagem
+
+package "Imagem nginx:latest" {
+    [Layer 1: Base OS] as l1
+    [Layer 2: nginx install] as l2
+    [Layer 3: config files] as l3
+}
+
+package "Container Runtime" {
+    [Layer 4: Writable] as l4
+}
+
+l1 --> l2 : parent
+l2 --> l3 : parent
+l3 --> l4 : parent (snapshot)
+
+note right of l4
+  Apenas esta layer
+  e gravavel.
+  Copy-on-Write (CoW)
+end note
+
+@enduml

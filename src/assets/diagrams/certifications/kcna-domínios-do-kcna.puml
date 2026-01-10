@@ -1,0 +1,19 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DOMÍNIOS DO KCNA
+
+card "Kubernetes Fundamentals" as kf #lightgray
+card "Container Orchestration" as co #lightgray
+card "Cloud Native Architecture" as cna #lightgray
+card "Cloud Native Observability" as cno #lightgray
+card "Application Delivery" as ad #lightgray
+
+note right of kf : 46%
+note right of co : 22%
+note right of cna : 16%
+note right of cno : 8%
+note right of ad : 8%
+
+@enduml

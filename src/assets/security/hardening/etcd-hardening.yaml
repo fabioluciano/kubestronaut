@@ -1,0 +1,100 @@
+# /etc/kubernetes/manifests/etcd.yaml
+# Configuracao de hardening do etcd
+apiVersion: v1
+kind: Pod
+metadata:
+  name: etcd
+  namespace: kube-system
+  labels:
+    component: etcd
+    tier: control-plane
+spec:
+  containers:
+  - name: etcd
+    image: registry.k8s.io/etcd:3.5.10-0
+    command:
+    - etcd
+
+    # === NOME E DATA DIR ===
+    - --name=master
+    - --data-dir=/var/lib/etcd
+
+    # === LISTEN ADDRESSES ===
+    # Client URLs - apenas localhost e IP do node
+    - --listen-client-urls=https://127.0.0.1:2379,https://10.0.0.10:2379
+    - --advertise-client-urls=https://10.0.0.10:2379
+
+    # Peer URLs - comunicacao entre nodes etcd
+    - --listen-peer-urls=https://10.0.0.10:2380
+    - --initial-advertise-peer-urls=https://10.0.0.10:2380
+
+    # === CERTIFICADOS CLIENT (CIS 2.1) ===
+    # Habilitar autenticacao de cliente via certificado
+    - --client-cert-auth=true
+    - --cert-file=/etc/kubernetes/pki/etcd/server.crt
+    - --key-file=/etc/kubernetes/pki/etcd/server.key
+    - --trusted-ca-file=/etc/kubernetes/pki/etcd/ca.crt
+
+    # === CERTIFICADOS PEER (CIS 2.3-2.4) ===
+    # Habilitar autenticacao peer via certificado
+    - --peer-client-cert-auth=true
+    - --peer-cert-file=/etc/kubernetes/pki/etcd/peer.crt
+    - --peer-key-file=/etc/kubernetes/pki/etcd/peer.key
+    - --peer-trusted-ca-file=/etc/kubernetes/pki/etcd/ca.crt
+
+    # === AUTO TLS ===
+    # Desabilitar auto TLS (CIS 2.2, 2.4)
+    - --auto-tls=false
+    - --peer-auto-tls=false
+
+    # === CLUSTER ===
+    - --initial-cluster=master=https://10.0.0.10:2380
+    - --initial-cluster-state=new
+    - --initial-cluster-token=etcd-cluster-1
+
+    # === SNAPSHOT ===
+    # Snapshot para backup
+    - --snapshot-count=10000
+
+    # === OUTROS ===
+    # Heartbeat e election timeout
+    - --heartbeat-interval=100
+    - --election-timeout=1000
+
+    volumeMounts:
+    - name: etcd-data
+      mountPath: /var/lib/etcd
+    - name: etcd-certs
+      mountPath: /etc/kubernetes/pki/etcd
+      readOnly: true
+
+    resources:
+      requests:
+        cpu: 100m
+        memory: 100Mi
+      limits:
+        cpu: "1"
+        memory: 1Gi
+
+    livenessProbe:
+      httpGet:
+        path: /health?exclude=NOSPACE&serializable=true
+        port: 2379
+        scheme: HTTPS
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      timeoutSeconds: 15
+      failureThreshold: 8
+
+  hostNetwork: true
+  priorityClassName: system-node-critical
+
+  volumes:
+  - name: etcd-data
+    hostPath:
+      path: /var/lib/etcd
+      type: DirectoryOrCreate
+  - name: etcd-certs
+    hostPath:
+      path: /etc/kubernetes/pki/etcd
+      type: DirectoryOrCreate

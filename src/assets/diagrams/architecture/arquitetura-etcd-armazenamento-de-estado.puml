@@ -1,0 +1,34 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title ETCD - ARMAZENAMENTO DE ESTADO
+
+database "etcd cluster" {
+  storage "etcd-0" as e0
+  storage "etcd-1" as e1
+  storage "etcd-2" as e2
+}
+
+rectangle "Dados Armazenados" {
+  card "Pods" as pods
+  card "Services" as svcs
+  card "Secrets" as secrets
+  card "ConfigMaps" as cms
+  card "RBAC" as rbac
+}
+
+e0 <--> e1 : Raft consensus
+e1 <--> e2 : Raft consensus
+e0 <--> e2 : Raft consensus
+
+note bottom of e1
+  Requer maioria (quorum)
+  3 nodes: tolera 1 falha
+  5 nodes: tolera 2 falhas
+  Recomendado: numeros impares
+end note
+
+@enduml

@@ -1,0 +1,3 @@
+# Limites por pod
+podPidsLimit: 4096
+maxPods: 110

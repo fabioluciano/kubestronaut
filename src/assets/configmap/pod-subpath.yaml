@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-app
+spec:
+  containers:
+  - name: app
+    image: nginx
+    volumeMounts:
+    - name: config-volume
+      mountPath: /etc/nginx/nginx.conf  # Arquivo específico
+      subPath: nginx.conf                # Chave do ConfigMap
+  volumes:
+  - name: config-volume
+    configMap:
+      name: nginx-config

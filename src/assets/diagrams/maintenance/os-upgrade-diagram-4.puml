@@ -1,0 +1,45 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Monospaced
+
+rectangle "DICAS CKA - MANUTENÇÃO DE NODES" as main
+
+rectangle "COMANDOS ESSENCIAIS" as cmds
+note right of cmds
+  **kubectl cordon <node>**
+  → Marca unschedulable, pods existentes continuam
+  
+  **kubectl drain <node> --ignore-daemonsets**
+  → Move pods E marca unschedulable
+  
+  **kubectl uncordon <node>**
+  → Retorna ao normal
+end note
+
+rectangle "FLAGS IMPORTANTES DO DRAIN" as flags
+note right of flags
+  --ignore-daemonsets → Ignora DaemonSets
+  --delete-emptydir-data → Deleta pods com emptyDir
+  --force → Deleta pods não gerenciados
+end note
+
+rectangle "SEQUÊNCIA TÍPICA" as seq
+note right of seq
+  1. kubectl drain <node> --ignore-daemonsets
+  2. Fazer manutenção
+  3. kubectl uncordon <node>
+end note
+
+rectangle "LEMBRE-SE" as remember
+note right of remember
+  • drain = cordon + evict pods
+  • DaemonSets não são drained (usam --ignore-daemonsets)
+  • Pods standalone são perdidos com --force
+end note
+
+main -down-> cmds
+cmds -down-> flags
+flags -down-> seq
+seq -down-> remember
+@enduml

@@ -1,0 +1,27 @@
+@startuml
+skinparam monochrome true
+
+title ORDEM DE AVALIAÇÃO
+
+note as config
+  --authorization-mode=Node,RBAC,Webhook
+end note
+
+actor "Requisição" as req
+entity "Node" as node
+entity "RBAC" as rbac
+entity "Webhook" as webhook
+entity "AUTORIZADO" as auth
+req --> node : avaliar
+node --> rbac : DENY
+node --> auth : ALLOW
+rbac --> webhook : DENY
+rbac --> auth : ALLOW
+webhook --> auth : ALLOW
+
+note bottom of auth
+  **Regras:**
+  • Primeiro ALLOW ganha
+  • Se todos DENY = não autorizado
+end note
+@enduml

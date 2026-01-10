@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  DATABASE_HOST: "mysql.default.svc.cluster.local"
+  LOG_LEVEL: "info"

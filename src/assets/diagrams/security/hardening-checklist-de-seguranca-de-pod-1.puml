@@ -1,0 +1,43 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Checklist de Seguranca de Pod
+
+rectangle "Pod Security" {
+    rectangle "1. Security Context" as sc {
+        card "runAsNonRoot: true" as nonroot
+        card "readOnlyRootFilesystem: true" as readonly
+        card "allowPrivilegeEscalation: false" as nopriv
+        card "capabilities: drop ALL" as caps
+    }
+
+    rectangle "2. Resource Limits" as res {
+        card "CPU limits definidos" as cpu
+        card "Memory limits definidos" as mem
+        card "Ephemeral storage limits" as ephemeral
+    }
+
+    rectangle "3. Network" as net {
+        card "NetworkPolicy aplicada" as netpol
+        card "Service account minimo" as sa
+        card "hostNetwork: false" as hostnet
+    }
+
+    rectangle "4. Image Security" as img {
+        card "Imagem de registro confiavel" as registry
+        card "Tag especifica (nao :latest)" as tag
+        card "ImagePullPolicy: Always" as pull
+        card "Image digest" as digest
+    }
+
+    rectangle "5. Linux Security" as linux {
+        card "Seccomp profile" as seccomp
+        card "AppArmor profile" as apparmor
+        card "SELinux context" as selinux
+    }
+}
+
+@enduml

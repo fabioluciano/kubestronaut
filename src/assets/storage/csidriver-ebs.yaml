@@ -1,0 +1,21 @@
+# CSIDriver object
+apiVersion: storage.k8s.io/v1
+kind: CSIDriver
+metadata:
+  name: ebs.csi.aws.com
+spec:
+  attachRequired: true
+  podInfoOnMount: false
+  volumeLifecycleModes:
+  - Persistent
+---
+# StorageClass usando CSI
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: ebs-sc
+provisioner: ebs.csi.aws.com  # CSI driver
+parameters:
+  type: gp3
+  encrypted: "true"
+volumeBindingMode: WaitForFirstConsumer

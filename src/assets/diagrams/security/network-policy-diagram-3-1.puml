@@ -1,0 +1,27 @@
+@startuml
+skinparam monochrome true
+
+object "policyTypes: [Ingress]" as p1 {
+  Ingress = Apenas tráfego definido nas regras
+  Egress = Todo tráfego permitido (não restrito)
+}
+
+object "policyTypes: [Egress]" as p2 {
+  Ingress = Todo tráfego permitido (não restrito)
+  Egress = Apenas tráfego definido nas regras
+}
+
+object "policyTypes: [Ingress, Egress]" as p3 {
+  Ingress = Apenas tráfego definido nas regras
+  Egress = Apenas tráfego definido nas regras
+}
+
+object "Sem policyTypes definido" as p4 {
+  "Se houver ingress rules" = Ingress restrito
+  "Se houver egress rules" = Egress restrito
+}
+
+p1 -[hidden]-> p2
+p2 -[hidden]-> p3
+p3 -[hidden]-> p4
+@enduml

@@ -1,0 +1,43 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Arquitetura do Container Runtime Interface (CRI)
+
+rectangle "Node Kubernetes" {
+    rectangle "kubelet" as kubelet #lightblue
+
+    rectangle "CRI (Container Runtime Interface)" as cri #lightyellow {
+        rectangle "containerd" as containerd
+        rectangle "CRI-O" as crio
+    }
+
+    rectangle "OCI Runtimes" as oci #lightgreen {
+        rectangle "runc\n(padrao)" as runc
+        rectangle "runsc\n(gVisor)" as runsc
+        rectangle "kata-runtime\n(Kata)" as kata
+        rectangle "crun" as crun
+    }
+
+    rectangle "Containers" as containers #pink {
+        rectangle "Pod A\n(runc)" as poda
+        rectangle "Pod B\n(gVisor)" as podb
+        rectangle "Pod C\n(Kata)" as podc
+    }
+}
+
+kubelet --> containerd : gRPC
+kubelet --> crio : gRPC
+containerd --> runc
+containerd --> runsc
+containerd --> kata
+crio --> runc
+crio --> crun
+
+runc --> poda
+runsc --> podb
+kata --> podc
+
+@enduml

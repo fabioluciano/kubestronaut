@@ -1,0 +1,25 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title GARANTIAS DO STATEFULSET
+
+rectangle "1. IDENTIDADE ESTÁVEL" as id
+note right of id : Pod-0 sempre será Pod-0, mesmo após restart
+
+rectangle "2. STORAGE PERSISTENTE" as storage
+note right of storage
+  PVC-0 sempre vinculado ao Pod-0
+  PVC permanece mesmo se Pod for deletado
+end note
+
+rectangle "3. ORDEM DE DEPLOY/SCALE" as order
+note right of order
+  Scale up: 0 → 1 → 2 (sequencial)
+  Scale down: 2 → 1 → 0 (reverso)
+end note
+
+rectangle "4. DNS PREVISÍVEL" as dns
+note right of dns : pod-0.service.namespace.svc.cluster.local
+
+@enduml

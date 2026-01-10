@@ -1,0 +1,34 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Fluxo Seccomp no Kubernetes
+
+actor Admin
+participant "API Server" as api
+participant "kubelet" as kubelet
+participant "Container Runtime" as runtime
+participant "Kernel" as kernel
+
+Admin -> api : kubectl apply -f pod.yaml\n(com seccompProfile)
+
+api -> kubelet : Criar Pod
+
+kubelet -> kubelet : Ler profile\n/var/lib/kubelet/seccomp/
+
+kubelet -> runtime : Criar container\ncom profile seccomp
+
+runtime -> kernel : Configurar filtro\nseccomp para processo
+
+note right of kernel
+  Todas as syscalls do container
+  passam pelo filtro seccomp
+end note
+
+kernel --> runtime : Container iniciado
+runtime --> kubelet : Status
+kubelet --> api : Pod Running
+
+@enduml

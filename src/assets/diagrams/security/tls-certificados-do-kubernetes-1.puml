@@ -1,0 +1,45 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Certificados do Kubernetes
+
+package "Certificate Authorities" {
+    rectangle "kubernetes-ca\n/etc/kubernetes/pki/ca.crt" as k8sca #lightblue
+    rectangle "etcd-ca\n/etc/kubernetes/pki/etcd/ca.crt" as etcdca #lightgreen
+    rectangle "front-proxy-ca\n/etc/kubernetes/pki/front-proxy-ca.crt" as fpca #lightyellow
+}
+
+package "API Server Certificates" {
+    rectangle "kube-apiserver\n/etc/kubernetes/pki/apiserver.crt" as apiserver
+    rectangle "apiserver-kubelet-client\n/etc/kubernetes/pki/apiserver-kubelet-client.crt" as apikubelet
+    rectangle "apiserver-etcd-client\n/etc/kubernetes/pki/apiserver-etcd-client.crt" as apietcd
+}
+
+package "Control Plane Certificates" {
+    rectangle "kube-controller-manager" as kcm
+    rectangle "kube-scheduler" as sched
+    rectangle "front-proxy-client" as fpc
+}
+
+package "etcd Certificates" {
+    rectangle "etcd-server\n/etc/kubernetes/pki/etcd/server.crt" as etcdserver
+    rectangle "etcd-peer\n/etc/kubernetes/pki/etcd/peer.crt" as etcdpeer
+    rectangle "etcd-healthcheck-client" as etcdhc
+}
+
+k8sca --> apiserver
+k8sca --> apikubelet
+k8sca --> kcm
+k8sca --> sched
+
+etcdca --> etcdserver
+etcdca --> etcdpeer
+etcdca --> etcdhc
+etcdca --> apietcd
+
+fpca --> fpc
+
+@enduml

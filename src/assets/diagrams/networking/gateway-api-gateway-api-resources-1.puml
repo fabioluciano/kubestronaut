@@ -1,0 +1,34 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title GATEWAY API RESOURCES
+
+rectangle "GatewayClass (Cluster-scoped)" as gc {
+  note as n1
+    Define o "tipo" de Gateway (implementação)
+    Gerenciado pelo Cluster Admin
+  end note
+}
+
+rectangle "Gateway (Namespace-scoped)" as gw {
+  note as n2
+    Instância que escuta em portas/IPs
+    Gerenciado pelo Cluster Admin/Platform Team
+  end note
+}
+
+rectangle "HTTPRoute / TCPRoute / GRPCRoute / etc." as route {
+  note as n3
+    Define regras de roteamento
+    Gerenciado pelo App Developer
+  end note
+}
+
+rectangle "Service / Backend" as svc
+
+gc --> gw
+gw --> route
+route --> svc
+
+@enduml

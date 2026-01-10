@@ -1,0 +1,43 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam componentStyle rectangle
+
+title STACKED TOPOLOGY
+
+rectangle "LOAD BALANCER\n(HAProxy, nginx, cloud LB)" as LB
+
+rectangle "Master 1" as M1 {
+  component "API Server" as api1
+  component "Scheduler" as sched1
+  component "Ctrl Mgr" as cm1
+  database "etcd" as etcd1
+}
+
+rectangle "Master 2" as M2 {
+  component "API Server" as api2
+  component "Scheduler" as sched2
+  component "Ctrl Mgr" as cm2
+  database "etcd" as etcd2
+}
+
+rectangle "Master 3" as M3 {
+  component "API Server" as api3
+  component "Scheduler" as sched3
+  component "Ctrl Mgr" as cm3
+  database "etcd" as etcd3
+}
+
+LB --> M1
+LB --> M2
+LB --> M3
+
+etcd1 <--> etcd2
+etcd2 <--> etcd3
+
+note bottom
+  Vantagens: Simples, menos máquinas
+  Desvantagens: etcd compete por recursos
+end note
+
+@enduml

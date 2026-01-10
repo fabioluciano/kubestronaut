@@ -1,0 +1,29 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title CICLO DE VIDA DO PV
+
+[*] --> Available : PV criado
+Available --> Bound : PVC faz bind
+Bound --> Released : PVC deletado
+Released --> Available : Recycle
+Released --> [*] : Delete
+Released --> Failed : Erro no reclaim
+
+note right of Available
+  PV livre, disponivel
+  para bind
+end note
+
+note right of Bound
+  PV ligado a um PVC
+  Em uso
+end note
+
+note right of Released
+  PVC deletado
+  Dados ainda existem
+end note
+
+@enduml

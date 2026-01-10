@@ -1,0 +1,31 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Estrategia de Migracao para mTLS STRICT
+
+|Fase 1|
+start
+:Instalar service mesh;
+:Configurar PERMISSIVE global;
+:Injetar sidecars em todos pods;
+
+|Fase 2|
+:Monitorar metricas de mTLS;
+:Identificar trafego plaintext;
+:Corrigir servicos sem sidecar;
+
+|Fase 3|
+:Habilitar STRICT por namespace;
+:Comecar por namespaces menos criticos;
+:Validar funcionamento;
+
+|Fase 4|
+:STRICT em todos namespaces;
+:STRICT global no mesh;
+:Monitoramento continuo;
+stop
+
+@enduml

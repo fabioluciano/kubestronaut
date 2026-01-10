@@ -1,0 +1,47 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title COMPONENTES DO CONTROL PLANE
+
+rectangle "Control Plane" {
+  rectangle "kube-apiserver" as api #326CE5 {
+    card "Ponto central de comunicacao" as api1
+    card "RESTful API" as api2
+    card "Authn/Authz/Admission" as api3
+  }
+
+  rectangle "etcd" as etcd #00BCD4 {
+    card "Key-value store" as etcd1
+    card "Fonte da verdade" as etcd2
+    card "Consistencia forte" as etcd3
+  }
+
+  rectangle "kube-scheduler" as sched #4CAF50 {
+    card "Agenda pods em nodes" as sched1
+    card "Considera recursos" as sched2
+    card "Considera afinidade" as sched3
+  }
+
+  rectangle "kube-controller-manager" as cm #FF9800 {
+    card "Node Controller" as cm1
+    card "Replication Controller" as cm2
+    card "Endpoints Controller" as cm3
+    card "ServiceAccount Controller" as cm4
+  }
+
+  rectangle "cloud-controller-manager" as ccm #9C27B0 {
+    card "Node Controller (cloud)" as ccm1
+    card "Route Controller" as ccm2
+    card "Service Controller (LB)" as ccm3
+  }
+}
+
+api --> etcd : unico que acessa etcd
+sched --> api : busca pods pendentes
+cm --> api : reconcilia estado
+ccm --> api : integra cloud provider
+
+@enduml

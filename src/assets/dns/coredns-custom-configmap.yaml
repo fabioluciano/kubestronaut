@@ -1,0 +1,11 @@
+# ConfigMap para zonas customizadas
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: coredns-custom
+  namespace: kube-system
+data:
+  custom.server: |
+    example.com:53 {
+        forward . 1.1.1.1
+    }

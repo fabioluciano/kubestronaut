@@ -1,0 +1,36 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Fluxo de Dados Seguros no etcd
+
+actor "Usuario" as user
+participant "kubectl" as kubectl
+participant "API Server" as api
+database "etcd" as etcd
+
+user -> kubectl : kubectl create secret
+kubectl -> api : POST /api/v1/secrets\n(HTTPS/TLS)
+
+api -> api : 1. Autenticacao\n(certificado/token)
+api -> api : 2. Autorizacao\n(RBAC)
+api -> api : 3. Admission\n(validacao)
+
+api -> api : 4. Criptografar dados\n(EncryptionConfiguration)
+
+api -> etcd : 5. Gravar dados\n(mTLS)
+
+etcd -> etcd : 6. Armazenar\n(dados criptografados)
+
+note right of etcd
+  Dados armazenados como:
+  k8s:enc:aescbc:v1:key1:<dados>
+end note
+
+etcd --> api : OK
+api --> kubectl : Secret created
+kubectl --> user : secret/mysecret created
+
+@enduml

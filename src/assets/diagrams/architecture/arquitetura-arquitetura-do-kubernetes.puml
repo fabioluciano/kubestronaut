@@ -1,0 +1,48 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title ARQUITETURA DO KUBERNETES
+
+rectangle "Control Plane (Master)" as cp #lightblue {
+  component "kube-apiserver" as api
+  component "etcd" as etcd
+  component "kube-scheduler" as sched
+  component "kube-controller-manager" as cm
+  component "cloud-controller-manager" as ccm
+}
+
+rectangle "Worker Node 1" as w1 #lightyellow {
+  component "kubelet" as k1
+  component "kube-proxy" as kp1
+  component "Container Runtime" as cr1
+
+  rectangle "Pod" as pod1 {
+    card "Container" as c1
+  }
+}
+
+rectangle "Worker Node 2" as w2 #lightyellow {
+  component "kubelet" as k2
+  component "kube-proxy" as kp2
+  component "Container Runtime" as cr2
+
+  rectangle "Pod" as pod2 {
+    card "Container" as c2
+  }
+}
+
+api <--> etcd : persiste estado
+api <--> sched : agenda pods
+api <--> cm : gerencia controllers
+api <--> ccm : integra cloud
+
+api <--> k1 : gerencia node
+api <--> k2 : gerencia node
+
+k1 --> cr1 : gerencia containers
+k2 --> cr2 : gerencia containers
+
+@enduml

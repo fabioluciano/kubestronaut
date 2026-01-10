@@ -1,0 +1,22 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title MAXLIMITREQUESTRATIO
+
+note as N1
+  **maxLimitRequestRatio:**
+    cpu: "4"
+
+  **Significado:** limits.cpu / requests.cpu <= 4
+
+  **Exemplo válido:**
+    requests.cpu: 250m
+    limits.cpu: 1000m (1000/250 = 4) ✓
+
+  **Exemplo inválido:**
+    requests.cpu: 100m
+    limits.cpu: 1000m (1000/100 = 10 > 4) ✗
+end note
+
+@enduml

@@ -1,0 +1,26 @@
+# HTTP GET
+livenessProbe:
+  httpGet:
+    path: /healthz
+    port: 8080
+    httpHeaders:
+    - name: Custom-Header
+      value: Awesome
+
+# TCP Socket
+livenessProbe:
+  tcpSocket:
+    port: 3306
+
+# Exec Command
+livenessProbe:
+  exec:
+    command:
+    - cat
+    - /tmp/healthy
+
+# gRPC (Kubernetes 1.24+)
+livenessProbe:
+  grpc:
+    port: 50051
+    service: health

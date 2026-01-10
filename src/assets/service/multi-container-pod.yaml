@@ -1,0 +1,14 @@
+# Container A pode acessar Container B via localhost
+apiVersion: v1
+kind: Pod
+metadata:
+  name: multi-container
+spec:
+  containers:
+  - name: app
+    image: nginx
+    ports:
+    - containerPort: 80
+  - name: sidecar
+    image: busybox
+    command: ['sh', '-c', 'while true; do wget -qO- localhost:80; sleep 5; done']

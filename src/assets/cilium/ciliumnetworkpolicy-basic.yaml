@@ -1,0 +1,22 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: policy-name
+  namespace: default
+spec:
+  # Seleciona pods afetados pela política
+  endpointSelector:
+    matchLabels:
+      app: my-app
+  
+  # Regras de entrada
+  ingress:
+  - fromEndpoints:
+    - matchLabels:
+        app: allowed-app
+  
+  # Regras de saída
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        app: backend

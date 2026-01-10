@@ -1,0 +1,17 @@
+apiVersion: pod-security.admission.config.k8s.io/v1
+kind: PodSecurityConfiguration
+defaults:
+  enforce: restricted
+exemptions:
+  # Usuários isentos
+  usernames:
+    - system:serviceaccount:kube-system:replicaset-controller
+  
+  # RuntimeClasses isentas
+  runtimeClassNames:
+    - kata-containers
+  
+  # Namespaces isentos
+  namespaces:
+    - kube-system
+    - monitoring

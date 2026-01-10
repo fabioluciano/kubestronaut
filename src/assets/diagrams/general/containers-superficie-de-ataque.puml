@@ -1,0 +1,18 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title SUPERFICIE DE ATAQUE
+
+rectangle "Riscos de Seguranca" {
+  card "Imagem com\nvulnerabilidades" as r1
+  card "Container\nprivilegiado" as r2
+  card "Escape do\ncontainer" as r3
+  card "Secrets\nexpostos" as r4
+  card "Network\nnao segmentada" as r5
+  card "Runtime\nvulneravel" as r6
+}
+
+@enduml

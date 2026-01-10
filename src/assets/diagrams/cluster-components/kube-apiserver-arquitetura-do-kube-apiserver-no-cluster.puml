@@ -1,0 +1,54 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Arquitetura do kube-apiserver no Cluster
+
+package "Control Plane" {
+    rectangle "kube-apiserver" as api {
+        [REST API Handler] as rest
+        [Authentication] as authn
+        [Authorization] as authz
+        [Admission Controllers] as admission
+        [Validation] as valid
+        [etcd Client] as etcdclient
+    }
+    database "etcd" as etcd
+    [kube-scheduler] as sched
+    [kube-controller-manager] as ctrl
+    [cloud-controller-manager] as ccm
+}
+
+package "Worker Nodes" {
+    [kubelet] as kubelet
+    [kube-proxy] as proxy
+}
+
+cloud "Clientes Externos" {
+    [kubectl] as kubectl
+    [CI/CD Pipelines] as cicd
+    [Custom Controllers] as custom
+    [Dashboard] as dash
+}
+
+kubectl --> rest : HTTPS (6443)
+cicd --> rest : HTTPS
+custom --> rest : Watch/List
+dash --> rest : HTTPS
+
+rest --> authn
+authn --> authz
+authz --> admission
+admission --> valid
+valid --> etcdclient
+etcdclient <--> etcd : gRPC (2379)
+
+sched --> rest : Watch Pods\nBind Pods
+ctrl --> rest : Watch/Update\nResources
+ccm --> rest : Cloud Resources
+kubelet --> rest : Watch Pods\nReport Status
+proxy --> rest : Watch Services/Endpoints
+
+@enduml

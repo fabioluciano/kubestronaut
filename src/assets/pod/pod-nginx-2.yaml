@@ -1,0 +1,14 @@
+# Toleration
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+spec:
+  tolerations:
+  - key: "key"
+    operator: "Equal"
+    value: "value"
+    effect: "NoSchedule"
+  containers:
+  - name: nginx
+    image: nginx

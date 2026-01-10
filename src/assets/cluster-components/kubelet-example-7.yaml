@@ -1,0 +1,2 @@
+# /var/lib/kubelet/config.yaml
+readOnlyPort: 0  # Desabilitar completamente

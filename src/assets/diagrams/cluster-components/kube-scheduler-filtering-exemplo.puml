@@ -1,0 +1,29 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Filtering - Exemplo
+
+rectangle "Pod Requirements" as pod {
+    card "CPU: 500m\nMemory: 256Mi\nTolerations: gpu=true" as req
+}
+
+rectangle "Nodes" as nodes {
+    card "Node A\nCPU: 2000m\nMemory: 4Gi\nTaint: gpu=true" as a
+    card "Node B\nCPU: 100m\nMemory: 128Mi\nNo Taints" as b
+    card "Node C\nCPU: 2000m\nMemory: 4Gi\nNo Taints" as c
+    card "Node D\nCPU: 1000m\nMemory: 1Gi\nTaint: gpu=true" as d
+}
+
+pod --> a : Passa (recursos OK, toleration OK)
+pod --> b : Falha (recursos insuficientes)
+pod --> c : Passa (recursos OK, sem taint)
+pod --> d : Passa (recursos OK, toleration OK)
+
+note bottom of nodes
+  Nodes viaveis: A, C, D
+end note
+
+@enduml

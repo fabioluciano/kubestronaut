@@ -1,0 +1,39 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title COMPONENTES DO WORKER NODE
+
+rectangle "Worker Node" {
+  rectangle "kubelet" as kubelet #326CE5 {
+    card "Agente do node" as k1
+    card "Gerencia pods" as k2
+    card "Reporta status" as k3
+  }
+
+  rectangle "kube-proxy" as proxy #4CAF50 {
+    card "Networking do Service" as p1
+    card "iptables/IPVS rules" as p2
+    card "Load balancing" as p3
+  }
+
+  rectangle "Container Runtime" as runtime #FF9800 {
+    card "containerd" as r1
+    card "CRI-O" as r2
+    card "Docker (legado)" as r3
+  }
+
+  rectangle "Pods" as pods #9C27B0 {
+    card "Pod 1" as pod1
+    card "Pod 2" as pod2
+    card "Pod N" as podn
+  }
+}
+
+kubelet --> runtime : CRI
+kubelet --> pods : gerencia lifecycle
+proxy --> pods : networking
+
+@enduml

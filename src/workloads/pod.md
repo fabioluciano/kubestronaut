@@ -5,7 +5,7 @@
 * É uma instância de uma aplicação
 * É o menor objeto que se pode criar no k8s;
 * Para escalar uma aplicação para aguentar uma maior quantidade de trafego, aumenta-se o número de `Pods`(réplicas) e não de containers em um `Pod`;
-* Caso o [[Arquitetura#Nó nodes | nó]], não tenha recursos necessários para rodar mais que uma instância da aplicação, é possível subir o `pod` em um novo [[Arquitetura#Nó nodes | nó]].
+* Caso o nó não tenha recursos necessários para rodar mais que uma instância da aplicação, é possível subir o `pod` em um novo [nó](fundamentals/arquitetura.md).
 * `.spec.volumes.projected` são para montar vários arquivos dentro de uma mesma localização
 * Todo pod requer uma certa quantidade de recursos para rodar
 
@@ -88,6 +88,12 @@ Quando há mais de um container no mesmo Pod, eles sempre compartilharão o mesm
 > {{#include ../assets/pod/pod-with-projected-volumes.yaml}}
 > ```
 
+
+### Pod com Security Context
+
+```yaml
+{{#include ../assets/pod/pod-security-context.yaml}}
+```
 ##  Resource Request
 
 * Por padrão um container não possui limite de recursos consumidos
@@ -99,7 +105,7 @@ Quando há mais de um container no mesmo Pod, eles sempre compartilharão o mesm
 * Caso o container comece a usar mais CPU que o limit, o pod começará a limitar os recursos utilizados pelo container. No caso do container começar a utilizar mais memória que o limit, ele matará o pod com a message OOM(Out of memory)
 * Se você setar somente o limit, o kubernetes encarará como sendo o request=limit
 * Para CPU, o melhor cenário é fazer o request necessário de CPU, mas não limitar, visto que pode haver recursos não utlizados, que podem ser utilizados pelo POD.
-* É possível definir que um pod tenha um conjunto de recursos garantidos. Para isso é necessário definir um [[LimitRange]]]
+* É possível definir que um pod tenha um conjunto de recursos garantidos. Para isso é necessário definir um [LimitRange](../configuration/limit-range.md)
 
 > [!TIP]
 > Pod com resource request
@@ -197,3 +203,93 @@ Quando há mais de um container no mesmo Pod, eles sempre compartilharão o mesm
 > ```
 > kubectl exec -ti nginx -c container -- bash
 > ```
+
+
+---
+
+### Pod Básico
+
+```yaml
+{{#include ../assets/pod/pod-basic.yaml}}
+```
+
+
+---
+
+### Pod com Resources
+
+```yaml
+{{#include ../assets/pod/pod-resources.yaml}}
+```
+
+
+---
+
+### Pod com Probes
+
+```yaml
+{{#include ../assets/pod/pod-probes.yaml}}
+```
+
+
+---
+
+### Pod com Init Containers
+
+```yaml
+{{#include ../assets/pod/pod-init-containers.yaml}}
+```
+
+
+---
+
+### Pod com Sidecar
+
+```yaml
+{{#include ../assets/pod/pod-sidecar.yaml}}
+```
+
+
+---
+
+### Pod Completo (Referência)
+
+```yaml
+{{#include ../assets/pod/pod-complete.yaml}}
+```
+
+
+---
+
+### Pod com Capabilities
+
+```yaml
+{{#include ../assets/pod/pod-capabilities.yaml}}
+```
+
+
+---
+
+### Métodos de Probes
+
+```yaml
+{{#include ../assets/pod/pod-probe-methods.yaml}}
+```
+
+
+---
+
+### Pod com Restart Policy
+
+```yaml
+{{#include ../assets/pod/pod-restart-policy.yaml}}
+```
+
+
+---
+
+### Pod com Sidecar (K8s 1.29+)
+
+```yaml
+{{#include ../assets/pod/pod-sidecar-k8s129.yaml}}
+```

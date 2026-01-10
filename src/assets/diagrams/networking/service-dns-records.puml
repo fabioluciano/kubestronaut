@@ -1,0 +1,33 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title DNS RECORDS
+
+rectangle "ClusterIP/NodePort/LoadBalancer" as standard {
+  rectangle "<service>.<namespace>.svc.cluster.local" as stdDns
+  note right of stdDns
+    A record: ClusterIP
+    SRV record: _<port>._<protocol>.<service>...
+  end note
+}
+
+rectangle "Headless Service" as headless {
+  rectangle "<service>.<namespace>.svc.cluster.local" as headlessDns
+  note right of headlessDns
+    A records: IPs de todos os Pods
+    <pod-name>.<service>.<namespace>.svc.cluster.local
+    → A record: IP específico do Pod
+  end note
+}
+
+note bottom
+  **Exemplos:**
+  • web-service.default.svc.cluster.local
+  • web-service.default.svc
+  • web-service.default
+  • web-service (mesmo namespace)
+end note
+
+@enduml

@@ -1,0 +1,10 @@
+# ReplicaSet criado por Deployment
+metadata:
+  name: nginx-rs-abc123
+  ownerReferences:
+  - apiVersion: apps/v1
+    kind: Deployment
+    name: nginx-deployment
+    uid: 8e5b6c4d-...
+    controller: true          # Este owner é o controller
+    blockOwnerDeletion: true  # Bloqueia delete do owner até este ser deletado

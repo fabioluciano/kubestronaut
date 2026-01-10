@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kubernetes-dashboard
+  namespace: kubernetes-dashboard
+spec:
+  template:
+    spec:
+      containers:
+      - name: kubernetes-dashboard
+        args:
+        # Desabilitar login inseguro
+        - --enable-insecure-login=false
+        
+        # Forçar HTTPS
+        - --insecure-port=0
+        
+        # Timeout de sessão
+        - --token-ttl=900  # 15 minutos
+        
+        # Namespace padrão limitado
+        - --namespace=kubernetes-dashboard
+        
+        # Desabilitar skip de login
+        - --enable-skip-login=false

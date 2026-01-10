@@ -1,0 +1,39 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Fluxo de Comunicacao - Criacao de um Pod
+
+actor Usuario as U
+participant "kubectl" as K
+participant "kube-apiserver" as API
+database "etcd" as ETCD
+participant "kube-scheduler" as SCHED
+participant "kube-controller-manager" as KCM
+participant "kubelet" as KUB
+participant "Container Runtime" as CR
+
+U -> K: kubectl apply -f pod.yaml
+K -> API: POST /api/v1/pods\n(HTTPS:6443)
+API -> API: Autenticacao\nAutorizacao\nAdmission Control
+API -> ETCD: Armazena Pod\n(gRPC:2379)
+ETCD --> API: Confirmacao
+
+API --> K: Pod criado (Pending)
+
+SCHED -> API: Watch: Pods sem no
+API --> SCHED: Pod sem no atribuido
+SCHED -> SCHED: Filtra e ranqueia nos
+SCHED -> API: Bind Pod ao No X
+
+API -> ETCD: Atualiza Pod\n(nodeName: X)
+
+KUB -> API: Watch: Pods do No X
+API --> KUB: Novo Pod para criar
+KUB -> CR: CRI: CreateContainer
+CR --> KUB: Container criado
+KUB -> API: Atualiza status:\nRunning
+
+@enduml

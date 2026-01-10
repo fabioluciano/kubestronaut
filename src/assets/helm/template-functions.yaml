@@ -1,0 +1,29 @@
+# Strings
+{{ .Values.name | upper }}           # MAIÚSCULAS
+{{ .Values.name | lower }}           # minúsculas
+{{ .Values.name | title }}           # Title Case
+{{ .Values.name | quote }}           # "com aspas"
+{{ .Values.name | trunc 63 }}        # Truncar
+{{ .Values.name | trimSuffix "-" }}  # Remover sufixo
+
+# Default
+{{ .Values.tag | default "latest" }}
+
+# Required (falha se vazio)
+{{ required "image.repository é obrigatório" .Values.image.repository }}
+
+# Condicionais
+{{- if .Values.ingress.enabled }}
+# ... criar ingress
+{{- end }}
+
+# Loops
+{{- range .Values.hosts }}
+- host: {{ . }}
+{{- end }}
+
+# with (escopo)
+{{- with .Values.nodeSelector }}
+nodeSelector:
+  {{- toYaml . | nindent 8 }}
+{{- end }}

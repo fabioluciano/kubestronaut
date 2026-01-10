@@ -1,0 +1,21 @@
+# Label Selector simples (equality-based)
+selector:
+  matchLabels:
+    app: nginx
+    environment: production
+
+# Label Selector avançado (set-based)
+selector:
+  matchLabels:
+    app: nginx
+  matchExpressions:
+  - key: environment
+    operator: In
+    values: [production, staging]
+  - key: tier
+    operator: NotIn
+    values: [backend]
+  - key: release
+    operator: Exists
+  - key: deprecated
+    operator: DoesNotExist

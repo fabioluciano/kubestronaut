@@ -1,0 +1,34 @@
+@startuml
+skinparam monochrome true
+
+map "CODE SECURITY" as code {
+}
+
+note bottom of code
+  **DESENVOLVIMENTO SEGURO:**
+  • Input validation
+  • Output encoding
+  • Parameterized queries (SQL injection)
+  • OWASP Top 10
+
+  **DEPENDÊNCIAS:**
+  • Scan de vulnerabilidades (Dependabot, Snyk)
+  • Versões fixas (não ^, ~)
+  • Atualização regular
+
+  **SECRETS MANAGEMENT:**
+  • Não hardcode secrets
+  • Usar Secrets do K8s ou Vault
+  • Rotação de credenciais
+
+  **COMUNICAÇÃO:**
+  • TLS everywhere
+  • mTLS entre serviços
+  • Certificate validation
+
+  **LOGGING/MONITORING:**
+  • Não logar dados sensíveis
+  • Audit logging
+  • Alertas de segurança
+end note
+@enduml

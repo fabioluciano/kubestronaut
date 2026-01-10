@@ -1,87 +1,282 @@
 # Service
 
-* É um componente utilizado para fazer com que os pods sejam acessíveis ao mundo externo, ou mesmo dentro do cluster;
-* Aplica o load balancing round-robin, direcionando para os pods
-	* As requisições são "mais ou menos" divididas entre os pods
-- Cada Service recebe um nome acessível em `NOMEDASERVICE.NAMESPACE.svc`
+<span class="badge badge-ckad">CKAD</span> <span class="badge badge-cka">CKA</span>
 
-## Tipos de service
+---
 
-Existem 4 tipos de services:
+## O que é um Service?
 
-- `service.spec.type = ClusterIP`: Torna o serviço acessível apenas dentro do cluster. É o `serviceType` padrão.
-		- Existe uma faixa de ips para os pods e outra para os serviços
-		- É criado um ip virtual para que o serviço seja acessível dentro do CLuster
-- `service.spec.type = NodePort`: Torna o serviço acessível ao mundo externo, colocando uma porta anexada a um nó `NodeIP:NodePort`. Também possui um `ClusterIp`.
-		- A porta, se não setada, é automaticamente preenchida.
-		- A porta deve estar entre 30000 e 32767
-		- Qualquer nó responderá pela porta
-		- Quando há multiplas portas sendo expostas, é necessário informar o name
-- `service.spec.type = LoadBalancer`:
-		- É necessário um agente externo para seu funcionamento. Possui um `NodePort` e um `ClusterIp`
-- `service.spec.type = ExternalName`
-		- Cria um `CNAME` dns registry para algo que está fora do cluster
-
-- HEADLESS SERVICE`service.spec.type = ClusterIP` e `service.spec.ClusterIP = None` 
-		- Vai usar os IPS dos pods e não o IP a service... Já que ela nem tem
-		- PESQUISAR MAIs
-
-- Endpoints são para quantos pods o trafego está sendo direcionado com determinado serviço
-- Quando um serviço é criado, um registro `A/AAAA` e um `SRV` é gerado no coredns
-
-As informações da service utilizada pelo pod podem ser visualizadas também pelas variáveis de ambiente definidas. Só serão disponibilizadas em pods que estejam rodando no mesmo namespace
-
-```shell
-export # executar commando
-
-#### SAIDA
-
-### SERVICENAME_SERVICE_HOST
-export TESTE_SERVICE_HOST='10.109.105.76'
-export TESTE_SERVICE_PORT='80'
+```admonish info title="Service"
+Service é uma abstração que define um conjunto lógico de Pods e uma política de acesso a eles. Permite expor aplicações de forma estável, independente do ciclo de vida dos Pods.
 ```
 
-Vai mostrar 
+### Características Principais
 
+| Aspecto | Descrição |
+|---------|-----------|
+| **IP Estável** | Cada Service recebe um ClusterIP fixo |
+| **DNS** | Acessível via `<service>.<namespace>.svc.cluster.local` |
+| **Load Balancing** | Distribui requisições entre Pods (round-robin) |
+| **Descoberta** | Via DNS ou variáveis de ambiente |
 
-> [!NOTE]- Criação de uma `Secret`
-```reference
-filePath: "@/Attachments/Kubernetes/service/deploy-service-nodeip.yaml"
+### Arquitetura
+
+```
+          ┌─────────────┐
+          │   Client    │
+          └──────┬──────┘
+                 │
+          ┌──────▼──────┐
+          │   Service   │ ← ClusterIP: 10.96.0.100
+          │  (selector) │
+          └──────┬──────┘
+                 │
+    ┌────────────┼────────────┐
+    │            │            │
+┌───▼───┐   ┌───▼───┐   ┌───▼───┐
+│ Pod 1 │   │ Pod 2 │   │ Pod 3 │
+│ :8080 │   │ :8080 │   │ :8080 │
+└───────┘   └───────┘   └───────┘
 ```
 
+---
 
-> [!NOTE]- Service para um Pod utilizando `spec.type.ClusterIP`
-```reference
-filePath: "@/Attachments/Kubernetes/service/service-clusterip.yaml"
+## Tipos de Service
+
+| Tipo | Descrição | Use Case |
+|------|-----------|----------|
+| `ClusterIP` | Acesso interno ao cluster (padrão) | Comunicação entre microservices |
+| `NodePort` | Expõe porta em todos os nodes (30000-32767) | Acesso externo simples |
+| `LoadBalancer` | Cria load balancer externo (cloud) | Produção em cloud |
+| `ExternalName` | CNAME para serviço externo | Integração com serviços externos |
+
+### ClusterIP (Padrão)
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+spec:
+  type: ClusterIP  # Padrão, pode ser omitido
+  selector:
+    app: my-app
+  ports:
+    - port: 80        # Porta do Service
+      targetPort: 8080 # Porta do container
 ```
 
+### NodePort
 
-> [!NOTE]- Service para um Pod utilizando `spec.type.NodePort`
-```reference
-filePath: "@/Attachments/Kubernetes/service/service-nodeport.yaml"
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-nodeport
+spec:
+  type: NodePort
+  selector:
+    app: my-app
+  ports:
+    - port: 80
+      targetPort: 8080
+      nodePort: 30080  # Opcional (30000-32767)
 ```
-## Comandos úteis
 
-```shell title:"Recupera o Range de IP utilizado pelos serviços"
+```admonish note title="NodePort"
+- Todos os nodes respondem na mesma porta
+- Cria automaticamente um ClusterIP
+- Porta entre 30000-32767
+```
+
+### LoadBalancer
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-loadbalancer
+spec:
+  type: LoadBalancer
+  selector:
+    app: my-app
+  ports:
+    - port: 80
+      targetPort: 8080
+```
+
+```admonish warning title="LoadBalancer"
+Requer integração com cloud provider (AWS, GCP, Azure) ou MetalLB em bare-metal.
+```
+
+### ExternalName
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: external-db
+spec:
+  type: ExternalName
+  externalName: database.example.com
+```
+
+---
+
+## Headless Service
+
+```admonish tip title="Headless Service"
+Service com `clusterIP: None` retorna os IPs dos Pods diretamente via DNS, sem load balancing.
+```
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: headless-service
+spec:
+  clusterIP: None  # Headless
+  selector:
+    app: my-stateful-app
+  ports:
+    - port: 80
+```
+
+**Use cases:**
+- StatefulSets (cada Pod precisa de DNS único)
+- Service discovery direto para Pods
+- Quando cliente precisa conhecer todos os Pods
+
+---
+
+## Descoberta de Services
+
+### Via DNS (Recomendado)
+
+```bash
+# Formato completo
+<service>.<namespace>.svc.cluster.local
+
+# Mesmo namespace (simplificado)
+<service>
+
+# Exemplo
+curl http://my-service.default.svc.cluster.local:80
+curl http://my-service:80
+```
+
+### Via Variáveis de Ambiente
+
+```bash
+# Variáveis injetadas automaticamente
+# (apenas para services criados ANTES do Pod)
+
+MY_SERVICE_SERVICE_HOST=10.96.0.100
+MY_SERVICE_SERVICE_PORT=80
+```
+
+---
+
+## Múltiplas Portas
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: multi-port
+spec:
+  selector:
+    app: my-app
+  ports:
+    - name: http    # Nome obrigatório com múltiplas portas
+      port: 80
+      targetPort: 8080
+    - name: https
+      port: 443
+      targetPort: 8443
+```
+
+---
+
+## Comandos Úteis
+
+```bash
+# Criar service via expose
+kubectl expose pod my-pod --port=80 --target-port=8080
+
+# Criar service para deployment
+kubectl expose deployment my-deploy --port=80 --type=NodePort
+
+# Listar services
+kubectl get svc
+
+# Detalhes do service
+kubectl describe svc my-service
+
+# Ver endpoints associados
+kubectl get endpoints my-service
+
+# Testar DNS do service
+kubectl run -ti --rm debug --image=busybox -- nslookup my-service
+```
+
+### Verificar Ranges de IP
+
+```bash
+# Range de IPs dos Services
 kubectl cluster-info dump | grep service-cluster-ip-range
-```
 
-```shell title:"Recupera o CIDR utilizado pelo cluster para alocar aos pods"
+# CIDR dos Pods
 kubectl cluster-info dump | grep cluster-cidr
 ```
 
-```shell
-kubectl expose pod service-test-nodeport --port 8080 --target-port 80 --selector svcType=NodePort
+---
+
+## Troubleshooting
+
+### Service não conecta aos Pods
+
+```bash
+# 1. Verificar selector
+kubectl get svc my-service -o yaml | grep -A5 selector
+
+# 2. Verificar labels dos Pods
+kubectl get pods --show-labels
+
+# 3. Verificar endpoints
+kubectl get endpoints my-service
+# Se vazio → selector não bate com labels
+
+# 4. Verificar se Pods estão Ready
+kubectl get pods -l app=my-app
 ```
- > Cria service
-> `kubectl create -f service-file-definition.yml`
 
- > Recupera informações sobre o service
- > `kubectl get svc`
+### Testar conectividade
 
-> Deleta service
-> `kubectl delete svc name-service`
+```bash
+# De dentro do cluster
+kubectl run -ti --rm debug --image=nicolaka/netshoot -- curl http://my-service:80
 
-```shell
-kubectl run -ti --rm testpod --image nginx -- cat /etc/resolv.conf
+# DNS resolve?
+kubectl run -ti --rm debug --image=busybox -- nslookup my-service.default.svc.cluster.local
 ```
+
+---
+
+## Dicas para os Exames
+
+```admonish tip title="Dicas CKA/CKAD"
+1. **ClusterIP é padrão**: Não precisa especificar `type`
+2. **NodePort range**: 30000-32767
+3. **kubectl expose**: Forma rápida de criar services
+4. **Endpoints vazios**: Problema de selector/labels
+5. **Headless**: Use para StatefulSets
+```
+
+---
+
+## Referências
+
+- [Endpoints](endpoint.md) - Mapeamento Service → Pods
+- [Ingress](../networking/ingress.md) - Roteamento HTTP/HTTPS
+- [DNS](../networking/dns.md) - Resolução de nomes

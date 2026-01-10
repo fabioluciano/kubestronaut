@@ -1,0 +1,26 @@
+@startuml
+skinparam monochrome true
+
+map "COMPARAÇÃO" as comp {
+}
+
+note bottom of comp
+  **Pod Security Admission (PSA):**
+  ✅ Nativo do Kubernetes (1.25+)
+  ✅ Simples (3 níveis predefinidos)
+  ✅ Configurado via labels no namespace
+  ❌ Pouca flexibilidade/customização
+  ❌ Apenas para Pods
+
+  **PodSecurityPolicy (PSP): DEPRECATED**
+  ❌ Removido no Kubernetes 1.25
+  ❌ Complexo de configurar
+
+  **OPA Gatekeeper / Kyverno:**
+  ✅ Altamente customizável
+  ✅ Qualquer recurso Kubernetes
+  ✅ Políticas granulares
+  ❌ Mais complexo de implementar
+  ❌ Componente adicional no cluster
+end note
+@enduml

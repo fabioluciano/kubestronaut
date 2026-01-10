@@ -1,0 +1,14 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DICAS KCNA
+
+card "1. Foco nos conceitos, não em comandos\n   É múltipla escolha, não prático" as d1
+card "2. Conheça bem a arquitetura K8s\n   Componentes do control plane\n   Papel de cada componente" as d2
+card "3. Memorize os projetos CNCF importantes\n   Graduated vs Incubating vs Sandbox\n   Qual problema cada projeto resolve" as d3
+card "4. Entenda os padrões (CRI, CNI, CSI, OCI)\n   O que cada um padroniza" as d4
+card "5. GitOps e CI/CD\n   Princípios do GitOps\n   Diferença entre CD e CI" as d5
+card "6. Observabilidade\n   3 pilares: métricas, logs, traces\n   Prometheus, Jaeger, Fluentd" as d6
+
+@enduml

@@ -1,0 +1,13 @@
+# Service com topology awareness
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-service
+  annotations:
+    # Habilita roteamento por zona (deprecated, use topology keys)
+    service.kubernetes.io/topology-mode: Auto
+spec:
+  selector:
+    app: web
+  ports:
+  - port: 80

@@ -1,0 +1,257 @@
+name: PR Validation
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "book.toml"
+      - ".github/workflows/pr-validation.yaml"
+
+concurrency:
+  group: pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  # ===========================================================================
+  # LINT MARKDOWN
+  # ===========================================================================
+  lint-markdown:
+    name: Lint Markdown
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v44
+        with:
+          files: |
+            src/**/*.md
+
+      - name: Run markdownlint
+        if: steps.changed-files.outputs.any_changed == 'true'
+        uses: DavidAnson/markdownlint-cli2-action@v16
+        with:
+          globs: ${{ steps.changed-files.outputs.all_changed_files }}
+          config: ".markdownlint.json"
+          separator: " "
+
+  # ===========================================================================
+  # LINT YAML
+  # ===========================================================================
+  lint-yaml:
+    name: Lint YAML
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get changed YAML files
+        id: changed-files
+        uses: tj-actions/changed-files@v44
+        with:
+          files: |
+            src/assets/**/*.yaml
+            src/assets/**/*.yml
+
+      - name: Validate YAML syntax
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: |
+          echo "Validando arquivos YAML..."
+          error_count=0
+          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+            echo "  Verificando $file..."
+            if ! python3 -c "import yaml; yaml.safe_load(open('$file'))"; then
+              echo "::error file=$file::Erro de sintaxe YAML"
+              error_count=$((error_count + 1))
+            fi
+          done
+          if [ $error_count -gt 0 ]; then
+            echo "::error::Encontrados $error_count erros de YAML"
+            exit 1
+          fi
+          echo "Todos os arquivos YAML são válidos"
+
+  # ===========================================================================
+  # VALIDATE PLANTUML
+  # ===========================================================================
+  lint-plantuml:
+    name: Validate PlantUML
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get changed MD files
+        id: changed-files
+        uses: tj-actions/changed-files@v44
+        with:
+          files: |
+            src/**/*.md
+
+      - name: Install PlantUML
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y default-jre graphviz
+          wget -q https://github.com/plantuml/plantuml/releases/download/v1.2024.8/plantuml-1.2024.8.jar -O /tmp/plantuml.jar
+          sudo mkdir -p /usr/share/plantuml
+          sudo mv /tmp/plantuml.jar /usr/share/plantuml/plantuml.jar
+          echo '#!/bin/bash' | sudo tee /usr/local/bin/plantuml
+          echo 'java -jar /usr/share/plantuml/plantuml.jar "$@"' | sudo tee -a /usr/local/bin/plantuml
+          sudo chmod +x /usr/local/bin/plantuml
+
+      - name: Validate PlantUML syntax
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: |
+          echo "Validando diagramas PlantUML..."
+          error_count=0
+
+          # Verifica arquivos .puml diretamente referenciados
+          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+            # Extrai referências a arquivos .puml
+            grep -oE '!include [^"]+\.puml|!include "[^"]+"' "$file" 2>/dev/null | \
+            sed 's/!include //' | sed 's/"//g' | while read -r puml_ref; do
+              if [ -n "$puml_ref" ]; then
+                dir=$(dirname "$file")
+                puml_path="$dir/$puml_ref"
+                
+                # Normaliza caminho
+                puml_path=$(realpath --relative-to=. "$puml_path" 2>/dev/null || echo "$puml_path")
+                
+                if [ -f "$puml_path" ]; then
+                  echo "  Verificando $puml_path (ref de $file)..."
+                  result=$(plantuml -syntax "$puml_path" 2>&1 || true)
+                  if echo "$result" | grep -qi "error"; then
+                    echo "::error file=$puml_path::Erro de sintaxe PlantUML"
+                    echo "$result"
+                    error_count=$((error_count + 1))
+                  fi
+                fi
+              fi
+            done
+          done
+
+          if [ $error_count -gt 0 ]; then
+            echo "::error::Encontrados $error_count erros de PlantUML"
+            exit 1
+          fi
+          echo "Todos os diagramas PlantUML são válidos"
+
+          if [ $error_count -gt 0 ]; then
+            echo "::error::Encontrados $error_count erros de PlantUML"
+            exit 1
+          fi
+          echo "Todos os diagramas PlantUML são válidos"
+
+  # ===========================================================================
+  # CHECK LINKS
+  # ===========================================================================
+  check-links:
+    name: Check Internal Links
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check broken links
+        run: |
+          echo "Verificando links internos..."
+          error_count=0
+
+          while IFS= read -r -d '' file; do
+            dir=$(dirname "$file")
+
+            # Extrai links markdown para arquivos .md
+            grep -oE '\[[^\]]+\]\([^)]+\.md[^)]*\)' "$file" 2>/dev/null | \
+            sed 's/.*](\([^)]*\)).*/\1/' | \
+            sed 's/#.*//' | \
+            while read -r link; do
+              if [ -n "$link" ]; then
+                # Ignora links externos
+                if echo "$link" | grep -q "^http"; then
+                  continue
+                fi
+
+                # Resolve caminho
+                if echo "$link" | grep -q "^/"; then
+                  target="src$link"
+                else
+                  target="$dir/$link"
+                fi
+
+                # Normaliza caminho
+                target=$(echo "$target" | sed 's|/\./|/|g' | sed 's|[^/]*/\.\./||g')
+
+                if [ ! -f "$target" ]; then
+                  echo "::warning file=$file::Link quebrado: $link (esperado: $target)"
+                  error_count=$((error_count + 1))
+                fi
+              fi
+            done
+          done < <(find src -name "*.md" -print0)
+
+          if [ $error_count -gt 0 ]; then
+            echo "::warning::Encontrados $error_count links quebrados"
+            # Não falha o build, apenas avisa
+          else
+            echo "Todos os links internos são válidos"
+          fi
+
+  # ===========================================================================
+  # BUILD TEST
+  # ===========================================================================
+  build:
+    name: Build Book
+    runs-on: ubuntu-latest
+    needs: [lint-markdown, lint-yaml, lint-plantuml]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup mise
+        uses: jdx/mise-action@v2
+        with:
+          experimental: true
+
+      - name: Setup Rust
+        uses: dtolnay/rust-action@stable
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/
+            ~/.cargo/git/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Install mdbook plugins
+        run: |
+          mise install
+          cargo install mdbook-plantuml --git https://github.com/sytsereitsma/mdbook-plantuml --tag v1.0.0-rc.1 || true
+
+      - name: Install PlantUML
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y default-jre graphviz
+          wget -q https://github.com/plantuml/plantuml/releases/download/v1.2024.8/plantuml-1.2024.8.jar -O /tmp/plantuml.jar
+          sudo mkdir -p /usr/share/plantuml
+          sudo mv /tmp/plantuml.jar /usr/share/plantuml/plantuml.jar
+          echo '#!/bin/bash' | sudo tee /usr/local/bin/plantuml
+          echo 'java -jar /usr/share/plantuml/plantuml.jar "$@"' | sudo tee -a /usr/local/bin/plantuml
+          sudo chmod +x /usr/local/bin/plantuml
+
+      - name: Build book
+        run: mise exec -- mdbook build
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: book-preview
+          path: book/
+          retention-days: 5

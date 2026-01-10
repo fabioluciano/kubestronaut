@@ -1,0 +1,42 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Arquitetura do kube-proxy
+
+package "Control Plane" {
+    [kube-apiserver] as api
+}
+
+package "Worker Node 1" {
+    [kube-proxy] as kp1
+    package "iptables/ipvs" {
+        [Regras NAT] as nat1
+        [Regras Filter] as filter1
+    }
+    [Pod A] as poda
+    [Pod B] as podb
+}
+
+package "Worker Node 2" {
+    [kube-proxy] as kp2
+    package "iptables/ipvs " {
+        [Regras NAT ] as nat2
+        [Regras Filter ] as filter2
+    }
+    [Pod C] as podc
+}
+
+api --> kp1 : Watch Services/Endpoints
+api --> kp2 : Watch Services/Endpoints
+kp1 --> nat1 : Configura regras
+kp1 --> filter1 : Configura regras
+kp2 --> nat2 : Configura regras
+kp2 --> filter2 : Configura regras
+
+poda --> nat1 : Trafego para Service
+nat1 --> podc : DNAT para Pod
+
+@enduml

@@ -1,0 +1,26 @@
+@startuml
+skinparam monochrome true
+
+title DEFENSE IN DEPTH
+
+rectangle "CLOUD" as cloud
+note right of cloud : IAM, Firewall, Encryption, Network isolation
+
+rectangle "CLUSTER" as cluster
+note right of cluster : RBAC, NetworkPolicy, PSA, Audit, Encryption
+
+rectangle "CONTAINER" as container
+note right of container : Scanning, Non-root, Seccomp, RuntimeClass
+
+rectangle "CODE" as code
+note right of code : SAST, DAST, Secrets management, TLS
+
+cloud -down-> cluster
+cluster -down-> container
+container -down-> code
+
+note bottom of code
+  **Cada camada adiciona proteção!**
+  Se uma falha, as outras ainda protegem.
+end note
+@enduml

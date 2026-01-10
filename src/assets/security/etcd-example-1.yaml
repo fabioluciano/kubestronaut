@@ -1,0 +1,16 @@
+# /etc/kubernetes/manifests/etcd.yaml
+spec:
+  containers:
+  - command:
+    - etcd
+    # TLS para clientes
+    - --cert-file=/etc/kubernetes/pki/etcd/server.crt
+    - --key-file=/etc/kubernetes/pki/etcd/server.key
+    - --trusted-ca-file=/etc/kubernetes/pki/etcd/ca.crt
+    - --client-cert-auth=true
+
+    # TLS para peers
+    - --peer-cert-file=/etc/kubernetes/pki/etcd/peer.crt
+    - --peer-key-file=/etc/kubernetes/pki/etcd/peer.key
+    - --peer-trusted-ca-file=/etc/kubernetes/pki/etcd/ca.crt
+    - --peer-client-cert-auth=true

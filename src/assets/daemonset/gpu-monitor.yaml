@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: gpu-monitor
+spec:
+  selector:
+    matchLabels:
+      app: gpu-monitor
+  template:
+    metadata:
+      labels:
+        app: gpu-monitor
+    spec:
+      nodeSelector:
+        gpu: "true"  # Apenas Nodes com label gpu=true
+      containers:
+      - name: monitor
+        image: nvidia/gpu-monitor

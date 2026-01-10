@@ -1,0 +1,20 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: indexed-job
+spec:
+  completions: 5
+  parallelism: 3
+  completionMode: Indexed  # Cada pod recebe JOB_COMPLETION_INDEX
+  template:
+    spec:
+      containers:
+      - name: worker
+        image: busybox
+        command:
+        - sh
+        - -c
+        - |
+          echo "Processing item index: $JOB_COMPLETION_INDEX"
+          sleep 10
+      restartPolicy: Never

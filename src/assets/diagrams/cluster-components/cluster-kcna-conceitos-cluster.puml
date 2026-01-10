@@ -1,0 +1,16 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title KCNA - CONCEITOS CLUSTER
+
+card "Cluster = Control Plane + Workers" as c1
+card "Control Plane: decisoes, API, estado" as c2
+card "Workers: executam pods" as c3
+card "Namespaces: isolamento logico" as c4
+card "Contexto: cluster + user + namespace" as c5
+card "kubeconfig: arquivo de configuracao" as c6
+
+@enduml

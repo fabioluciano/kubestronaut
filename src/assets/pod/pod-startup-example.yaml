@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: startup-example
+spec:
+  containers:
+  - name: slow-app
+    image: slow-starting-app
+    startupProbe:
+      exec:
+        command:
+        - cat
+        - /tmp/healthy
+      initialDelaySeconds: 0
+      periodSeconds: 5
+      failureThreshold: 30  # 30 * 5 = 150s para iniciar
+    livenessProbe:
+      httpGet:
+        path: /healthz
+        port: 8080
+      periodSeconds: 10

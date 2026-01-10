@@ -1,0 +1,25 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title HIERARQUIA DE STORAGE
+
+rectangle "1. VOLUMES EFEMEROS" {
+  card "emptyDir - Vida do Pod" as ed
+  card "configMap - Dados de config" as cm
+  card "secret - Dados sensiveis" as sec
+  card "downwardAPI - Metadados" as da
+}
+
+rectangle "2. VOLUMES PERSISTENTES" {
+  card "hostPath - Diretorio do Node" as hp
+  card "PersistentVolumeClaim - Storage abstrato" as pvc
+  card "CSI - Interface padrao" as csi
+}
+
+rectangle "3. PROVISIONAMENTO" {
+  card "Estatico - Admin cria PV" as static
+  card "Dinamico - StorageClass cria PV" as dynamic
+}
+
+@enduml

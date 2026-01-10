@@ -1,0 +1,51 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Defense in Depth - Kubernetes
+
+rectangle "Internet" as internet
+
+rectangle "Perimetro" as perimeter {
+    rectangle "Firewall" as fw
+    rectangle "WAF" as waf
+    rectangle "DDoS Protection" as ddos
+    rectangle "Load Balancer" as lb
+}
+
+rectangle "Rede" as network {
+    rectangle "Network Policies" as netpol
+    rectangle "Service Mesh" as mesh
+    rectangle "mTLS" as mtls
+    rectangle "Ingress Controller" as ingress
+}
+
+rectangle "Cluster" as cluster {
+    rectangle "RBAC" as rbac
+    rectangle "Pod Security" as psa
+    rectangle "Admission Controllers" as ac
+    rectangle "Audit Logging" as audit
+}
+
+rectangle "Workload" as workload {
+    rectangle "Container Security" as container
+    rectangle "Seccomp/AppArmor" as seccomp
+    rectangle "Runtime Security" as runtime
+    rectangle "Image Scanning" as scan
+}
+
+rectangle "Dados" as data {
+    rectangle "Encryption at Rest" as enc
+    rectangle "Secrets Management" as secrets
+    rectangle "Backup/Recovery" as backup
+}
+
+internet --> perimeter
+perimeter --> network
+network --> cluster
+cluster --> workload
+workload --> data
+
+@enduml

@@ -1,0 +1,37 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Handshake mTLS - Passo a Passo
+
+participant "Cliente\n(Pod A)" as client
+participant "Servidor\n(Pod B)" as server
+
+== Fase 1: Inicio ==
+client -> server: ClientHello\n(versao TLS, cipher suites)
+
+== Fase 2: Servidor Responde ==
+server -> client: ServerHello\n(cipher suite escolhida)
+server -> client: Certificate\n(certificado do servidor)
+server -> client: CertificateRequest\n(solicita certificado do cliente)
+server -> client: ServerHelloDone
+
+== Fase 3: Cliente Responde ==
+client -> client: Valida certificado do servidor
+client -> server: Certificate\n(certificado do cliente)
+client -> server: ClientKeyExchange\n(chave de sessao)
+client -> server: CertificateVerify\n(assinatura com chave privada)
+client -> server: ChangeCipherSpec
+client -> server: Finished (criptografado)
+
+== Fase 4: Servidor Finaliza ==
+server -> server: Valida certificado do cliente
+server -> client: ChangeCipherSpec
+server -> client: Finished (criptografado)
+
+== Comunicacao Segura ==
+client <-> server: Dados criptografados
+
+@enduml

@@ -1,0 +1,13 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: retry-job
+spec:
+  backoffLimit: 3          # Máximo 3 falhas
+  template:
+    spec:
+      containers:
+      - name: worker
+        image: busybox
+        command: ["sh", "-c", "exit 1"]  # Sempre falha (para demonstração)
+      restartPolicy: Never

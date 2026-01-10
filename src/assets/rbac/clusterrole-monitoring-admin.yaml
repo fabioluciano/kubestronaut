@@ -1,0 +1,22 @@
+# ClusterRole agregado (combina outros ClusterRoles)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: monitoring-admin
+aggregationRule:
+  clusterRoleSelectors:
+  - matchLabels:
+      rbac.example.com/aggregate-to-monitoring: "true"
+rules: []  # regras sao preenchidas automaticamente
+---
+# ClusterRole que sera agregado
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: prometheus-viewer
+  labels:
+    rbac.example.com/aggregate-to-monitoring: "true"
+rules:
+- apiGroups: ["monitoring.coreos.com"]
+  resources: ["prometheuses", "alertmanagers"]
+  verbs: ["get", "list", "watch"]

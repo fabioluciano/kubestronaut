@@ -1,0 +1,17 @@
+apiVersion: node.k8s.io/v1   # API version
+kind: RuntimeClass
+metadata:
+  name: <nome>               # Nome usado pelo Pod
+handler: <handler>           # Handler configurado no containerd/CRI-O
+overhead:                    # Recursos extras consumidos pelo runtime
+  podFixed:
+    cpu: "250m"
+    memory: "120Mi"
+scheduling:                  # Restricoes de scheduling
+  nodeSelector:
+    <label>: <valor>
+  tolerations:
+  - key: "runtime"
+    operator: "Equal"
+    value: "secure"
+    effect: "NoSchedule"

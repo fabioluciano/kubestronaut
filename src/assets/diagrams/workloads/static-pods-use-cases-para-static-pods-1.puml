@@ -1,0 +1,21 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title USE CASES PARA STATIC PODS
+
+rectangle "✅ USAR STATIC PODS" #white {
+  card "Control Plane components (etcd, api-server, scheduler, cm)" as u1
+  card "Quando API Server não está disponível" as u2
+  card "Bootstrap do cluster (kubeadm usa isso)" as u3
+  card "Componentes críticos que devem sobreviver ao cluster" as u4
+}
+
+rectangle "❌ NÃO USAR STATIC PODS" #white {
+  card "Workloads normais de aplicação" as n1
+  card "Quando precisa de scaling (ReplicaSet, Deployment)" as n2
+  card "Quando precisa de scheduling entre nodes" as n3
+  card "Quando precisa de service discovery via DNS" as n4
+}
+
+@enduml

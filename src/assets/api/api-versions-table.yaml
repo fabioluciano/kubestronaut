@@ -1,0 +1,82 @@
+# Tabela de referencia - API Groups e Versions
+# Use: kubectl api-resources para listar todos
+# Use: kubectl api-versions para ver versoes disponiveis
+
+# Core API Group (v1) - legacy, sem prefixo de grupo
+core_v1:
+  - Pod
+  - Service
+  - ConfigMap
+  - Secret
+  - Namespace
+  - Node
+  - PersistentVolume
+  - PersistentVolumeClaim
+  - ServiceAccount
+  - Endpoints
+  - Event
+  - LimitRange
+  - ResourceQuota
+  - ReplicationController  # Legado, use Deployment
+
+# apps/v1 - Workloads
+apps_v1:
+  - Deployment
+  - ReplicaSet
+  - StatefulSet
+  - DaemonSet
+  - ControllerRevision
+
+# batch/v1 - Jobs
+batch_v1:
+  - Job
+  - CronJob
+
+# networking.k8s.io/v1 - Rede
+networking_k8s_io_v1:
+  - Ingress
+  - IngressClass
+  - NetworkPolicy
+
+# rbac.authorization.k8s.io/v1 - RBAC
+rbac_v1:
+  - Role
+  - RoleBinding
+  - ClusterRole
+  - ClusterRoleBinding
+
+# storage.k8s.io/v1 - Storage
+storage_k8s_io_v1:
+  - StorageClass
+  - VolumeAttachment
+  - CSIDriver
+  - CSINode
+
+# autoscaling/v2 - HPA (atual)
+autoscaling_v2:
+  - HorizontalPodAutoscaler
+
+# policy/v1 - Policies
+policy_v1:
+  - PodDisruptionBudget
+
+# apiextensions.k8s.io/v1 - Extensoes
+apiextensions_v1:
+  - CustomResourceDefinition
+
+# certificates.k8s.io/v1 - Certificados
+certificates_v1:
+  - CertificateSigningRequest
+
+# coordination.k8s.io/v1 - Coordenacao
+coordination_v1:
+  - Lease
+
+# scheduling.k8s.io/v1 - Scheduling
+scheduling_v1:
+  - PriorityClass
+
+# admissionregistration.k8s.io/v1 - Admission
+admissionregistration_v1:
+  - ValidatingWebhookConfiguration
+  - MutatingWebhookConfiguration

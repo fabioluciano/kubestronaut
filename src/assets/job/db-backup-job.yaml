@@ -1,0 +1,39 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: db-backup
+spec:
+  template:
+    spec:
+      containers:
+      - name: backup
+        image: postgres:14
+        command:
+        - sh
+        - -c
+        - |
+          pg_dump -h $DB_HOST -U $DB_USER $DB_NAME > /backup/dump.sql
+          echo "Backup completed at $(date)"
+        env:
+        - name: DB_HOST
+          value: "postgres-svc"
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: db-credentials
+              key: username
+        - name: PGPASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-credentials
+              key: password
+        - name: DB_NAME
+          value: "myapp"
+        volumeMounts:
+        - name: backup-volume
+          mountPath: /backup
+      restartPolicy: OnFailure
+      volumes:
+      - name: backup-volume
+        persistentVolumeClaim:
+          claimName: backup-pvc

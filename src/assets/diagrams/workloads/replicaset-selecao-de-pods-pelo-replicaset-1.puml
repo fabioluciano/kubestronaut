@@ -1,0 +1,40 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Selecao de Pods pelo ReplicaSet
+
+rectangle "ReplicaSet" as RS {
+    note "selector:\n  matchLabels:\n    app: web\n    tier: frontend" as N1
+}
+
+rectangle "Pods no Cluster" {
+    rectangle "Pod A" as PA #lightgreen {
+        note right: app: web\ntier: frontend
+    }
+    rectangle "Pod B" as PB #lightgreen {
+        note right: app: web\ntier: frontend
+    }
+    rectangle "Pod C" as PC #lightcoral {
+        note right: app: api\ntier: backend
+    }
+    rectangle "Pod D" as PD #lightyellow {
+        note right: app: web\ntier: backend
+    }
+}
+
+RS --> PA : Gerencia
+RS --> PB : Gerencia
+RS ..x PC : Nao corresponde
+RS ..x PD : Label tier diferente
+
+legend right
+    | Cor | Significado |
+    | <#lightgreen> | Gerenciado pelo RS |
+    | <#lightcoral> | Nao corresponde |
+    | <#lightyellow> | Correspondencia parcial |
+endlegend
+
+@enduml

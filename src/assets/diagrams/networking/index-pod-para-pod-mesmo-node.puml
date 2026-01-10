@@ -1,0 +1,22 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title POD PARA POD (mesmo Node)
+
+package "NODE" {
+  package "POD A\n10.244.1.5" as poda {
+    rectangle "veth" as vetha
+  }
+  
+  package "POD B\n10.244.1.6" as podb {
+    rectangle "veth" as vethb
+  }
+  
+  rectangle "Bridge\n(cbr0)" as bridge
+  
+  vetha --> bridge
+  vethb --> bridge
+}
+
+@enduml

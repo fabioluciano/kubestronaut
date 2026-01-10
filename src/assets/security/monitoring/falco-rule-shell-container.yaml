@@ -1,0 +1,11 @@
+- rule: Shell Spawned in Container
+  desc: Detecta quando um shell é iniciado em um container
+  condition: >
+    spawned_process and 
+    container and 
+    shell_procs
+  output: >
+    Shell spawned in container 
+    (user=%user.name container=%container.name shell=%proc.name 
+    parent=%proc.pname cmdline=%proc.cmdline)
+  priority: WARNING

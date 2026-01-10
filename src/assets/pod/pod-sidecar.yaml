@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: app-with-sidecar
+spec:
+  containers:
+  # Container principal
+  - name: app
+    image: nginx
+    volumeMounts:
+    - name: logs
+      mountPath: /var/log/nginx
+  
+  # Sidecar para coletar logs
+  - name: log-collector
+    image: busybox
+    command: ['sh', '-c', 'tail -f /var/log/nginx/access.log']
+    volumeMounts:
+    - name: logs
+      mountPath: /var/log/nginx
+  
+  volumes:
+  - name: logs
+    emptyDir: {}

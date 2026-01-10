@@ -1,0 +1,29 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Control Loop - Padrao de Reconciliacao
+
+start
+
+repeat
+
+:Observa estado atual\n(via API Server);
+
+:Compara com estado desejado;
+
+if (Estado atual == Estado desejado?) then (sim)
+  :Nenhuma acao necessaria;
+else (nao)
+  :Calcula diferencas;
+  :Executa acoes para\nreconciliar estado;
+  :Atualiza status\n(via API Server);
+endif
+
+:Aguarda proximo evento\nou timeout;
+
+repeat while (Loop infinito) is (sim)
+
+@enduml

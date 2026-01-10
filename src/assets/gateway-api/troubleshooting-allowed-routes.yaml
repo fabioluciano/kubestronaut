@@ -1,0 +1,10 @@
+# Verificar listeners no Gateway
+spec:
+  listeners:
+    - name: http
+      allowedRoutes:
+        namespaces:
+          from: Selector
+          selector:
+            matchLabels:
+              gateway-access: "true"  # Namespace precisa ter esta label

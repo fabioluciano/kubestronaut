@@ -1,0 +1,32 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title CNCF PROJECT STAGES
+
+rectangle "SANDBOX" as sandbox
+rectangle "INCUBATING" as incubating
+rectangle "GRADUATED" as graduated
+
+sandbox --> incubating
+incubating --> graduated
+
+note bottom of sandbox
+  • Projetos em estágio inicial
+  • Revisão a cada 12 meses
+  • Pode ser removido
+end note
+
+note bottom of incubating
+  • Usado em produção por 3+ empresas
+  • Comunidade ativa de contribuidores
+  • Documentação e governança definidas
+end note
+
+note bottom of graduated
+  • Maturidade comprovada
+  • Adoção ampla
+  • Votação do TOC
+end note
+
+@enduml

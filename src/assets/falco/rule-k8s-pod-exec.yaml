@@ -1,0 +1,12 @@
+- rule: K8s Pod Exec
+  desc: Detect exec into pod
+  condition: >
+    ka.verb = create and 
+    ka.target.subresource = exec
+  output: >
+    Exec into pod 
+    (user=%ka.user.name pod=%ka.target.name 
+    ns=%ka.target.namespace)
+  priority: NOTICE
+  source: k8s_audit
+  tags: [k8s, exec]

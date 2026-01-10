@@ -1,0 +1,104 @@
+# /etc/kubernetes/manifests/kube-controller-manager.yaml
+# Configuracao de hardening do Controller Manager
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kube-controller-manager
+  namespace: kube-system
+  labels:
+    component: kube-controller-manager
+    tier: control-plane
+spec:
+  containers:
+  - name: kube-controller-manager
+    image: registry.k8s.io/kube-controller-manager:v1.29.0
+    command:
+    - kube-controller-manager
+
+    # === AUTENTICACAO ===
+    # Kubeconfig para autenticacao com API Server
+    - --kubeconfig=/etc/kubernetes/controller-manager.conf
+    - --authentication-kubeconfig=/etc/kubernetes/controller-manager.conf
+    - --authorization-kubeconfig=/etc/kubernetes/controller-manager.conf
+
+    # === CERTIFICADOS ===
+    # CA para assinatura
+    - --cluster-signing-cert-file=/etc/kubernetes/pki/ca.crt
+    - --cluster-signing-key-file=/etc/kubernetes/pki/ca.key
+
+    # Root CA
+    - --root-ca-file=/etc/kubernetes/pki/ca.crt
+
+    # Service Account
+    - --service-account-private-key-file=/etc/kubernetes/pki/sa.key
+    - --use-service-account-credentials=true
+
+    # === BIND ===
+    # Bind apenas em localhost (CIS 1.3.7)
+    - --bind-address=127.0.0.1
+
+    # Porta segura
+    - --secure-port=10257
+
+    # === PROFILING ===
+    # Desabilitar profiling (CIS 1.3.2)
+    - --profiling=false
+
+    # === OUTROS ===
+    # Controllers
+    - --controllers=*,bootstrapsigner,tokencleaner
+
+    # Leader election
+    - --leader-elect=true
+
+    # Terminated pod GC threshold
+    - --terminated-pod-gc-threshold=12500
+
+    # Feature gates
+    - --feature-gates=RotateKubeletServerCertificate=true
+
+    volumeMounts:
+    - name: k8s-certs
+      mountPath: /etc/kubernetes/pki
+      readOnly: true
+    - name: kubeconfig
+      mountPath: /etc/kubernetes/controller-manager.conf
+      readOnly: true
+    - name: ca-certs
+      mountPath: /etc/ssl/certs
+      readOnly: true
+
+    resources:
+      requests:
+        cpu: 200m
+        memory: 256Mi
+      limits:
+        cpu: "1"
+        memory: 1Gi
+
+    livenessProbe:
+      httpGet:
+        path: /healthz
+        port: 10257
+        scheme: HTTPS
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      timeoutSeconds: 15
+      failureThreshold: 8
+
+  hostNetwork: true
+  priorityClassName: system-node-critical
+
+  volumes:
+  - name: k8s-certs
+    hostPath:
+      path: /etc/kubernetes/pki
+      type: DirectoryOrCreate
+  - name: kubeconfig
+    hostPath:
+      path: /etc/kubernetes/controller-manager.conf
+      type: File
+  - name: ca-certs
+    hostPath:
+      path: /etc/ssl/certs
+      type: DirectoryOrCreate

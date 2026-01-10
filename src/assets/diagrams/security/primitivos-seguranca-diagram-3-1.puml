@@ -1,0 +1,25 @@
+@startuml
+skinparam monochrome true
+
+map "MÉTODOS DE AUTENTICAÇÃO" as auth {
+}
+
+note bottom of auth
+  **CERTIFICADOS X.509 (Recomendado)**
+  • CN (Common Name) = username
+  • O (Organization) = group
+  • Usado por kubeadm para componentes
+
+  **BEARER TOKENS**
+  • Service Account tokens
+  • Bootstrap tokens
+
+  **OIDC (OpenID Connect)**
+  • Integração com IdP externo
+  • Recomendado para produção
+
+  **STATIC FILES (NÃO RECOMENDADO)**
+  • --basic-auth-file (deprecated)
+  • --token-auth-file (deprecated)
+end note
+@enduml

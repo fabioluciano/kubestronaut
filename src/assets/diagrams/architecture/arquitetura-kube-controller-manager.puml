@@ -1,0 +1,48 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title KUBE-CONTROLLER-MANAGER
+
+rectangle "kube-controller-manager" {
+  rectangle "Node Controller" as nc {
+    card "Monitora nodes" as nc1
+    card "Marca nodes unhealthy" as nc2
+  }
+
+  rectangle "Replication Controller" as rc {
+    card "Mantem numero de replicas" as rc1
+    card "Cria/deleta pods" as rc2
+  }
+
+  rectangle "Endpoints Controller" as ec {
+    card "Popula Endpoints" as ec1
+    card "Liga Services a Pods" as ec2
+  }
+
+  rectangle "ServiceAccount Controller" as sc {
+    card "Cria SA default" as sc1
+    card "Em novos namespaces" as sc2
+  }
+
+  rectangle "Deployment Controller" as dc {
+    card "Gerencia ReplicaSets" as dc1
+    card "Rolling updates" as dc2
+  }
+
+  rectangle "Job Controller" as jc {
+    card "Gerencia Jobs" as jc1
+    card "Cria pods para jobs" as jc2
+  }
+}
+
+note bottom
+  Cada controller roda em loop:
+  1. Observa estado atual
+  2. Compara com estado desejado
+  3. Reconcilia diferencas
+end note
+
+@enduml

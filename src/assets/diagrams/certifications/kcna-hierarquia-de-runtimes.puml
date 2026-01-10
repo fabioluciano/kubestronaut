@@ -1,0 +1,23 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title HIERARQUIA DE RUNTIMES
+
+rectangle "High-Level Runtime (CRI)" {
+  component "containerd" as containerd
+  component "CRI-O" as crio
+}
+
+rectangle "Low-Level Runtime (OCI)" {
+  component "runc\n(processo isolado)" as runc
+  component "kata-containers\n(microVM)" as kata
+  component "gVisor\n(sandbox)" as gvisor
+}
+
+containerd --> runc
+containerd --> kata
+crio --> runc
+crio --> gvisor
+
+@enduml

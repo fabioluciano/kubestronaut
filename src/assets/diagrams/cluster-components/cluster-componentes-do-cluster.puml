@@ -1,0 +1,46 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title COMPONENTES DO CLUSTER
+
+rectangle "CONTROL PLANE" as cp #lightblue {
+  component "kube-apiserver" as api
+  component "etcd" as etcd
+  component "kube-scheduler" as sched
+  component "kube-controller-manager" as cm
+}
+
+rectangle "WORKER NODE 1" as w1 #lightyellow {
+  component "kubelet" as k1
+  component "kube-proxy" as kp1
+  component "Container Runtime" as cr1
+  rectangle "Pod A" as pa
+  rectangle "Pod B" as pb
+}
+
+rectangle "WORKER NODE 2" as w2 #lightyellow {
+  component "kubelet" as k2
+  component "kube-proxy" as kp2
+  component "Container Runtime" as cr2
+  rectangle "Pod C" as pc
+  rectangle "Pod D" as pd
+}
+
+rectangle "ADD-ONS" as addons #lightgreen {
+  component "CoreDNS" as dns
+  component "CNI Plugin" as cni
+  component "Ingress Controller" as ing
+  component "Metrics Server" as metrics
+}
+
+api <--> etcd
+api <--> sched
+api <--> cm
+api <--> k1
+api <--> k2
+api <--> addons
+
+@enduml

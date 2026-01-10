@@ -1,0 +1,39 @@
+@startuml
+
+skinparam backgroundColor white
+
+title Troubleshooting do API Server
+
+start
+:kubectl nao responde;
+
+:Verificar se processo esta rodando;
+:sudo crictl ps | grep apiserver;
+
+if (Container rodando?) then (nao)
+  :Verificar manifesto;
+  :cat /etc/kubernetes/manifests/kube-apiserver.yaml;
+  if (Manifesto OK?) then (sim)
+    :Verificar logs do kubelet;
+    :journalctl -u kubelet | grep apiserver;
+  else (nao)
+    :Corrigir manifesto;
+  endif
+else (sim)
+  :Verificar logs do apiserver;
+  :sudo crictl logs <container-id>;
+  if (Erro de certificado?) then (sim)
+    :kubeadm certs renew apiserver;
+    :systemctl restart kubelet;
+  else (nao)
+    if (Erro etcd?) then (sim)
+      :Verificar etcd;
+    else (nao)
+      :Verificar configuracao;
+    endif
+  endif
+endif
+
+stop
+
+@enduml

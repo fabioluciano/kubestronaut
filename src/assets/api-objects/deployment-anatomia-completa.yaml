@@ -1,0 +1,66 @@
+# Campos OBRIGATÓRIOS
+apiVersion: apps/v1             # API group/version que suporta este objeto
+kind: Deployment                # Tipo do recurso
+
+# Campos OBRIGATÓRIOS
+metadata:
+  name: nginx-deployment        # Nome único (DNS subdomain: [a-z0-9.-], max 253 chars)
+  namespace: default            # Namespace (se recurso é namespaced)
+  
+  # OPCIONAIS mas muito usados
+  labels:                       # Key-value para seleção e organização
+    app: nginx
+    environment: production
+    tier: frontend
+  
+  annotations:                  # Metadata não-identificadora
+    description: "Web server deployment"
+    kubernetes.io/change-cause: "Update to nginx 1.21"
+  
+  # GERENCIADOS PELO KUBERNETES (read-only)
+  uid: 8e5b6c4d-...            # Identificador único global
+  resourceVersion: "12345"      # Versão para optimistic concurrency
+  creationTimestamp: "2024-01-01T00:00:00Z"
+  generation: 3                 # Incrementa quando spec muda
+  
+  # OPCIONAL - para ownership
+  ownerReferences:              # Quem criou este objeto
+  - apiVersion: apps/v1
+    kind: ReplicaSet
+    name: nginx-rs-abc123
+    uid: ...
+
+# OBRIGATÓRIO - Define o estado desejado
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.21
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+
+# GERENCIADO PELO KUBERNETES (read-only)
+status:
+  replicas: 3
+  readyReplicas: 3
+  availableReplicas: 3
+  observedGeneration: 3
+  conditions:
+  - type: Available
+    status: "True"
+    lastUpdateTime: "2024-01-01T00:00:00Z"

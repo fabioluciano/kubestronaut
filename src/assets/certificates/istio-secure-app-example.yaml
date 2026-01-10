@@ -1,0 +1,37 @@
+# Namespace com injection
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: secure-app
+  labels:
+    istio-injection: enabled
+---
+# Deployment (sidecar será injetado automaticamente)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: secure-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: nginx
+---
+# PeerAuthentication para forçar mTLS
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: strict-mtls
+  namespace: secure-app
+spec:
+  mtls:
+    mode: STRICT

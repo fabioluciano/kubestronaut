@@ -1,0 +1,180 @@
+# /etc/kubernetes/audit-policy.yaml
+# Policy de auditoria completa para producao
+#
+# Niveis de auditoria:
+# - None: nao logar
+# - Metadata: logar metadata (usuario, timestamp, recurso, verbo)
+# - Request: logar metadata + request body
+# - RequestResponse: logar metadata + request + response body
+---
+apiVersion: audit.k8s.io/v1
+kind: Policy
+# Regras sao avaliadas em ordem, primeira match ganha
+rules:
+  # === REGRAS DE EXCLUSAO (performance) ===
+
+  # Nao logar requests de health check
+  - level: None
+    users: ["system:kube-proxy"]
+    verbs: ["watch"]
+    resources:
+      - group: ""
+        resources: ["endpoints", "services", "services/status"]
+
+  # Nao logar requests de leitura de nodes pelo kubelet
+  - level: None
+    users: ["system:kubelet"]
+    verbs: ["get"]
+    resources:
+      - group: ""
+        resources: ["nodes", "nodes/status"]
+
+  # Nao logar requests de leitura do controller-manager
+  - level: None
+    users: ["system:kube-controller-manager"]
+    verbs: ["get", "list"]
+    resources:
+      - group: ""
+        resources: ["configmaps", "endpoints", "namespaces", "secrets", "serviceaccounts"]
+
+  # Nao logar healthchecks do API server
+  - level: None
+    nonResourceURLs:
+      - "/healthz*"
+      - "/livez*"
+      - "/readyz*"
+      - "/version"
+      - "/swagger*"
+
+  # Nao logar requests de leitura frequentes do kube-system
+  - level: None
+    users: ["system:apiserver"]
+    verbs: ["get", "list", "watch"]
+    namespaces: ["kube-system"]
+
+  # === REGRAS CRITICAS (RequestResponse) ===
+
+  # Logar TUDO sobre secrets (muito importante para seguranca!)
+  - level: RequestResponse
+    resources:
+      - group: ""
+        resources: ["secrets"]
+    omitStages:
+      - RequestReceived
+
+  # Logar TUDO sobre configmaps
+  - level: RequestResponse
+    resources:
+      - group: ""
+        resources: ["configmaps"]
+    omitStages:
+      - RequestReceived
+
+  # Logar TUDO sobre tokens e certificados
+  - level: RequestResponse
+    resources:
+      - group: ""
+        resources: ["serviceaccounts/token"]
+      - group: "certificates.k8s.io"
+        resources: ["certificatesigningrequests"]
+    omitStages:
+      - RequestReceived
+
+  # === REGRAS DE SEGURANCA (Request) ===
+
+  # Logar acoes em RBAC
+  - level: Request
+    resources:
+      - group: "rbac.authorization.k8s.io"
+        resources: ["roles", "rolebindings", "clusterroles", "clusterrolebindings"]
+    omitStages:
+      - RequestReceived
+
+  # Logar acoes em NetworkPolicies
+  - level: Request
+    resources:
+      - group: "networking.k8s.io"
+        resources: ["networkpolicies"]
+    omitStages:
+      - RequestReceived
+
+  # Logar acoes em PodSecurityPolicies (se usado)
+  - level: Request
+    resources:
+      - group: "policy"
+        resources: ["podsecuritypolicies"]
+    omitStages:
+      - RequestReceived
+
+  # Logar acoes em ValidatingWebhookConfiguration e MutatingWebhookConfiguration
+  - level: Request
+    resources:
+      - group: "admissionregistration.k8s.io"
+        resources: ["validatingwebhookconfigurations", "mutatingwebhookconfigurations"]
+    omitStages:
+      - RequestReceived
+
+  # === REGRAS DE WORKLOADS (Metadata) ===
+
+  # Logar criacao/delecao de pods
+  - level: Metadata
+    resources:
+      - group: ""
+        resources: ["pods"]
+    verbs: ["create", "delete", "deletecollection"]
+    omitStages:
+      - RequestReceived
+
+  # Logar acoes em deployments, statefulsets, daemonsets
+  - level: Metadata
+    resources:
+      - group: "apps"
+        resources: ["deployments", "statefulsets", "daemonsets", "replicasets"]
+    verbs: ["create", "update", "patch", "delete"]
+    omitStages:
+      - RequestReceived
+
+  # Logar acoes em jobs e cronjobs
+  - level: Metadata
+    resources:
+      - group: "batch"
+        resources: ["jobs", "cronjobs"]
+    omitStages:
+      - RequestReceived
+
+  # === REGRAS DE EXECUCAO (importante para seguranca) ===
+
+  # Logar exec, attach, portforward em pods
+  - level: Request
+    resources:
+      - group: ""
+        resources: ["pods/exec", "pods/attach", "pods/portforward"]
+    omitStages:
+      - RequestReceived
+
+  # === REGRAS DE NAMESPACE ===
+
+  # Logar criacao/delecao de namespaces
+  - level: Metadata
+    resources:
+      - group: ""
+        resources: ["namespaces"]
+    verbs: ["create", "delete"]
+    omitStages:
+      - RequestReceived
+
+  # === REGRAS DE AUTENTICACAO ===
+
+  # Logar tentativas de autenticacao
+  - level: Metadata
+    nonResourceURLs:
+      - "/apis/authentication.k8s.io/*"
+    omitStages:
+      - RequestReceived
+
+  # === REGRA DEFAULT ===
+
+  # Logar metadata de tudo mais (catch-all)
+  - level: Metadata
+    omitStages:
+      - RequestReceived

@@ -1,0 +1,32 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title ARQUITETURA DOCKER
+
+actor "Usuario" as user
+
+entity "Docker CLI" as cli
+entity "Docker Daemon\n(dockerd)" as daemon
+entity "containerd" as cd
+entity "runc" as runc
+database "Registry" as reg
+
+rectangle "Containers" {
+  card "Container 1" as c1
+  card "Container 2" as c2
+  card "Container 3" as c3
+}
+
+user --> cli : comandos
+cli --> daemon : REST API
+daemon --> cd : gRPC
+cd --> runc : OCI
+daemon <--> reg : pull/push
+runc --> c1
+runc --> c2
+runc --> c3
+
+@enduml

@@ -1,0 +1,32 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title RESOURCEQUOTA
+
+rectangle "Namespace: team-a" {
+  rectangle "ResourceQuota" #lightcoral {
+    note as quota
+      pods: 10
+      requests.cpu: 4
+      requests.memory: 8Gi
+      limits.cpu: 8
+      limits.memory: 16Gi
+      persistentvolumeclaims: 5
+      services.loadbalancers: 2
+    end note
+  }
+
+  card "Pod 1\ncpu: 500m\nmem: 512Mi" as p1
+  card "Pod 2\ncpu: 1\nmem: 1Gi" as p2
+  card "Pod 3\ncpu: 500m\nmem: 512Mi" as p3
+
+  note bottom
+    Consumo atual:
+    3/10 pods
+    2/4 CPU requests
+    2Gi/8Gi memory requests
+  end note
+}
+
+@enduml

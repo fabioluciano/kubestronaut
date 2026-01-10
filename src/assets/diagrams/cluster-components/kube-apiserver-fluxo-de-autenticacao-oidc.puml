@@ -1,0 +1,30 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Fluxo de Autenticacao OIDC
+
+actor Usuario
+participant "Identity Provider\n(Google, Okta, etc)" as idp
+participant "kube-apiserver" as api
+database "etcd" as etcd
+
+Usuario -> idp : 1. Login (username/password)
+idp -> idp : Valida credenciais
+idp --> Usuario : 2. ID Token (JWT)\n+ Refresh Token
+
+Usuario -> Usuario : 3. Configura kubeconfig\ncom ID Token
+
+Usuario -> api : 4. kubectl get pods\n(com Bearer Token)
+api -> api : 5. Valida JWT:\n- Verifica assinatura (JWKS)\n- Verifica issuer\n- Verifica audience\n- Verifica expiracao\n- Extrai claims
+api --> Usuario : 6. Resposta (se valido)
+
+note right of api
+  O API Server NAO contata
+  o IdP em cada requisicao.
+  Apenas valida o JWT localmente.
+end note
+
+@enduml

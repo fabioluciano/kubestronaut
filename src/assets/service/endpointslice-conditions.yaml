@@ -1,0 +1,26 @@
+apiVersion: discovery.k8s.io/v1
+kind: EndpointSlice
+metadata:
+  name: web-slice-abc
+  labels:
+    kubernetes.io/service-name: web-service
+addressType: IPv4
+ports:
+- port: 80
+  protocol: TCP
+endpoints:
+- addresses:
+  - "10.244.1.5"
+  conditions:
+    ready: true        # Pod passou readinessProbe
+    serving: true      # Pod pode servir tráfego
+    terminating: false # Pod não está terminando
+  nodeName: worker-1
+  zone: us-east-1a
+- addresses:
+  - "10.244.2.3"
+  conditions:
+    ready: false       # Pod não está ready
+    serving: false     # Não deve receber tráfego
+    terminating: true  # Pod está sendo terminado
+  nodeName: worker-2

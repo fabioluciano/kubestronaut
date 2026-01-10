@@ -1,0 +1,21 @@
+@startuml
+skinparam monochrome true
+
+map "VERIFICAÇÕES COMUNS" as checks {
+}
+
+note bottom of checks
+  **Kube-linter / Kubesec verificam:**
+
+  ✅ runAsNonRoot definido
+  ✅ readOnlyRootFilesystem
+  ✅ capabilities dropped
+  ✅ privileged: false
+  ✅ resource limits definidos
+  ✅ serviceAccountName específico
+  ✅ Não usar :latest tag
+  ✅ liveness/readiness probes
+  ✅ securityContext configurado
+  ✅ hostNetwork/hostPID/hostIPC: false
+end note
+@enduml

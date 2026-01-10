@@ -1,0 +1,31 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title ATTACK SURFACES
+
+rectangle "External" {
+  card "Ingress/LoadBalancer" as ext1
+  card "NodePort Services" as ext2
+  card "API Server (se exposto)" as ext3
+}
+
+rectangle "Network" {
+  card "Pod-to-Pod" as net1
+  card "Pod-to-Service" as net2
+  card "Egress to Internet" as net3
+}
+
+rectangle "Node" {
+  card "kubelet API" as node1
+  card "Container Runtime" as node2
+  card "Host filesystem" as node3
+}
+
+rectangle "Workload" {
+  card "Application vulnerabilities" as work1
+  card "Container image" as work2
+  card "Secrets/ConfigMaps" as work3
+}
+
+@enduml

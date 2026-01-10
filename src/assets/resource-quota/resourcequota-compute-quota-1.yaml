@@ -1,0 +1,21 @@
+# Exemplo completo de ResourceQuota
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: compute-quota
+  namespace: development
+spec:
+  hard:
+    # Compute
+    requests.cpu: "4"
+    requests.memory: 8Gi
+    limits.cpu: "8"
+    limits.memory: 16Gi
+    # Objects
+    pods: "20"
+    services: "10"
+    secrets: "20"
+    configmaps: "20"
+    persistentvolumeclaims: "10"
+    # Storage
+    requests.storage: 100Gi

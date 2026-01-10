@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: probe-demo
+spec:
+  containers:
+  - name: app
+    image: nginx
+    ports:
+    - containerPort: 80
+    # Liveness: reinicia se falhar
+    livenessProbe:
+      httpGet:
+        path: /healthz
+        port: 80
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      failureThreshold: 3
+    # Readiness: remove do service se falhar
+    readinessProbe:
+      httpGet:
+        path: /ready
+        port: 80
+      initialDelaySeconds: 5
+      periodSeconds: 5
+    # Startup: para apps lentos
+    startupProbe:
+      httpGet:
+        path: /startup
+        port: 80
+      failureThreshold: 30
+      periodSeconds: 10

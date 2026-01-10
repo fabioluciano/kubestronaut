@@ -1,0 +1,26 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title SUPPLY CHAIN ATTACK
+
+rectangle "Attack Chain" {
+  card "1. Compromete base image" as s1
+  card "2. Imagem usada no build" as s2
+  card "3. Deploy em produção" as s3
+  card "4. Backdoor ativo" as s4
+}
+
+s1 --> s2
+s2 --> s3
+s3 --> s4
+
+note bottom
+  Mitigação:
+  • Image scanning (Trivy)
+  • Image signing (Cosign)
+  • Admission policies
+  • SBOM verification
+end note
+
+@enduml

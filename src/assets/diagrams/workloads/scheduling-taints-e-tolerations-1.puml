@@ -1,0 +1,27 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title TAINTS E TOLERATIONS
+
+rectangle "TAINT (no Node)" as taint
+note right of taint
+  Não aceito pods sem
+  esta toleração
+end note
+
+rectangle "TOLERATION (no Pod)" as toleration
+note right of toleration
+  Eu tolero esse taint,
+  pode me colocar aqui
+end note
+
+rectangle "Node\ntaint: app=blue\nNoSchedule" as node1
+rectangle "Pod\ntoleration: app=blue" as pod1
+node1 <-- pod1 : ✓ Aceito
+
+rectangle "Node\ntaint: app=blue\nNoSchedule" as node2
+rectangle "Pod\n(sem toleration)" as pod2
+node2 <-[#red]- pod2 : ✗ Rejeitado
+
+@enduml

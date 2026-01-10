@@ -1,0 +1,46 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Fluxo Completo de Requisicao no kube-apiserver
+
+actor Cliente
+participant "API Server\nHandler" as api
+participant "Authentication\nChain" as auth
+participant "Authorization\nChain" as authz
+participant "Mutating\nAdmission" as mutate
+participant "Object Schema\nValidation" as schema
+participant "Validating\nAdmission" as validate
+database "etcd" as etcd
+
+Cliente -> api : kubectl create -f pod.yaml
+note right: POST /api/v1/namespaces/default/pods
+
+api -> auth : 1. Quem esta fazendo a requisicao?
+auth -> auth : X.509 Certificate?\nBearer Token?\nOIDC Token?
+auth --> api : Usuario: john\nGroups: [developers, system:authenticated]
+
+api -> authz : 2. John pode criar pods em default?
+authz -> authz : Node Authorizer?\nRBAC?\nWebhook?
+authz --> api : RBAC: Allow (Role: pod-creator)
+
+api -> mutate : 3. Modificacoes necessarias?
+mutate -> mutate : ServiceAccount injection\nDefault tolerations\nLimitRanger defaults
+mutate --> api : Pod com modificacoes aplicadas
+
+api -> schema : 4. Objeto e valido?
+schema -> schema : Required fields?\nValid types?\nKnown fields?
+schema --> api : Schema validation passed
+
+api -> validate : 5. Validacoes de politicas
+validate -> validate : ResourceQuota OK?\nPodSecurity OK?\nCustom webhooks OK?
+validate --> api : All validations passed
+
+api -> etcd : 6. Persistir no etcd
+etcd --> api : Pod persisted (revision: 12345)
+
+api --> Cliente : 201 Created\n{"kind": "Pod", ...}
+
+@enduml

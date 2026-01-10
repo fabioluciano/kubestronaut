@@ -1,0 +1,35 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title CRIACAO DE CLUSTER COM KUBEADM
+
+rectangle "1. Preparacao" as p1 {
+  card "Instalar container runtime" as p1a
+  card "Instalar kubeadm, kubelet, kubectl" as p1b
+  card "Desabilitar swap" as p1c
+  card "Configurar rede" as p1d
+}
+
+rectangle "2. Control Plane" as p2 {
+  card "kubeadm init" as p2a
+  card "Configurar kubeconfig" as p2b
+  card "Instalar CNI" as p2c
+}
+
+rectangle "3. Workers" as p3 {
+  card "kubeadm join" as p3a
+}
+
+rectangle "4. Validacao" as p4 {
+  card "kubectl get nodes" as p4a
+  card "Deploy teste" as p4b
+}
+
+p1 --> p2
+p2 --> p3
+p3 --> p4
+
+@enduml

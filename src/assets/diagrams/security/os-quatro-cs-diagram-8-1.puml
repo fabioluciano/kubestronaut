@@ -1,0 +1,27 @@
+@startuml
+skinparam monochrome true
+
+rectangle "DICAS CKS - 4 Cs" as dicas
+
+note bottom of dicas
+  **MODELO 4 Cs (de fora para dentro):**
+  1. CLOUD - Infraestrutura (IAM, rede, encryption)
+  2. CLUSTER - Kubernetes (RBAC, NetworkPolicy, PSA)
+  3. CONTAINER - Runtime (scanning, seccomp, non-root)
+  4. CODE - Aplicação (SAST, secrets, TLS)
+
+  **PRINCÍPIO:**
+  • Camadas externas devem ser seguras para proteger internas
+  • Defense in depth - múltiplas camadas
+
+  **FOCO DO CKS:**
+  • Principalmente CLUSTER e CONTAINER
+  • RBAC, NetworkPolicy, PSA, Seccomp, AppArmor
+  • Image scanning, RuntimeClass
+
+  **FERRAMENTAS RELACIONADAS:**
+  • Cluster: kube-bench, kubesec
+  • Container: Trivy, Falco
+  • Code: Snyk, Dependabot
+end note
+@enduml

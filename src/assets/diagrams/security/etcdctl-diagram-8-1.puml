@@ -1,0 +1,14 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+
+map "BOAS PRATICAS ETCD" as praticas {
+  TLS => Sempre usar HTTPS (mTLS)
+  Backup => Automatizar com cron
+  Acesso => Limitar ao control plane
+  Firewall => Bloquear portas 2379/2380 externamente
+  Criptografia => Habilitar encryption at rest
+  Monitoramento => Alertar em health check failures
+}
+
+@enduml

@@ -1,0 +1,34 @@
+@startuml
+skinparam monochrome true
+
+map "CONTAINER SECURITY" as container {
+}
+
+note bottom of container
+  **IMAGEM:**
+  • Base image mínima (distroless, alpine)
+  • Scan de vulnerabilidades
+  • Assinatura de imagens
+  • Registry privado e seguro
+  • Não usar :latest
+
+  **BUILD:**
+  • Multi-stage builds
+  • Não incluir secrets na imagem
+  • Usuário non-root
+  • Read-only filesystem quando possível
+
+  **RUNTIME:**
+  • Seccomp profiles
+  • AppArmor/SELinux
+  • RuntimeClass (gVisor, Kata)
+  • Capabilities mínimas
+  • Non-root user
+  • Read-only root filesystem
+
+  **SUPPLY CHAIN:**
+  • SBOM (Software Bill of Materials)
+  • Provenance verification
+  • Trusted registries
+end note
+@enduml

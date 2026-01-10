@@ -1,0 +1,42 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title NAMESPACES PADRAO
+
+rectangle "default" #lightblue {
+  note as n1
+    Namespace padrao para recursos
+    sem namespace especificado
+  end note
+}
+
+rectangle "kube-system" #lightcoral {
+  note as n2
+    Componentes do sistema Kubernetes:
+    - kube-apiserver
+    - kube-controller-manager
+    - kube-scheduler
+    - kube-proxy
+    - CoreDNS
+    - etcd (se em pod)
+  end note
+}
+
+rectangle "kube-public" #lightgreen {
+  note as n3
+    Recursos publicos legiveis
+    por todos (autenticados ou nao)
+    Contem: cluster-info ConfigMap
+  end note
+}
+
+rectangle "kube-node-lease" #lightyellow {
+  note as n4
+    Lease objects para heartbeat de nodes
+    Melhora performance de deteccao
+    de falhas de nodes
+  end note
+}
+
+@enduml

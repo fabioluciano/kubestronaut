@@ -1,0 +1,34 @@
+@startuml
+skinparam monochrome true
+
+map "CLUSTER SECURITY" as cluster {
+}
+
+note bottom of cluster
+  **AUTENTICAÇÃO:**
+  • Certificados X.509
+  • OIDC integration
+  • Service Accounts
+  • NÃO usar tokens estáticos
+
+  **AUTORIZAÇÃO:**
+  • RBAC habilitado
+  • Roles mínimas necessárias
+  • Audit de permissões
+
+  **ADMISSION CONTROL:**
+  • Pod Security Admission
+  • Validating/Mutating webhooks
+  • OPA Gatekeeper
+
+  **REDE:**
+  • NetworkPolicies
+  • TLS entre componentes
+  • Encryption do etcd
+
+  **COMPONENTES:**
+  • Hardening do API Server
+  • Auditoria habilitada
+  • Secrets encryption at rest
+end note
+@enduml

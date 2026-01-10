@@ -1,0 +1,17 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: history-cron
+spec:
+  schedule: "*/5 * * * *"
+  successfulJobsHistoryLimit: 3  # Manter últimos 3 Jobs bem-sucedidos
+  failedJobsHistoryLimit: 1      # Manter último Job que falhou
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: task
+            image: busybox
+            command: ["date"]
+          restartPolicy: OnFailure

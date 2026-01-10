@@ -1,0 +1,32 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title QUANDO USAR?
+
+card "USE CONTAINERS" as c {
+}
+
+card "USE VMs" as v {
+}
+
+note bottom of c
+  - Microservices
+  - CI/CD pipelines
+  - Aplicacoes cloud native
+  - Alta densidade
+  - Deploy rapido
+  - Desenvolvimento local
+end note
+
+note bottom of v
+  - Isolamento forte necessario
+  - Diferentes kernels/SOs
+  - Aplicacoes legadas
+  - Compliance estrito
+  - Multi-tenancy seguro
+end note
+
+@enduml

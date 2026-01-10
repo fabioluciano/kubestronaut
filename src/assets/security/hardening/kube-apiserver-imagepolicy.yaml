@@ -1,0 +1,16 @@
+# kube-apiserver.yaml
+spec:
+  containers:
+  - command:
+    - kube-apiserver
+    - --enable-admission-plugins=NodeRestriction,ImagePolicyWebhook
+    - --admission-control-config-file=/etc/kubernetes/admission/admission-config.yaml
+    volumeMounts:
+    - name: admission-config
+      mountPath: /etc/kubernetes/admission
+      readOnly: true
+  volumes:
+  - name: admission-config
+    hostPath:
+      path: /etc/kubernetes/admission
+      type: DirectoryOrCreate

@@ -1,0 +1,34 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title PKI - Public Key Infrastructure
+
+rectangle "Certificate Authority (CA)" as ca {
+    rectangle "CA Private Key" as cakey
+    rectangle "CA Certificate" as cacert
+}
+
+rectangle "Servidor" as server {
+    rectangle "Server Private Key" as serverkey
+    rectangle "Server Certificate" as servercert
+}
+
+rectangle "Cliente" as client {
+    rectangle "Client Private Key" as clientkey
+    rectangle "Client Certificate" as clientcert
+}
+
+cakey --> cacert : Autoassina
+cacert --> servercert : Assina
+cacert --> clientcert : Assina
+
+note right of ca
+  A CA e a raiz de confianca.
+  Todos confiam em certificados
+  assinados pela CA.
+end note
+
+@enduml

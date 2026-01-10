@@ -1,0 +1,30 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title LoadBalancer
+
+actor "Internet" as internet
+
+entity "Cloud Load Balancer\nExternal IP: 203.0.113.10" as lb
+entity "Node 1\n:30xxx" as n1
+entity "Node 2\n:30xxx" as n2
+entity "Node 3\n:30xxx" as n3
+entity "ClusterIP" as clusterip
+entity "Pods" as pods
+internet --> lb
+lb --> n1
+lb --> n2
+lb --> n3
+n1 --> clusterip
+n2 --> clusterip
+n3 --> clusterip
+clusterip --> pods
+
+note bottom
+  Internet → Cloud LB → NodePort → ClusterIP → Pods
+  📌 Cloud provider cria LB automaticamente
+end note
+
+@enduml

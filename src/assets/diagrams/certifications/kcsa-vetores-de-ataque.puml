@@ -1,0 +1,24 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title VETORES DE ATAQUE
+
+rectangle "External" {
+  card "Exposed Services" as ext1
+  card "Ingress vulnerabilities" as ext2
+  card "Supply chain" as ext3
+}
+
+rectangle "Internal" {
+  card "Compromised pod" as int1
+  card "Lateral movement" as int2
+  card "Privilege escalation" as int3
+}
+
+rectangle "Insider" {
+  card "Malicious admin" as ins1
+  card "Stolen credentials" as ins2
+}
+
+@enduml

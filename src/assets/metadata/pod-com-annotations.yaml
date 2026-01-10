@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-app
+  annotations:
+    # Documentação
+    description: "Pod principal da aplicação"
+    owner: "team-backend"
+    contact: "backend@example.com"
+    
+    # Ferramentas de monitoramento
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
+    prometheus.io/path: "/metrics"
+    
+    # Ingress configuration
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    
+    # Sidecar injection (Istio)
+    sidecar.istio.io/inject: "true"
+    
+    # Configurações de deployment
+    kubernetes.io/change-cause: "Deploy version 2.0"
+spec:
+  containers:
+  - name: app
+    image: my-app:2.0

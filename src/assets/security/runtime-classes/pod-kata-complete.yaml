@@ -1,0 +1,108 @@
+# Pod completo usando Kata Containers
+apiVersion: v1
+kind: Pod
+metadata:
+  name: isolated-app
+  namespace: high-security
+  labels:
+    app: isolated-app
+    runtime: kata
+  annotations:
+    description: "Aplicacao executando em VM Kata"
+    # Anotacoes especificas do Kata (opcional)
+    io.katacontainers.config.hypervisor.kernel: "/opt/kata/share/kata-containers/vmlinux.container"
+spec:
+  # RuntimeClass para usar Kata
+  runtimeClassName: kata
+
+  # Configuracoes de seguranca
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 10000
+    runAsGroup: 10000
+    fsGroup: 10000
+
+  # Nao montar token de service account
+  automountServiceAccountToken: false
+
+  # Nao usar recursos do host
+  hostNetwork: false
+  hostPID: false
+  hostIPC: false
+
+  containers:
+  - name: app
+    image: gcr.io/distroless/static:nonroot
+    imagePullPolicy: Always
+
+    securityContext:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      capabilities:
+        drop:
+          - ALL
+
+    ports:
+    - containerPort: 8080
+      protocol: TCP
+
+    # Recursos (considerando overhead do Kata)
+    resources:
+      requests:
+        cpu: 200m
+        memory: 128Mi
+      limits:
+        cpu: "1"
+        memory: 512Mi
+
+    volumeMounts:
+    - name: tmp
+      mountPath: /tmp
+    - name: config
+      mountPath: /etc/app
+      readOnly: true
+
+    env:
+    - name: APP_ENV
+      value: "production"
+    - name: POD_NAME
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.name
+
+    livenessProbe:
+      httpGet:
+        path: /health
+        port: 8080
+      initialDelaySeconds: 15
+      periodSeconds: 10
+
+    readinessProbe:
+      httpGet:
+        path: /ready
+        port: 8080
+      initialDelaySeconds: 10
+      periodSeconds: 5
+
+  volumes:
+  - name: tmp
+    emptyDir:
+      medium: Memory
+      sizeLimit: 50Mi
+  - name: config
+    configMap:
+      name: app-config
+      optional: true
+
+  # Scheduling
+  nodeSelector:
+    kubernetes.io/os: linux
+
+  # Tolerations para nodes com Kata
+  tolerations:
+  - key: "runtime"
+    operator: "Equal"
+    value: "kata"
+    effect: "NoSchedule"
+
+  restartPolicy: Always

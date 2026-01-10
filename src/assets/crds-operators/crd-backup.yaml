@@ -1,0 +1,30 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: backups.example.com
+spec:
+  group: example.com                    # API group
+  versions:
+  - name: v1                            # Versão da API
+    served: true                        # API ativa
+    storage: true                       # Versão de storage
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              schedule:
+                type: string
+              retention:
+                type: integer
+            required:
+            - schedule
+  scope: Namespaced                     # ou Cluster
+  names:
+    plural: backups                     # URL: /apis/example.com/v1/backups
+    singular: backup                    # kubectl get backup
+    kind: Backup                        # YAML kind
+    shortNames:                         # kubectl get bkp
+    - bkp

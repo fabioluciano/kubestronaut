@@ -1,0 +1,33 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title TIPOS DE AUTOSCALING
+
+rectangle "HPA (Horizontal Pod Autoscaler)" {
+  note as n1
+    Ajusta QUANTIDADE de pods
+    Quando: Carga variável, apps stateless
+  end note
+}
+
+rectangle "VPA (Vertical Pod Autoscaler)" {
+  note as n2
+    Ajusta RECURSOS (CPU/mem) dos pods
+    Quando: Otimizar requests, apps stateful
+    Nota: Requer restart dos pods
+  end note
+}
+
+rectangle "Cluster Autoscaler" {
+  note as n3
+    Ajusta QUANTIDADE de nodes
+    Quando: Pods pending por falta de recursos
+  end note
+}
+
+note bottom
+  ⚠️ HPA e VPA não devem gerenciar mesma métrica (CPU/mem)
+end note
+
+@enduml

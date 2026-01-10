@@ -1,0 +1,12 @@
+# /etc/kubernetes/admission/admission-config.yaml
+apiVersion: apiserver.config.k8s.io/v1
+kind: AdmissionConfiguration
+plugins:
+- name: ImagePolicyWebhook
+  configuration:
+    imagePolicy:
+      kubeConfigFile: /etc/kubernetes/admission/image-policy-kubeconfig.yaml
+      allowTTL: 50         # Cache permitidos por 50s
+      denyTTL: 50          # Cache negados por 50s
+      retryBackoff: 500    # Retry em caso de erro
+      defaultAllow: false  # CRÍTICO: negar se webhook indisponível

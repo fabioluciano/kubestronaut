@@ -1,0 +1,16 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title TRIVY OUTPUT - nginx:latest (debian 11.6)
+
+note as summary
+  Total: 142 (UNKNOWN: 0, LOW: 98, MEDIUM: 28, HIGH: 14, CRITICAL: 2)
+end note
+
+map "Vulnerabilidades Encontradas" as vulns {
+  libssl1.1 => CVE-2023-0286 | HIGH | Fixed: 1.1.1n-0+deb11
+  openssl => CVE-2023-0464 | CRITICAL | Fixed: 1.1.1t-0+deb11
+}
+@enduml

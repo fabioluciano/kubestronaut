@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sandboxed-pod
+spec:
+  runtimeClassName: gvisor  # Referencia o RuntimeClass
+  containers:
+  - name: app
+    image: nginx

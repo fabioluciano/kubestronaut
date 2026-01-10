@@ -1,0 +1,160 @@
+# /etc/kubernetes/manifests/kube-apiserver.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kube-apiserver
+  namespace: kube-system
+  labels:
+    component: kube-apiserver
+    tier: control-plane
+  annotations:
+    kubeadm.kubernetes.io/kube-apiserver.advertise-address.endpoint: 192.168.1.10:6443
+spec:
+  hostNetwork: true
+  priorityClassName: system-node-critical
+  containers:
+  - name: kube-apiserver
+    image: registry.k8s.io/kube-apiserver:v1.29.0
+    command:
+    - kube-apiserver
+
+    # ========== CONEXAO E REDE ==========
+    - --advertise-address=192.168.1.10
+    - --bind-address=0.0.0.0
+    - --secure-port=6443
+    - --service-cluster-ip-range=10.96.0.0/12
+    - --service-node-port-range=30000-32767
+
+    # ========== ETCD ==========
+    - --etcd-servers=https://127.0.0.1:2379
+    - --etcd-cafile=/etc/kubernetes/pki/etcd/ca.crt
+    - --etcd-certfile=/etc/kubernetes/pki/apiserver-etcd-client.crt
+    - --etcd-keyfile=/etc/kubernetes/pki/apiserver-etcd-client.key
+
+    # ========== TLS DO API SERVER ==========
+    - --tls-cert-file=/etc/kubernetes/pki/apiserver.crt
+    - --tls-private-key-file=/etc/kubernetes/pki/apiserver.key
+    - --tls-cipher-suites=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+    - --tls-min-version=VersionTLS12
+
+    # ========== AUTENTICACAO ==========
+    - --client-ca-file=/etc/kubernetes/pki/ca.crt
+    - --service-account-key-file=/etc/kubernetes/pki/sa.pub
+    - --service-account-signing-key-file=/etc/kubernetes/pki/sa.key
+    - --service-account-issuer=https://kubernetes.default.svc.cluster.local
+    - --anonymous-auth=true
+
+    # ========== AUTORIZACAO ==========
+    - --authorization-mode=Node,RBAC
+
+    # ========== ADMISSION CONTROLLERS ==========
+    - --enable-admission-plugins=NodeRestriction,PodSecurity
+
+    # ========== KUBELET ==========
+    - --kubelet-client-certificate=/etc/kubernetes/pki/apiserver-kubelet-client.crt
+    - --kubelet-client-key=/etc/kubernetes/pki/apiserver-kubelet-client.key
+    - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
+
+    # ========== PROXY (AGGREGATION) ==========
+    - --proxy-client-cert-file=/etc/kubernetes/pki/front-proxy-client.crt
+    - --proxy-client-key-file=/etc/kubernetes/pki/front-proxy-client.key
+    - --requestheader-allowed-names=front-proxy-client
+    - --requestheader-client-ca-file=/etc/kubernetes/pki/front-proxy-ca.crt
+    - --requestheader-extra-headers-prefix=X-Remote-Extra-
+    - --requestheader-group-headers=X-Remote-Group
+    - --requestheader-username-headers=X-Remote-User
+    - --enable-aggregator-routing=true
+
+    # ========== AUDIT ==========
+    - --audit-log-path=/var/log/kubernetes/audit/audit.log
+    - --audit-log-maxage=30
+    - --audit-log-maxbackup=10
+    - --audit-log-maxsize=100
+    - --audit-policy-file=/etc/kubernetes/audit/policy.yaml
+
+    # ========== ENCRIPTACAO ==========
+    - --encryption-provider-config=/etc/kubernetes/enc/encryption-config.yaml
+
+    # ========== FEATURES ==========
+    - --allow-privileged=true
+    - --profiling=false
+
+    # Volume mounts
+    volumeMounts:
+    - name: ca-certs
+      mountPath: /etc/ssl/certs
+      readOnly: true
+    - name: k8s-certs
+      mountPath: /etc/kubernetes/pki
+      readOnly: true
+    - name: etcd-certs
+      mountPath: /etc/kubernetes/pki/etcd
+      readOnly: true
+    - name: audit-config
+      mountPath: /etc/kubernetes/audit
+      readOnly: true
+    - name: audit-logs
+      mountPath: /var/log/kubernetes/audit
+    - name: encryption-config
+      mountPath: /etc/kubernetes/enc
+      readOnly: true
+
+    # Probes
+    livenessProbe:
+      httpGet:
+        host: 192.168.1.10
+        path: /livez
+        port: 6443
+        scheme: HTTPS
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      timeoutSeconds: 15
+      failureThreshold: 8
+    readinessProbe:
+      httpGet:
+        host: 192.168.1.10
+        path: /readyz
+        port: 6443
+        scheme: HTTPS
+      periodSeconds: 1
+      timeoutSeconds: 15
+    startupProbe:
+      httpGet:
+        host: 192.168.1.10
+        path: /livez
+        port: 6443
+        scheme: HTTPS
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      timeoutSeconds: 15
+      failureThreshold: 24
+
+    resources:
+      requests:
+        cpu: 250m
+
+  volumes:
+  - name: ca-certs
+    hostPath:
+      path: /etc/ssl/certs
+      type: DirectoryOrCreate
+  - name: k8s-certs
+    hostPath:
+      path: /etc/kubernetes/pki
+      type: DirectoryOrCreate
+  - name: etcd-certs
+    hostPath:
+      path: /etc/kubernetes/pki/etcd
+      type: DirectoryOrCreate
+  - name: audit-config
+    hostPath:
+      path: /etc/kubernetes/audit
+      type: DirectoryOrCreate
+  - name: audit-logs
+    hostPath:
+      path: /var/log/kubernetes/audit
+      type: DirectoryOrCreate
+  - name: encryption-config
+    hostPath:
+      path: /etc/kubernetes/enc
+      type: DirectoryOrCreate

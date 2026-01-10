@@ -1,0 +1,15 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: security-alerts
+spec:
+  groups:
+  - name: security
+    rules:
+    - alert: PodRunningAsRoot
+      expr: count(kube_pod_container_info{}) > 0
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Pod running as root detected"

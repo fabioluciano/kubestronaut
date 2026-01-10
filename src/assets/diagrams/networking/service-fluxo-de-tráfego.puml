@@ -1,0 +1,22 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title FLUXO DE TRÁFEGO
+
+actor "Client" as client
+entity "kube-proxy\n(iptables)" as proxy
+entity "Pod" as pod
+client -> proxy : 1. Acessa Service
+proxy -> pod : 2-3. DNAT/LB
+pod -> client : 4. Responde
+
+note bottom of proxy
+  **Modos:**
+  • iptables mode: DNAT para Pod IP
+  • ipvs mode: Load balance para Pod IP
+  • userspace mode: Proxy (deprecated)
+end note
+
+@enduml

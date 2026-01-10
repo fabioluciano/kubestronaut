@@ -1,0 +1,30 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title MULTI-TENANCY COM NAMESPACES
+
+rectangle "Cluster Kubernetes" {
+  rectangle "Namespace: team-frontend" #lightblue {
+    card "ResourceQuota: 4 CPU, 8Gi" as q1
+    card "LimitRange" as l1
+    card "NetworkPolicy" as n1
+    card "RBAC: frontend-devs" as r1
+  }
+
+  rectangle "Namespace: team-backend" #lightgreen {
+    card "ResourceQuota: 8 CPU, 16Gi" as q2
+    card "LimitRange" as l2
+    card "NetworkPolicy" as n2
+    card "RBAC: backend-devs" as r2
+  }
+
+  rectangle "Namespace: team-data" #lightyellow {
+    card "ResourceQuota: 16 CPU, 32Gi" as q3
+    card "LimitRange" as l3
+    card "NetworkPolicy" as n3
+    card "RBAC: data-engineers" as r3
+  }
+}
+
+@enduml

@@ -1,0 +1,50 @@
+# ConstraintTemplate
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: k8sallowedregistries
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sAllowedRegistries
+      validation:
+        openAPIV3Schema:
+          type: object
+          properties:
+            registries:
+              type: array
+              items:
+                type: string
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8sallowedregistries
+
+        violation[{"msg": msg}] {
+          container := input.review.object.spec.containers[_]
+          not registry_allowed(container.image)
+          msg := sprintf("Registry não permitido para imagem: %v. Permitidos: %v", [container.image, input.parameters.registries])
+        }
+
+        registry_allowed(image) {
+          registry := input.parameters.registries[_]
+          startswith(image, registry)
+        }
+---
+# Constraint
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sAllowedRegistries
+metadata:
+  name: allow-only-approved-registries
+spec:
+  enforcementAction: deny
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+  parameters:
+    registries:
+      - "gcr.io/"
+      - "docker.io/library/"
+      - "registry.company.com/"

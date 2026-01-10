@@ -1,0 +1,19 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: deny-icmp
+  namespace: team-orange
+spec:
+  endpointSelector:
+    matchLabels:
+      type: transmitter
+  egressDeny:
+  - toEndpoints:
+    - matchLabels:
+        type: database
+    icmps:
+    - fields:
+      - type: 8           # Echo Request (IPv4)
+        family: IPv4
+      - type: EchoRequest
+        family: IPv6

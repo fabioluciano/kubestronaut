@@ -1,0 +1,37 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title METADATA - ESTRUTURA
+
+rectangle "Object Kubernetes" {
+  rectangle "metadata" #lightblue {
+    card "name: nginx-deployment" as n
+    card "namespace: production" as ns
+    card "uid: abc-123-def" as uid
+    card "resourceVersion: 12345" as rv
+    card "creationTimestamp: 2024-01-01" as ct
+
+    rectangle "labels" #lightgreen {
+      card "app: nginx"
+      card "env: prod"
+      card "version: v1"
+    }
+
+    rectangle "annotations" #lightyellow {
+      card "description: Web server"
+      card "prometheus.io/scrape: true"
+    }
+
+    rectangle "ownerReferences" #lightcoral {
+      card "kind: ReplicaSet"
+      card "name: nginx-rs-abc123"
+    }
+
+    rectangle "finalizers" #lightgray {
+      card "kubernetes.io/pvc-protection"
+    }
+  }
+}
+
+@enduml

@@ -1,0 +1,14 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: multi-completion-job
+spec:
+  completions: 5     # Rodar 5 vezes
+  parallelism: 2     # 2 pods por vez
+  template:
+    spec:
+      containers:
+      - name: worker
+        image: busybox
+        command: ["sh", "-c", "echo Processing item $RANDOM && sleep 5"]
+      restartPolicy: Never

@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: tolerant-pod
+spec:
+  tolerations:
+  - key: "app"
+    operator: "Equal"
+    value: "blue"
+    effect: "NoSchedule"
+  # Ou tolerar QUALQUER valor da key
+  - key: "app"
+    operator: "Exists"
+    effect: "NoSchedule"
+  # Tolerar TUDO (dangerous!)
+  - operator: "Exists"
+  containers:
+  - name: nginx
+    image: nginx

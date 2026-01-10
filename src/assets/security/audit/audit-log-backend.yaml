@@ -1,0 +1,3 @@
+# Logs para arquivo local
+- --audit-log-path=/var/log/kubernetes/audit.log
+- --audit-policy-file=/etc/kubernetes/audit/policy.yaml

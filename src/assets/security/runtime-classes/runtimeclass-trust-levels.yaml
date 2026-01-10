@@ -1,0 +1,97 @@
+# RuntimeClasses para diferentes niveis de confianca
+# Use este padrao para multi-tenancy
+---
+# Nivel 1: Workloads confiaveis (codigo interno auditado)
+# Usa runtime padrao (runc) - sem RuntimeClass necessario
+# Apenas documente que workloads internos usam o runtime padrao
+
+---
+# Nivel 2: Workloads semi-confiaveis (parceiros, codigo de terceiros auditado)
+apiVersion: node.k8s.io/v1
+kind: RuntimeClass
+metadata:
+  name: semi-trusted
+  labels:
+    trust-level: "2"
+    security: medium
+  annotations:
+    description: "Para workloads de parceiros e codigo auditado"
+handler: runsc
+overhead:
+  podFixed:
+    cpu: "100m"
+    memory: "50Mi"
+scheduling:
+  nodeSelector:
+    node-pool: semi-trusted
+---
+# Nivel 3: Workloads nao confiaveis (codigo de terceiros nao auditado)
+apiVersion: node.k8s.io/v1
+kind: RuntimeClass
+metadata:
+  name: untrusted
+  labels:
+    trust-level: "3"
+    security: high
+  annotations:
+    description: "Para workloads de terceiros nao auditados"
+handler: runsc
+overhead:
+  podFixed:
+    cpu: "150m"
+    memory: "80Mi"
+scheduling:
+  nodeSelector:
+    node-pool: untrusted
+    runtime.class/gvisor: "true"
+---
+# Nivel 4: Workloads de alto risco (codigo potencialmente malicioso)
+apiVersion: node.k8s.io/v1
+kind: RuntimeClass
+metadata:
+  name: high-risk
+  labels:
+    trust-level: "4"
+    security: maximum
+  annotations:
+    description: "Para workloads de alto risco - isolamento de VM"
+handler: kata-qemu
+overhead:
+  podFixed:
+    cpu: "250m"
+    memory: "160Mi"
+scheduling:
+  nodeSelector:
+    node-pool: high-risk
+    runtime.class/kata: "true"
+  tolerations:
+  - key: "security"
+    operator: "Equal"
+    value: "high-risk"
+    effect: "NoSchedule"
+---
+# Nivel 5: Workloads criticos de seguranca (compliance PCI-DSS, HIPAA)
+apiVersion: node.k8s.io/v1
+kind: RuntimeClass
+metadata:
+  name: compliance
+  labels:
+    trust-level: "5"
+    security: compliance
+    compliance: "pci-dss,hipaa"
+  annotations:
+    description: "Para workloads com requisitos de compliance"
+handler: kata-qemu
+overhead:
+  podFixed:
+    cpu: "300m"
+    memory: "200Mi"
+scheduling:
+  nodeSelector:
+    node-pool: compliance
+    runtime.class/kata: "true"
+    compliance-certified: "true"
+  tolerations:
+  - key: "compliance"
+    operator: "Exists"
+    effect: "NoSchedule"

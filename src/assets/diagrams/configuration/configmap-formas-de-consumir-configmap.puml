@@ -1,0 +1,47 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title FORMAS DE CONSUMIR CONFIGMAP
+
+rectangle "1. VARIÁVEL DE AMBIENTE (Única)" {
+  note as n1
+    env:
+    - name: MY_VAR
+      valueFrom:
+        configMapKeyRef:
+          name: my-config
+          key: my-key
+  end note
+}
+
+rectangle "2. TODAS AS VARIÁVEIS" {
+  note as n2
+    envFrom:
+    - configMapRef:
+        name: my-config
+  end note
+}
+
+rectangle "3. VOLUME (Arquivos)" {
+  note as n3
+    volumes:
+    - name: config-volume
+      configMap:
+        name: my-config
+  end note
+}
+
+rectangle "4. VOLUME (Items Específicos)" {
+  note as n4
+    volumes:
+    - name: config-volume
+      configMap:
+        name: my-config
+        items:
+        - key: config.yaml
+          path: app/config.yaml
+  end note
+}
+
+@enduml

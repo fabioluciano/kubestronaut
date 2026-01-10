@@ -1,0 +1,22 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title DICAS CKA - ARQUITETURA
+
+rectangle "OBRIGATORIO SABER" {
+  card "1. Localizar manifests:\n/etc/kubernetes/manifests/" as d1
+  card "2. Logs dos componentes:\njournalctl -u kubelet\nkubectl logs -n kube-system" as d2
+  card "3. Backup etcd:\netcdctl snapshot save" as d3
+  card "4. Portas e comunicacao\nentre componentes" as d4
+}
+
+rectangle "TROUBLESHOOTING" {
+  card "kubelet nao inicia:\nverificar certificados" as t1
+  card "API Server down:\nverificar /etc/kubernetes/manifests/" as t2
+  card "etcd problems:\nverificar quorum" as t3
+}
+
+@enduml

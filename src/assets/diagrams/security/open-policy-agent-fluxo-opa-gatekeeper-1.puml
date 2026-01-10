@@ -1,0 +1,22 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title FLUXO OPA GATEKEEPER
+
+rectangle "1. kubectl apply -f pod.yaml" as kubectl
+rectangle "2. API Server" as api
+
+rectangle "3. Admission Controller" as admission {
+  rectangle "OPA Gatekeeper" as gatekeeper {
+    rectangle "ConstraintTemplate\n+ Constraint\n(Rego Policy)" as policy
+  }
+}
+
+rectangle "4. ✓ ALLOW  ou  ✗ DENY" as result
+
+kubectl -down-> api
+api -down-> admission
+admission -down-> result
+
+@enduml

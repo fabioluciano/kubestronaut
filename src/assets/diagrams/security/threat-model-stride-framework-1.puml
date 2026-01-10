@@ -1,0 +1,14 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title STRIDE FRAMEWORK
+
+card "S - Spoofing Identity\nFingir ser outra entidade" as s
+card "T - Tampering with Data\nModificar dados indevidamente" as t
+card "R - Repudiation\nNegar ter realizado ação" as r
+card "I - Information Disclosure\nVazamento de informações" as i
+card "D - Denial of Service\nIndisponibilizar serviço" as d
+card "E - Elevation of Privilege\nObter permissões indevidas" as e
+
+@enduml

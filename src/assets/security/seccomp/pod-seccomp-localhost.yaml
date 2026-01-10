@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: seccomp-custom
+spec:
+  securityContext:
+    seccompProfile:
+      type: Localhost
+      localhostProfile: profiles/audit.json  # Relativo a /var/lib/kubelet/seccomp/
+  containers:
+  - name: app
+    image: nginx

@@ -1,0 +1,45 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: example-policy
+  namespace: default
+spec:
+  # Pods afetados pela política
+  podSelector:
+    matchLabels:
+      app: backend
+  
+  # Tipos de política (Ingress, Egress ou ambos)
+  policyTypes:
+    - Ingress
+    - Egress
+  
+  # Regras de entrada
+  ingress:
+    - from:
+        # Seletor de Pod
+        - podSelector:
+            matchLabels:
+              app: frontend
+        # Seletor de Namespace
+        - namespaceSelector:
+            matchLabels:
+              env: production
+        # Bloco de IP
+        - ipBlock:
+            cidr: 10.0.0.0/8
+            except:
+              - 10.0.1.0/24
+      ports:
+        - protocol: TCP
+          port: 8080
+  
+  # Regras de saída
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app: database
+      ports:
+        - protocol: TCP
+          port: 5432

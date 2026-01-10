@@ -1,0 +1,10 @@
+- rule: Write to Sensitive Directories
+  desc: Detecta escrita em diretórios sensíveis
+  condition: >
+    open_write and 
+    container and 
+    (fd.name startswith /etc or fd.name startswith /root)
+  output: >
+    File opened for writing in sensitive directory 
+    (user=%user.name file=%fd.name container=%container.name)
+  priority: WARNING

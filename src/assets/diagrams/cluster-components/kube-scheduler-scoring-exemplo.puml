@@ -1,0 +1,39 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Scoring - Exemplo
+
+rectangle "Nodes Viaveis" as nodes {
+    card "Node A\nResources: 70%\nImage: Yes\nAffinity Match" as a
+    card "Node C\nResources: 30%\nImage: No\nNo Affinity" as c
+    card "Node D\nResources: 50%\nImage: Yes\nAffinity Match" as d
+}
+
+card "Scores Finais" as scores {
+    note as n
+      Node A:
+        - Balance: 30
+        - Image: 20
+        - Affinity: 50
+        Total: 100
+
+      Node C:
+        - Balance: 70
+        - Image: 0
+        - Affinity: 0
+        Total: 70
+
+      Node D:
+        - Balance: 50
+        - Image: 20
+        - Affinity: 50
+        Total: 120 (WINNER)
+    end note
+}
+
+nodes --> scores
+
+@enduml

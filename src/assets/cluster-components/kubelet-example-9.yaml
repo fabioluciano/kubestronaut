@@ -1,0 +1,11 @@
+# /var/lib/kubelet/config.yaml
+evictionHard:
+  memory.available: 100Mi      # Memoria livre minima
+  nodefs.available: 10%        # Disco do node
+  nodefs.inodesFree: 5%        # Inodes livres
+  imagefs.available: 15%       # Disco de imagens
+evictionSoft:
+  memory.available: 200Mi
+evictionSoftGracePeriod:
+  memory.available: 1m30s
+evictionPressureTransitionPeriod: 5m0s

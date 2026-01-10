@@ -1,0 +1,28 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Arquitetura ArgoCD
+
+package "ArgoCD" {
+    [API Server] as API
+    note bottom: UI/CLI
+    [Repo Server] as REPO
+    note bottom: Git sync
+    [Application Controller] as CTRL
+    note bottom: Reconciliation
+}
+
+[Git Repo] as GIT
+[Kubernetes Cluster] as K8S
+[CLI/UI] as CLI
+
+CLI --> API : commands
+API --> REPO
+REPO --> GIT : fetch
+CTRL --> K8S : deploy
+CTRL --> GIT : compare
+
+@enduml

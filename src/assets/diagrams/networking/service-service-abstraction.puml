@@ -1,0 +1,21 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title SERVICE ABSTRACTION
+
+rectangle "Client\n(Pod ou Externo)" as client
+
+rectangle "Service: web-svc\nClusterIP: 10.96.0.10\nPort: 80\nselector: app=web" as svc
+
+rectangle "Pod web-1\n10.244.1.5\napp=web" as pod1
+rectangle "Pod web-2\n10.244.2.3\napp=web" as pod2
+rectangle "Pod web-3\n10.244.3.8\napp=web" as pod3
+
+client -down-> svc
+svc -down-> pod1
+svc -down-> pod2
+svc -down-> pod3
+
+@enduml

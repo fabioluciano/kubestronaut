@@ -1,0 +1,28 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Monospaced
+
+title DICAS CKS - DASHBOARD
+
+rectangle "1. Minimizar acesso" {
+  card "ClusterIP em vez de NodePort/LoadBalancer" as m1
+  card "kubectl proxy para acesso" as m2
+}
+
+rectangle "2. RBAC do Dashboard" {
+  card "NUNCA cluster-admin" as r1
+  card "Criar Role/ClusterRole com permissões mínimas" as r2
+}
+
+rectangle "3. Argumentos importantes" {
+  card "--enable-insecure-login=false" as a1
+  card "--insecure-port=0" as a2
+  card "--enable-skip-login=false" as a3
+}
+
+note bottom
+  **4. Lembrar:** kubectl proxy usa autenticação do kubeconfig
+end note
+
+@enduml

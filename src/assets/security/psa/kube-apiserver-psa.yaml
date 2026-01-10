@@ -1,0 +1,16 @@
+# /etc/kubernetes/manifests/kube-apiserver.yaml
+spec:
+  containers:
+  - command:
+    - kube-apiserver
+    - --admission-control-config-file=/etc/kubernetes/psa/admission-configuration.yaml
+    # ...
+    volumeMounts:
+    - mountPath: /etc/kubernetes/psa
+      name: psa-config
+      readOnly: true
+  volumes:
+  - hostPath:
+      path: /etc/kubernetes/psa
+      type: DirectoryOrCreate
+    name: psa-config

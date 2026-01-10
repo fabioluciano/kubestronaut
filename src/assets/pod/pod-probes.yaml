@@ -1,0 +1,29 @@
+containers:
+- name: app
+  image: myapp
+  
+  # Verifica se container está vivo (reinicia se falhar)
+  livenessProbe:
+    httpGet:
+      path: /healthz
+      port: 8080
+    initialDelaySeconds: 15
+    periodSeconds: 10
+    failureThreshold: 3
+  
+  # Verifica se pode receber tráfego (remove do Service se falhar)
+  readinessProbe:
+    httpGet:
+      path: /ready
+      port: 8080
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    failureThreshold: 3
+  
+  # Verifica se app iniciou (bloqueia outras probes até sucesso)
+  startupProbe:
+    httpGet:
+      path: /startup
+      port: 8080
+    failureThreshold: 30
+    periodSeconds: 10

@@ -1,0 +1,31 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Hierarquia: Deployment -> ReplicaSet -> Pod
+
+package "Deployment" as DEP {
+    package "ReplicaSet (gerenciado)" as RS {
+        [Pod 1]
+        [Pod 2]
+        [Pod 3]
+    }
+}
+
+note bottom of DEP
+    O Deployment controla:
+    - Estrategia de update
+    - Historico de revisoes
+    - Rollback
+end note
+
+note bottom of RS
+    O ReplicaSet controla:
+    - Numero de replicas
+    - Selecao de Pods
+    - Self-healing
+end note
+
+@enduml

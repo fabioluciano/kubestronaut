@@ -1,0 +1,19 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title THREAT ACTORS
+
+rectangle "External" {
+  card "Script Kiddies\nBaixa sofisticação" as ext1
+  card "Cybercriminals\nMotivação financeira" as ext2
+  card "Nation States\nAPT, recursos ilimitados" as ext3
+}
+
+rectangle "Internal" {
+  card "Malicious Insider\nAcesso legítimo" as int1
+  card "Negligent User\nErros acidentais" as int2
+  card "Compromised Account\nCredenciais roubadas" as int3
+}
+
+@enduml

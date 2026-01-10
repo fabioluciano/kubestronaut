@@ -1,0 +1,17 @@
+usages:
+  # Para clientes
+  - client auth       # Autenticação de cliente
+  - digital signature
+  - key encipherment
+
+  # Para servidores
+  - server auth       # Autenticação de servidor
+
+  # Outros
+  - signing
+  - key agreement
+  - cert sign
+  - crl sign
+  - code signing
+  - email protection
+  - s/mime

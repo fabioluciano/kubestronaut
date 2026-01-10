@@ -1,0 +1,23 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title CONTAINER REGISTRY
+
+actor "Developer" as dev
+entity "CI/CD" as ci
+database "Container\nRegistry" as reg
+entity "Kubernetes\nCluster" as k8s
+dev --> ci : push code
+ci --> reg : docker push
+k8s --> reg : docker pull
+
+note bottom of reg
+  Armazena imagens OCI
+  Controla acesso
+  Escaneia vulnerabilidades
+end note
+
+@enduml

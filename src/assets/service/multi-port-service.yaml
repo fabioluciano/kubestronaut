@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: multi-port-service
+spec:
+  selector:
+    app: myapp
+  ports:
+  - name: http       # Nome obrigatório com múltiplas portas
+    port: 80
+    targetPort: 8080
+  - name: https
+    port: 443
+    targetPort: 8443
+  - name: metrics
+    port: 9090
+    targetPort: 9090

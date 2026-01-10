@@ -1,0 +1,27 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title FLUXO DO CNI
+
+start
+
+:1. API Server → Kubelet: "Crie Pod X";
+:2. Kubelet → CRI (containerd): "Crie container";
+:3. CRI: Cria network namespace;
+:4. CRI → CNI Plugin: "Configure rede para namespace Y";
+
+:5. CNI Plugin;
+note right
+  - Cria veth pair
+  - Conecta à bridge
+  - Atribui IP
+  - Configura rotas
+end note
+
+:6. CNI → CRI: Retorna configuração de rede;
+:7. Pod está pronto com rede configurada;
+
+stop
+
+@enduml

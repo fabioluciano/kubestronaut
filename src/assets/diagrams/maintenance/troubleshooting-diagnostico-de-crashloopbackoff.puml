@@ -1,0 +1,39 @@
+@startuml
+
+skinparam backgroundColor white
+
+title Diagnostico de CrashLoopBackOff
+
+start
+:kubectl logs <pod> --previous;
+
+if (Logs disponiveis?) then (sim)
+  :Analisar erro da aplicacao;
+  if (Erro de configuracao?) then (sim)
+    :Verificar ConfigMaps/Secrets;
+    :Verificar variaveis de ambiente;
+  else (nao)
+    if (Erro de dependencia?) then (sim)
+      :Verificar conexao com DB/servicos;
+      :Verificar DNS/network;
+    else (nao)
+      :Verificar codigo da aplicacao;
+    endif
+  endif
+else (nao)
+  :kubectl describe pod <pod>;
+  :Verificar Exit Code;
+  if (Exit Code 137?) then (sim)
+    :OOMKilled - aumentar memoria;
+  else (nao)
+    if (Exit Code 1?) then (sim)
+      :Erro no entrypoint/command;
+    else (nao)
+      :Verificar command e args;
+    endif
+  endif
+endif
+
+stop
+
+@enduml

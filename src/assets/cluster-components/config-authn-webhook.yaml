@@ -1,0 +1,19 @@
+# /etc/kubernetes/auth/webhook-authn-config.yaml
+apiVersion: v1
+kind: Config
+clusters:
+- name: authn-webhook
+  cluster:
+    certificate-authority: /etc/kubernetes/pki/webhook-ca.crt
+    server: https://auth-service.example.com/authenticate
+users:
+- name: kube-apiserver
+  user:
+    client-certificate: /etc/kubernetes/pki/apiserver-webhook.crt
+    client-key: /etc/kubernetes/pki/apiserver-webhook.key
+current-context: webhook
+contexts:
+- context:
+    cluster: authn-webhook
+    user: kube-apiserver
+  name: webhook

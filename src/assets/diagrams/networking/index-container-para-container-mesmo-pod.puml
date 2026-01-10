@@ -1,0 +1,15 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title CONTAINER PARA CONTAINER (mesmo Pod)
+
+package "POD\nIP: 10.244.1.5" as pod {
+  rectangle "Container A\n:8080" as ca
+  rectangle "Container B\n:9090" as cb
+  ca <--> cb : localhost:PORT
+}
+
+note bottom of pod: Comunicação via localhost:PORT
+
+@enduml

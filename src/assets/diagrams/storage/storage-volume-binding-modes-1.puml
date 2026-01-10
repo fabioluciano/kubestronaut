@@ -1,0 +1,35 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title VOLUME BINDING MODES
+
+rectangle "Immediate (Padrao)" {
+  card "1. PVC criado" as i1
+  card "2. PV provisionado imediatamente" as i2
+  card "3. Pode criar em zona diferente do Pod!" as i3
+  i1 --> i2
+  i2 --> i3
+}
+
+rectangle "WaitForFirstConsumer" {
+  card "1. PVC criado" as w1
+  card "2. Aguarda Pod ser scheduled" as w2
+  card "3. PV criado na mesma zona do Pod" as w3
+  w1 --> w2
+  w2 --> w3
+}
+
+note bottom of i3
+  Problema: Pod pode nao
+  conseguir usar o PV
+  se estiver em outra zona
+end note
+
+note bottom of w3
+  Recomendado para
+  volumes locais e
+  storage zonal
+end note
+
+@enduml

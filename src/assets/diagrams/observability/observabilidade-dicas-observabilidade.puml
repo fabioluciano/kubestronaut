@@ -1,0 +1,42 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DICAS - OBSERVABILIDADE
+
+rectangle "KCNA" as kcna {
+  note as nkcna
+    • Conhecer os 3 pilares (métricas, logs, traces)
+    • Prometheus é CNCF Graduated
+    • OpenTelemetry é o padrão unificado
+  end note
+}
+
+rectangle "CKA" as cka {
+  note as ncka
+    • kubectl logs (com -f, --previous, --tail)
+    • kubectl top nodes/pods
+    • Instalar Metrics Server
+  end note
+}
+
+rectangle "CKAD" as ckad {
+  note as nckad
+    • Configurar livenessProbe e readinessProbe
+    • Diferença entre os três tipos de probe
+    • Ajustar initialDelaySeconds e periodSeconds
+  end note
+}
+
+rectangle "CKS" as cks {
+  note as ncks
+    • Audit logs para segurança
+    • Falco para detecção de anomalias
+  end note
+}
+
+kcna -[hidden]down-> cka
+cka -[hidden]down-> ckad
+ckad -[hidden]down-> cks
+
+@enduml

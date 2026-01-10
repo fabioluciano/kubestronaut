@@ -1,0 +1,24 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title O QUE E UM CONTAINER?
+
+rectangle "Container" {
+  card "Aplicacao" as app
+  card "Dependencias\n(libs, bins)" as deps
+  card "Configuracoes" as config
+}
+
+note bottom
+  Um container inclui tudo necessario
+  para executar a aplicacao:
+  - Codigo
+  - Runtime
+  - Bibliotecas
+  - Variaveis de ambiente
+end note
+
+@enduml

@@ -1,0 +1,22 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title QUORUM DO ETCD
+
+note as N1
+  **Fórmula:** Quorum = (N / 2) + 1  (maioria simples)
+  
+  | Nodes | Quorum | Tolerância | Recomendação |
+  |-------|--------|------------|--------------|
+  | 1     | 1      | 0          | Dev only     |
+  | 2     | 2      | 0          | NÃO USAR     |
+  | 3     | 2      | 1          | Mínimo HA    |
+  | 5     | 3      | 2          | Produção     |
+  | 7     | 4      | 3          | Large scale  |
+  
+  ⚠️ Sempre use número ÍMPAR de nodes!
+  Com número par, não há benefício de tolerância
+end note
+
+@enduml

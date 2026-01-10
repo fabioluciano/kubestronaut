@@ -1,0 +1,41 @@
+@startuml
+
+skinparam backgroundColor white
+
+title Componentes do Control Plane e Pontos de Falha
+
+rectangle "Control Plane" {
+  rectangle "kube-apiserver" as api #lightblue
+  rectangle "etcd" as etcd #lightyellow
+  rectangle "kube-scheduler" as sched #lightgreen
+  rectangle "kube-controller-manager" as ctrl #lightpink
+}
+
+rectangle "Manifestos Static Pods" as manifests #lightgray
+
+api --> etcd : porta 2379
+sched --> api : porta 6443
+ctrl --> api : porta 6443
+manifests --> api : /etc/kubernetes/manifests/
+
+note right of api
+  Ponto central de comunicacao
+  Se falhar, kubectl nao funciona
+end note
+
+note right of etcd
+  Armazena todo o estado
+  Backup critico!
+end note
+
+note right of sched
+  Agenda pods nos nodes
+  Pod Pending = verificar
+end note
+
+note right of ctrl
+  Gerencia controllers
+  ReplicaSet nao escala = verificar
+end note
+
+@enduml

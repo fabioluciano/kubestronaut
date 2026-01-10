@@ -1,0 +1,15 @@
+apiVersion: "cilium.io/v2"
+kind: CiliumNetworkPolicy
+metadata:
+	name: p3
+	namespace: team-orange
+spec:
+	endpointSelector:
+		- matchLabels:
+			type: database
+	egress:
+		- toEndpoints:
+			- matchLabels:
+				type: messenger
+		authentication:
+			mode: "required" # Enable Mutual Authentication

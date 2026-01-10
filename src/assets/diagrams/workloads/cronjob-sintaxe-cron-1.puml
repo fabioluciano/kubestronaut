@@ -1,0 +1,23 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title SINTAXE CRON
+
+note as N1
+  ┌───────────── minuto (0 - 59)
+  │ ┌───────────── hora (0 - 23)
+  │ │ ┌───────────── dia do mês (1 - 31)
+  │ │ │ ┌───────────── mês (1 - 12)
+  │ │ │ │ ┌───────────── dia da semana (0 - 6)
+  │ │ │ │ │                (domingo = 0)
+  * * * * *
+
+  Caracteres especiais:
+  *     = qualquer valor
+  ,     = lista de valores (1,3,5)
+  -     = range de valores (1-5)
+  /     = incremento (*/5 = a cada 5)
+end note
+
+@enduml

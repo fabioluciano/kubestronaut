@@ -1,0 +1,11 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: deny-bad-ips
+  namespace: production
+spec:
+  action: DENY
+  rules:
+  - from:
+    - source:
+        ipBlocks: ["10.0.0.0/8"]

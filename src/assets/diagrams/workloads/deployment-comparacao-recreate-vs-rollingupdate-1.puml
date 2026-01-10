@@ -1,0 +1,53 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Comparacao: Recreate vs RollingUpdate
+
+rectangle "Recreate Strategy" {
+    rectangle "Estado Inicial" as R1 {
+        [Pod v1] as RP1
+        [Pod v1] as RP2
+        [Pod v1] as RP3
+    }
+
+    rectangle "Durante Update" as R2 {
+        note "Todos Pods\nterminados\n(DOWNTIME)" as RN
+    }
+
+    rectangle "Estado Final" as R3 {
+        [Pod v2] as RP4
+        [Pod v2] as RP5
+        [Pod v2] as RP6
+    }
+
+    R1 --> R2 : Termina todos
+    R2 --> R3 : Cria novos
+}
+
+rectangle "RollingUpdate Strategy" {
+    rectangle "Fase 1" as RU1 {
+        [Pod v1] as RUP1
+        [Pod v1] as RUP2
+        [Pod v2] as RUP3
+    }
+
+    rectangle "Fase 2" as RU2 {
+        [Pod v1] as RUP4
+        [Pod v2] as RUP5
+        [Pod v2] as RUP6
+    }
+
+    rectangle "Fase 3" as RU3 {
+        [Pod v2] as RUP7
+        [Pod v2] as RUP8
+        [Pod v2] as RUP9
+    }
+
+    RU1 --> RU2 : Gradual
+    RU2 --> RU3 : Sem downtime
+}
+
+@enduml

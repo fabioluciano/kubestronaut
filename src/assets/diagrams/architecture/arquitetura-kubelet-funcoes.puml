@@ -1,0 +1,34 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title KUBELET - FUNCOES
+
+actor "API Server" as api
+rectangle "kubelet" as kubelet {
+  component "Pod Lifecycle" as plc
+  component "Volume Manager" as vm
+  component "Probe Manager" as pm
+  component "Status Manager" as sm
+  component "CRI Client" as cri
+}
+entity "Container Runtime" as runtime
+entity "Pods" as pods
+api <--> kubelet : gRPC
+kubelet --> runtime : CRI calls
+runtime --> pods : containers
+
+note right of plc
+  - Cria/deleta pods
+  - Sync com API
+end note
+
+note right of pm
+  - Liveness probes
+  - Readiness probes
+  - Startup probes
+end note
+
+@enduml

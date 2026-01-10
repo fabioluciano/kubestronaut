@@ -1,0 +1,7 @@
+# kube-apiserver.yaml
+spec:
+  containers:
+  - command:
+    - kube-apiserver
+    - --enable-admission-plugins=NodeRestriction,ImagePolicyWebhook
+    - --admission-control-config-file=/etc/kubernetes/admission/admission-config.yaml

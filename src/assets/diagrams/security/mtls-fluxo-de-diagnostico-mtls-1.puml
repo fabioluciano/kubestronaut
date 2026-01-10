@@ -1,0 +1,47 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Fluxo de Diagnostico mTLS
+
+start
+
+:Verificar se pods tem sidecar;
+if (Sidecar presente?) then (nao)
+  :Verificar label de injection\nno namespace;
+  :kubectl label ns <ns>\nistio-injection=enabled;
+  :Reiniciar pods;
+  stop
+else (sim)
+endif
+
+:Verificar PeerAuthentication;
+if (Modo STRICT?) then (sim)
+  :Verificar se todos os clientes\ntem certificados validos;
+else (nao)
+  :Verificar se trafego\nesta chegando;
+endif
+
+:Verificar certificados;
+if (Certificados validos?) then (nao)
+  :Verificar CA;
+  :Renovar certificados;
+  stop
+else (sim)
+endif
+
+:Verificar AuthorizationPolicy;
+if (Politica bloqueando?) then (sim)
+  :Ajustar regras de\nAuthorizationPolicy;
+  stop
+else (nao)
+endif
+
+:Verificar logs do sidecar;
+:kubectl logs <pod> -c istio-proxy;
+
+stop
+
+@enduml

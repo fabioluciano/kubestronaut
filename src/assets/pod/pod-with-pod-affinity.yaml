@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: with-pod-affinity
+spec:
+  affinity:
+    # Prefere nodes que ja tem pods com label app=cache
+    podAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchLabels:
+            app: cache
+        topologyKey: kubernetes.io/hostname
+    # Evita nodes que tem pods com label app=web
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchLabels:
+              app: web
+          topologyKey: kubernetes.io/hostname
+  containers:
+  - name: app
+    image: nginx

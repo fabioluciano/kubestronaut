@@ -1,0 +1,23 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title ENFORCEMENT ACTIONS
+
+map "deny" as deny {
+  Ação => Bloqueia o recurso se violar a política
+  Uso => Produção
+}
+
+map "dryrun" as dryrun {
+  Ação => Não bloqueia, apenas registra violação
+  Auditoria => Encontra violações em recursos existentes
+  Uso => Testar políticas
+}
+
+map "warn" as warn {
+  Ação => Permite mas mostra warning ao usuário
+  Uso => Fase de transição
+}
+
+@enduml

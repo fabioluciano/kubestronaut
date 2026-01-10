@@ -1,0 +1,37 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title OWNERREFERENCES - HIERARQUIA
+
+rectangle "Deployment\nnginx-deployment" as dep #lightblue
+
+rectangle "ReplicaSet\nnginx-rs-abc123" as rs #lightgreen
+note right of rs
+  ownerReferences:
+  - kind: Deployment
+    name: nginx-deployment
+    controller: true
+end note
+
+rectangle "Pod\nnginx-rs-abc123-xyz" as pod1 #lightyellow
+rectangle "Pod\nnginx-rs-abc123-abc" as pod2 #lightyellow
+note right of pod1
+  ownerReferences:
+  - kind: ReplicaSet
+    name: nginx-rs-abc123
+    controller: true
+end note
+
+dep --> rs : owns
+rs --> pod1 : owns
+rs --> pod2 : owns
+
+note bottom
+  Ao deletar Deployment:
+  1. ReplicaSet e deletado
+  2. Pods sao deletados
+  (Garbage Collection em cascata)
+end note
+
+@enduml

@@ -1,0 +1,19 @@
+annotations:
+  # Rewrite URL
+  nginx.ingress.kubernetes.io/rewrite-target: /
+  
+  # SSL redirect
+  nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  
+  # Proxy timeout
+  nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+  
+  # Body size
+  nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+  
+  # Auth básica
+  nginx.ingress.kubernetes.io/auth-type: basic
+  nginx.ingress.kubernetes.io/auth-secret: basic-auth
+  
+  # Rate limiting
+  nginx.ingress.kubernetes.io/limit-rps: "10"

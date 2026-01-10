@@ -1,76 +1,478 @@
-# Introdução 
-Num modelo sem kubernetes, onde implementamos um _pseudo-cluster_, como resolver os seguintes problemas:
-* O que fazer quando um container apresenta problemas?
-* O que fazer quando um nó, de seu _pseudo-cluster_ morrer?
-* O que fazer quando um nó, não renponder a uma requisição?
+# Introducao ao Kubernetes
 
-> Quanto mais de um artefato está implantando para construir uma aplicação(microserviços);
+> **Certificacoes**: KCNA (40%), CKAD, CKA, CKS - Fundamentos essenciais para todas as certificacoes
 
-* Naked Pod, executado pelo K8s, mas não gerenciado por ele
-* O replicaset guarda a quantidade de replicas que um container deve rodar, o deployment, fica em cima do replicaset... O deployment guarda as versões dos containers que estão rodando.
-* O service é um balanceador de carga para os deployments
+## O que e Kubernetes?
 
+Kubernetes, frequentemente abreviado como **K8s** (K + 8 letras + s), e uma plataforma open-source para **orquestracao de containers**. Desenvolvido originalmente pelo Google e agora mantido pela Cloud Native Computing Foundation (CNCF), o Kubernetes automatiza a implantacao, o escalonamento e a gestao de aplicacoes containerizadas.
 
-É necessário a criação de mecanismos de monitoramento do estado de todos os elementos do _pseudo-cluster_, implementação de lógicas complexas e customizadas para garantir a disponibilidade de sua aplicação.
+```admonish info title="Por que K8s?"
+O nome "K8s" e uma abreviacao de "Kubernetes" onde o numero 8 representa as oito letras entre o "K" e o "s" (ubernete). Esta convencao e comum em tecnologia, similar a "i18n" para "internationalization".
+```
 
-* Também conhecido como `K8s` é um orquestrador de aplicações containerizadas.
+### Definicao Oficial
 
-* Provê mecanismos para construção e implantação de aplicações distribuídas de maneira a manter a confiabilidade e escalabilidade
+> Kubernetes e um sistema de orquestracao de containers open-source para automatizar a implantacao, escalonamento e gerenciamento de aplicacoes containerizadas.
 
-## Conceitos
+### O Problema que o Kubernetes Resolve
 
-**Confiabilidade:** Os serviços não podem falhar. Se partes do sistema falhar, outras deverão continuar a funcionar.
+Antes do Kubernetes, equipes enfrentavam desafios significativos ao gerenciar aplicacoes containerizadas em escala:
 
-**Disponibilidade:** O sistema deve se manter disponível mesmo em atualizações/manutenções.
+```admonish question title="Desafios Pre-Kubernetes"
+- O que fazer quando um container apresenta problemas?
+- O que fazer quando um no do cluster falha?
+- Como garantir que a aplicacao continue respondendo sob alta demanda?
+- Como fazer atualizacoes sem downtime?
+- Como gerenciar configuracoes e secrets de forma segura?
+- Como balancear carga entre multiplas instancias?
+```
 
-**Escalabilidade:** Estratégia de alocação de recursos em operação. Controlar o aumento e diminuição de recursos de acordo com a demanda.
+O Kubernetes fornece respostas automatizadas para todas essas questoes, permitindo que equipes foquem no desenvolvimento ao inves da operacao manual da infraestrutura.
 
-- **Horizontal:** Adição ou remoção de nós
-- **Vertical:** Adição de mais recursos computacionais aos nós 
+## Historia e Evolucao
 
-**Elasticidade:** Adapta a capacidade em relação a demanda. Geralmente está diretamente associada ao monitoramento e automação de disponibilização de recursos
+### Linha do Tempo
 
-A utilização de um orquestrador como `K8s` habilita, entre outras: _velocidade_, _escalabilidade_, _abstração da infraestrutura_ e eficiência.
+```plantuml,format=png
+!include assets/diagrams/general/introduction-historia-do-kubernetes.puml
+```
 
-## Velocidade
-Não é o número de funcionalidades entregues, mas sim o número de `coisas` entregues, enquanto o sistema se mantêm altamente disponível.
+### Marcos Importantes
 
-A interrelação entre **imutabilidade**, **configuração declarativa** e **self-healing**, aumenta a velocidade com que se implanta aplicações de maneira confiável.
+| Ano | Evento |
+|-----|--------|
+| **2003-2004** | Google desenvolve o **Borg**, sistema interno de orquestracao |
+| **2013** | Docker e lancado, popularizando containers |
+| **2014** | Google anuncia o Kubernetes como projeto open-source |
+| **2015** | Kubernetes v1.0 lancado; CNCF e fundada |
+| **2016** | Kubernetes se torna o projeto mais ativo do GitHub |
+| **2017** | Todos os principais provedores cloud adotam Kubernetes |
+| **2018** | Kubernetes se torna o primeiro projeto "graduated" da CNCF |
+| **2020+** | Kubernetes e o padrao de fato para orquestracao de containers |
 
-### Imutabilidade
-A utilização de containers e um orquestrador como o `K8s` encoraja o desenvolvimento de sistemas distribuídos que aderem ao princípio de **infraestrutura imutável**
+### Do Borg ao Kubernetes
 
-**Infraestrutura mutável:** O estado da infraestrutura é representado como um acúmulo de mudanças e atualizações, ou seja, as atualizações, mesmo que feitas de maneira automatizadas, seguem uma sequência definida de procedimentos que devem ser executados.
+O Kubernetes herdou muitos conceitos do **Borg**, o sistema de gerenciamento de clusters do Google que executa milhoes de jobs por semana:
 
-**Infraestrutura imutável:** É representado com um único artefato. Para trocar a versão de uma biblioteca ou VM ou container toda a imagem será refeita, enquanto que a antiga permanece disponível para casos de necessidade de um rollback. Containers imutáveis estão no cerne do kubernetes. Apesar de possível, não é recomendado a modificação de containers em execução.
+- **Pods**: Conceito de agrupar containers relacionados
+- **Labels**: Sistema de rotulagem flexivel
+- **Services**: Descoberta de servicos e balanceamento de carga
+- **Replication**: Garantia de disponibilidade atraves de replicas
 
-### Configuração Declarativa
-É o contrário da configuração imperativa. A configuração no `K8s` é feita com a definição de objetos de configuração de como a aplicação deve existir. A configuração declarativa descreve o [[Desired State#Definição | estado desejado]] de algo.
+```admonish note title="Curiosidade"
+O nome "Kubernetes" vem do grego e significa "timoneiro" ou "piloto" - aquele que guia o navio. O logo do Kubernetes e um leme de navio com sete raios, representando o codinome original do projeto: "Project Seven".
+```
 
-**Imperativa:** Descreve ações que devem ser executadas para se alcançar o estado esperado da aplicação;
-**Declarativa:** Descreve todos os elementos necessários para que o estado esperado seja alcançado;
+## Por que Usar Kubernetes?
 
-É possível utilizar ferramentas e metodologias utilizadas no desenvolvimento de software, tais como controle de versão, revisão de código e testes unitários.
+### Beneficios Principais
 
-### Self Healing
-Continuamente executa ações para alcançar o estado desejado(idempotência). O daemon não somente criará o que foi declarado, mas continuamente garantirá que o estado desejado seja mantido/ancaçado.
+#### 1. Escalabilidade Automatica
 
-## Escalonamento
-A utilização do `k8s` habilita o fácil escalonamento, tanto da solução desenvolvida, quanto da equipe envolvida.
+```plantuml,format=png
+!include assets/diagrams/general/introduction-horizontal-pod-autoscaler.puml
+```
 
-**Desacoplamento:** Permite separar cada parte do sistema de forma a aumentar a facilidade de identificação da necessidade de escalonamento das partes. O Desacoplamento dos times permite a construção de soluções robustas por conta do foco empregado por cada time.
+- **Escalonamento Horizontal**: Adiciona ou remove replicas de pods automaticamente
+- **Escalonamento Vertical**: Ajusta recursos (CPU/memoria) dos containers
+- **Cluster Autoscaler**: Adiciona ou remove nos do cluster conforme necessidade
 
-* O tamanho ideal de uma equipe pode ser mensaurada utilizando a técninca `two-pizza team`;
-* Para ajudar na implantação de micro serviços, o `k8s` dispõem das seguintes abstrações:
-  * **[[Pods]]**: Grupo de containers;
-  * **Namespace**:  Provê isolamento e controle de acesso para restringir a interação com os recursos;
-  * **Service**: Provê o lanceamento de carga, nomeação e descoberta para isolamento de um microserviço de outro;
-  * **Ingress**: Frontend que combina múltiplos micro serviços em uma única API externalizada;
+#### 2. Alta Disponibilidade
 
-> SE uma parte dos sistema não é escalável, toda a aplicação não é escalável
+```plantuml,format=png
+!include assets/diagrams/general/introduction-alta-disponibilidade-no-kubernetes.puml
+```
 
-[[Pods#Conceitos| Vou te contar viu]]
-## Abstração da infraestrutura
-A infraestrutura é abstraída pois os elementos presentes em uma solução são descritos de maneira abstrata, separando o desenvolvimento da implementação e aproximando as equipes dos conceitos relacionados. A utilização do `k8s` habilita a portabilidade entre infraestrutura _on premises_ e provedores de cloud computing.
-> Service -> ALB
-> PersistentVolume -> EBS
+- **Self-healing**: Reinicia containers que falham
+- **Redistribuicao**: Move pods quando nos ficam indisponiveis
+- **Health checks**: Monitora continuamente a saude das aplicacoes
+
+#### 3. Implantacoes Declarativas
+
+```yaml
+{{#include assets/deployment/deployment-minha-aplicacao.yaml}}
+```
+
+#### 4. Portabilidade
+
+```admonish success title="Execute em Qualquer Lugar"
+Kubernetes funciona de forma consistente em:
+- **On-premises**: Data centers proprios
+- **Cloud publica**: AWS (EKS), Google Cloud (GKE), Azure (AKS)
+- **Cloud hibrida**: Combinacao de on-premises e cloud
+- **Edge**: Dispositivos IoT e locais remotos
+- **Local**: Minikube, Kind, Docker Desktop
+```
+
+### Comparacao: Sem Kubernetes vs Com Kubernetes
+
+| Aspecto | Sem Kubernetes | Com Kubernetes |
+|---------|---------------|----------------|
+| **Escalonamento** | Manual, lento | Automatico, instantaneo |
+| **Recuperacao de falhas** | Intervencao manual | Automatico (self-healing) |
+| **Atualizacoes** | Downtime frequente | Rolling updates sem downtime |
+| **Configuracao** | Scripts dispersos | Arquivos YAML versionados |
+| **Descoberta de servicos** | Configuracao manual | DNS automatico |
+| **Balanceamento de carga** | Load balancers externos | Integrado (Services) |
+| **Secrets** | Arquivos em disco | Objetos gerenciados |
+
+## Conceitos Fundamentais
+
+### Arquitetura de Alto Nivel
+
+```plantuml,format=png
+!include assets/diagrams/general/introduction-arquitetura-do-kubernetes.puml
+```
+
+### Objetos Principais
+
+#### Pod
+
+O **Pod** e a menor unidade deployavel no Kubernetes. Representa um ou mais containers que compartilham rede e armazenamento.
+
+```yaml
+{{#include assets/pod/pod-meu-pod.yaml}}
+```
+
+```admonish info title="Caracteristicas do Pod"
+- Containers em um Pod compartilham o mesmo IP
+- Containers em um Pod podem se comunicar via localhost
+- Pods sao efemeros - podem ser criados e destruidos a qualquer momento
+- Pods nao devem ser criados diretamente em producao (use Deployments)
+```
+
+#### Deployment
+
+O **Deployment** gerencia ReplicaSets e Pods, fornecendo atualizacoes declarativas.
+
+```yaml
+{{#include assets/deployment/deployment-nginx-deployment-1.yaml}}
+```
+
+```admonish tip title="Quando usar Deployment"
+- Para aplicacoes stateless
+- Quando precisa de rolling updates
+- Quando precisa de rollback facil
+- Para a maioria das aplicacoes web
+```
+
+#### ReplicaSet
+
+O **ReplicaSet** garante que um numero especificado de replicas de pods esteja rodando a qualquer momento.
+
+```admonish warning title="Importante"
+Na pratica, voce raramente cria ReplicaSets diretamente. Use Deployments, que gerenciam ReplicaSets automaticamente e fornecem recursos adicionais como rolling updates.
+```
+
+#### Service
+
+O **Service** expoe uma aplicacao rodando em Pods como um servico de rede.
+
+```plantuml,format=png
+!include assets/diagrams/general/introduction-service-no-kubernetes.puml
+```
+
+```yaml
+{{#include assets/service/service-my-service-1.yaml}}
+```
+
+**Tipos de Service:**
+
+| Tipo | Descricao | Uso |
+|------|-----------|-----|
+| **ClusterIP** | IP interno do cluster | Comunicacao interna |
+| **NodePort** | Expoe em porta do node (30000-32767) | Acesso externo simples |
+| **LoadBalancer** | Load balancer externo (cloud) | Producao em cloud |
+| **ExternalName** | Alias DNS para servico externo | Integracao externa |
+
+#### ConfigMap e Secret
+
+**ConfigMap** armazena dados de configuracao nao-sensiveis:
+
+```yaml
+{{#include assets/configmap/configmap-app-config.yaml}}
+```
+
+**Secret** armazena dados sensiveis (codificados em base64):
+
+```yaml
+{{#include assets/secrets/secret-app-secrets.yaml}}
+```
+
+```admonish warning title="Secrets nao sao Criptografados por Padrao"
+Secrets sao apenas codificados em base64, nao criptografados. Para seguranca real:
+- Habilite encryption at rest no etcd
+- Use solucoes como Sealed Secrets ou Vault
+- Limite acesso via RBAC
+```
+
+#### Namespace
+
+**Namespace** fornece isolamento logico de recursos dentro do cluster.
+
+```yaml
+{{#include assets/general/namespace-producao.yaml}}
+```
+
+```bash
+# Namespaces padrao do Kubernetes
+kubectl get namespaces
+
+# default        - namespace padrao para recursos sem namespace especificado
+# kube-system    - componentes do sistema Kubernetes
+# kube-public    - recursos publicos legiveis por todos
+# kube-node-lease - leases de heartbeat dos nodes
+```
+
+### Hierarquia de Objetos
+
+```plantuml,format=png
+!include assets/diagrams/general/introduction-hierarquia-de-objetos.puml
+```
+
+### Relacao entre Objetos
+
+| Objeto | Gerencia | Finalidade |
+|--------|----------|------------|
+| **Deployment** | ReplicaSets | Atualizacoes declarativas e rollbacks |
+| **ReplicaSet** | Pods | Garante numero de replicas |
+| **Pod** | Containers | Menor unidade executavel |
+| **Service** | Endpoints | Expoe Pods na rede |
+| **ConfigMap** | Dados | Configuracao da aplicacao |
+| **Secret** | Dados sensiveis | Senhas, tokens, chaves |
+| **Ingress** | Rotas HTTP | Roteamento de trafego externo |
+
+## Casos de Uso
+
+### 1. Microservicos
+
+```plantuml,format=png
+!include assets/diagrams/general/introduction-arquitetura-de-microservicos.puml
+```
+
+### 2. CI/CD e DevOps
+
+```admonish example title="Pipeline GitOps"
+1. Desenvolvedor faz push para Git
+2. CI (Jenkins/GitLab CI) builda imagem
+3. Imagem e publicada no registry
+4. ArgoCD/Flux detecta mudanca
+5. Kubernetes aplica nova versao
+6. Rolling update sem downtime
+```
+
+### 3. Machine Learning
+
+- Treinamento distribuido com GPU
+- Serving de modelos com escalonamento
+- Pipelines de dados com Kubeflow
+
+### 4. Edge Computing
+
+- Clusters em locais remotos
+- Sincronizacao com cluster central
+- Baixa latencia para IoT
+
+### 5. Plataforma como Servico (PaaS)
+
+- Multi-tenancy com Namespaces
+- Isolamento com Network Policies
+- Quotas de recursos por equipe
+
+## Ecossistema e Comunidade
+
+### CNCF (Cloud Native Computing Foundation)
+
+A CNCF hospeda e promove projetos cloud native, sendo o Kubernetes o projeto mais importante.
+
+```admonish info title="Projetos CNCF Relacionados"
+**Graduated (Maduros):**
+- **Kubernetes**: Orquestracao de containers
+- **Prometheus**: Monitoramento e alertas
+- **Envoy**: Proxy de servico
+- **CoreDNS**: DNS para Kubernetes
+- **containerd**: Container runtime
+- **Helm**: Gerenciador de pacotes
+- **etcd**: Key-value store
+
+**Incubating:**
+- **Argo**: GitOps e workflows
+- **Cilium**: Networking e seguranca
+- **Falco**: Runtime security
+- **Linkerd**: Service mesh
+```
+
+### Distribuicoes Kubernetes
+
+| Distribuicao | Provedor | Caracteristica |
+|--------------|----------|----------------|
+| **EKS** | AWS | Managed Kubernetes na AWS |
+| **GKE** | Google | Managed Kubernetes no GCP |
+| **AKS** | Azure | Managed Kubernetes no Azure |
+| **OpenShift** | Red Hat | Enterprise Kubernetes |
+| **Rancher** | SUSE | Multi-cluster management |
+| **k3s** | SUSE | Lightweight Kubernetes |
+| **Kind** | SIG | Kubernetes in Docker (dev) |
+| **Minikube** | SIG | Local development |
+
+### Comunidade
+
+```admonish success title="Participacao na Comunidade"
+- **Slack**: kubernetes.slack.com (200k+ membros)
+- **GitHub**: github.com/kubernetes/kubernetes
+- **Forum**: discuss.kubernetes.io
+- **KubeCon**: Conferencia anual (10k+ participantes)
+- **Meetups**: Grupos locais em todo mundo
+- **SIGs**: Special Interest Groups para areas especificas
+```
+
+## Principios do Kubernetes
+
+### 1. Configuracao Declarativa
+
+**Imperativo** (como fazer):
+
+```bash
+kubectl run nginx --image=nginx
+kubectl scale deployment nginx --replicas=3
+```
+
+**Declarativo** (o que voce quer):
+
+```yaml
+{{#include assets/deployment/deployment-nginx.yaml}}
+```
+
+```admonish tip title="Declarativo vs Imperativo"
+- **Imperativo**: Descreve as acoes para alcancar o estado esperado
+- **Declarativo**: Descreve o estado final desejado
+
+Na producao, sempre prefira a abordagem declarativa, pois permite versionamento, code review e reproducibilidade.
+```
+
+### 2. Estado Desejado (Desired State)
+
+O Kubernetes trabalha continuamente para que o **estado atual** do cluster seja igual ao **estado desejado** definido nos manifestos.
+
+```plantuml,format=png
+!include assets/diagrams/general/introduction-control-loop-do-kubernetes.puml
+```
+
+### 3. Imutabilidade
+
+```admonish info title="Infraestrutura Imutavel"
+- Containers nao sao modificados em execucao
+- Para atualizar, cria-se um novo container com a nova versao
+- Imagens antigas permanecem disponiveis para rollback
+- Garante reproducibilidade e consistencia
+```
+
+### 4. Self-Healing
+
+O Kubernetes automaticamente:
+
+- **Reinicia** containers que falham
+- **Substitui** pods em nodes que morrem
+- **Mata** containers que nao respondem aos health checks
+- **Esconde** pods que nao estao prontos do balanceamento de carga
+
+## Comandos Iniciais
+
+```bash
+# Verificar versao do kubectl e cluster
+kubectl version
+
+# Informacoes do cluster
+kubectl cluster-info
+
+# Listar nodes do cluster
+kubectl get nodes
+
+# Listar todos os recursos em todos namespaces
+kubectl get all --all-namespaces
+
+# Ver pods do sistema
+kubectl get pods -n kube-system
+
+# Criar um pod simples
+kubectl run nginx --image=nginx
+
+# Ver detalhes de um pod
+kubectl describe pod nginx
+
+# Ver logs de um pod
+kubectl logs nginx
+
+# Executar comando em um pod
+kubectl exec -it nginx -- /bin/bash
+
+# Deletar um pod
+kubectl delete pod nginx
+```
+
+## Referencias e Documentacao
+
+### Documentacao Oficial
+
+- [Documentacao Kubernetes](https://kubernetes.io/docs/home/)
+- [Conceitos](https://kubernetes.io/docs/concepts/)
+- [Tutoriais](https://kubernetes.io/docs/tutorials/)
+- [Referencia da API](https://kubernetes.io/docs/reference/)
+
+### Livros Recomendados
+
+- "Kubernetes: Up and Running" - Kelsey Hightower
+- "Kubernetes in Action" - Marko Luksa
+- "The Kubernetes Book" - Nigel Poulton
+
+### Cursos e Treinamentos
+
+- [Kubernetes Basics (kubernetes.io)](https://kubernetes.io/docs/tutorials/kubernetes-basics/)
+- [CNCF Training](https://www.cncf.io/certification/training/)
+- [KodeKloud](https://kodekloud.com/)
+
+## Dicas para os Exames
+
+```admonish success title="Para o KCNA"
+- Foque nos **conceitos** e **terminologia**
+- Entenda a **arquitetura** de alto nivel
+- Conheca o **ecossistema CNCF**
+- Saiba diferenciar objetos e suas finalidades
+```
+
+```admonish success title="Para o CKAD"
+- Pratique criar recursos **rapidamente**
+- Domine **Pods**, **Deployments**, **Services**
+- Conheca **ConfigMaps** e **Secrets**
+- Pratique com **Jobs** e **CronJobs**
+```
+
+```admonish success title="Para o CKA"
+- Entenda a **arquitetura** profundamente
+- Domine **troubleshooting** de cluster
+- Pratique **backup e restore** do etcd
+- Conheca **kubeadm** para instalacao
+```
+
+```admonish success title="Para o CKS"
+- Foque em **seguranca em profundidade**
+- Domine **RBAC** e **Network Policies**
+- Conheca **Pod Security Standards**
+- Pratique **auditoria** e **hardening**
+```
+
+## Proximos Passos
+
+Apos entender os conceitos basicos, recomenda-se estudar:
+
+1. [Arquitetura do Kubernetes](./Arquitetura.md) - Componentes e funcionamento
+2. [Pods](./workload/pod.md) - Unidade basica do Kubernetes
+3. [Deployments](./workload/deployment.md) - Gerenciamento de aplicacoes
+4. [Services](./network/service.md) - Exposicao de aplicacoes
+5. [kubectl](./Kubectl.md) - Ferramenta de linha de comando
+
+---
+
+```admonish quote title="Citacao"
+"Kubernetes is becoming the Linux of the cloud." - Jim Zemlin, The Linux Foundation
+```

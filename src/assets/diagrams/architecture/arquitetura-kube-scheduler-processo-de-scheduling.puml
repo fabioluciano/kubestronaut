@@ -1,0 +1,42 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title KUBE-SCHEDULER - PROCESSO DE SCHEDULING
+
+rectangle "Pod Pending" as pending
+rectangle "Scheduler" as sched {
+  component "1. Filtering" as filter
+  component "2. Scoring" as score
+  component "3. Binding" as bind
+}
+rectangle "Node Selecionado" as selected
+
+pending --> filter
+
+filter --> score : Nodes viaveis
+
+note right of filter
+  Predicates (filtros):
+  - PodFitsResources
+  - PodFitsHost
+  - PodFitsHostPorts
+  - NodeSelector
+  - Taints/Tolerations
+end note
+
+score --> bind : Node com maior score
+
+note right of score
+  Priorities (pontuacao):
+  - LeastRequestedPriority
+  - BalancedResourceAllocation
+  - NodeAffinityPriority
+  - PodAffinityPriority
+end note
+
+bind --> selected
+
+@enduml

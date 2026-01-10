@@ -1,0 +1,11 @@
+# Forçar mTLS para serviço específico
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: backend-mtls
+  namespace: secure-app
+spec:
+  host: backend
+  trafficPolicy:
+    tls:
+      mode: ISTIO_MUTUAL

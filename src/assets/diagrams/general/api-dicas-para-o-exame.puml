@@ -1,0 +1,47 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title DICAS PARA O EXAME
+
+rectangle "1. DESCOBRIR apiVersion" {
+  note as n1
+    kubectl api-resources | grep <recurso>
+    kubectl explain <recurso>
+  end note
+}
+
+rectangle "2. GERAR YAML BASE" {
+  note as n2
+    kubectl create deployment nginx --image=nginx \\
+      --dry-run=client -o yaml > deploy.yaml
+
+    kubectl run nginx --image=nginx \\
+      --dry-run=client -o yaml > pod.yaml
+  end note
+}
+
+rectangle "3. EXPLORAR ESTRUTURA" {
+  note as n3
+    kubectl explain pod.spec.containers
+    kubectl explain deploy.spec.strategy
+    kubectl explain svc.spec.type
+  end note
+}
+
+rectangle "4. SHORTNAMES" {
+  note as n4
+    po=pods, deploy=deployments
+    svc=services, cm=configmaps
+    ns=namespaces, no=nodes
+    pv=persistentvolumes
+    pvc=persistentvolumeclaims
+    sa=serviceaccounts
+    ing=ingresses
+    netpol=networkpolicies
+  end note
+}
+
+@enduml

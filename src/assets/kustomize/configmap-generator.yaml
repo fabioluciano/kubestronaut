@@ -1,0 +1,16 @@
+# kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- deployment.yaml
+
+configMapGenerator:
+- name: app-config
+  literals:
+  - LOG_LEVEL=debug
+  - DATABASE_URL=localhost:5432
+  files:
+  - config.json
+  options:
+    disableNameSuffixHash: true

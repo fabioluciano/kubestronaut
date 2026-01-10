@@ -1,0 +1,29 @@
+# /etc/kubernetes/manifests/kube-apiserver.yaml
+
+# Recomendações:
+spec:
+  containers:
+  - command:
+    - kube-apiserver
+    # Desabilitar profiling
+    - --profiling=false
+    
+    # Audit logging
+    - --audit-log-path=/var/log/kubernetes/audit.log
+    - --audit-log-maxage=30
+    - --audit-log-maxbackup=10
+    - --audit-log-maxsize=100
+    - --audit-policy-file=/etc/kubernetes/audit-policy.yaml
+    
+    # Autorização RBAC
+    - --authorization-mode=Node,RBAC
+    
+    # Desabilitar anonymous auth
+    - --anonymous-auth=false
+    
+    # Token auth seguro
+    - --enable-admission-plugins=NodeRestriction,PodSecurityPolicy
+    
+    # TLS forte
+    - --tls-min-version=VersionTLS12
+    - --tls-cipher-suites=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,...

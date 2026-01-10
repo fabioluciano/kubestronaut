@@ -1,0 +1,17 @@
+@startuml
+
+skinparam backgroundColor white
+
+title Fluxo de Instalacao do Container Runtime
+
+start
+:Instalar dependencias;
+:Adicionar repositorio Docker;
+:Instalar containerd;
+:Gerar configuracao padrao;
+:Configurar SystemdCgroup = true;
+:Reiniciar containerd;
+:Verificar status;
+stop
+
+@enduml

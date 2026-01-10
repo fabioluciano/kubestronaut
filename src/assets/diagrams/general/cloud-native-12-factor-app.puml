@@ -1,0 +1,20 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title 12-FACTOR APP
+
+card "1. Codebase\nUm repo, múltiplos deploys" as f1
+card "2. Dependencies\nDeclarar e isolar" as f2
+card "3. Config\nArmazenar no ambiente" as f3
+card "4. Backing Services\nTratar como recursos" as f4
+card "5. Build/Release/Run\nSeparar estágios" as f5
+card "6. Processes\nExecutar stateless" as f6
+card "7. Port Binding\nExportar via porta" as f7
+card "8. Concurrency\nEscalar via processos" as f8
+card "9. Disposability\nInício rápido, shutdown graceful" as f9
+card "10. Dev/Prod Parity\nManter similares" as f10
+card "11. Logs\nTratar como streams" as f11
+card "12. Admin Processes\nRodar como one-offs" as f12
+
+@enduml

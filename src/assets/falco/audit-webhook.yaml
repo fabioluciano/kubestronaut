@@ -1,0 +1,12 @@
+# /etc/kubernetes/audit-webhook.yaml
+apiVersion: v1
+kind: Config
+clusters:
+- name: falco
+  cluster:
+    server: http://falco:8765/k8s-audit
+contexts:
+- name: default
+  context:
+    cluster: falco
+current-context: default

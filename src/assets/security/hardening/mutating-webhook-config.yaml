@@ -1,0 +1,34 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: pod-annotation-webhook
+webhooks:
+- name: pod-annotation.example.com
+  admissionReviewVersions: ["v1"]
+  sideEffects: None
+  # Quando acionar
+  rules:
+  - apiGroups: [""]
+    apiVersions: ["v1"]
+    operations: ["CREATE", "UPDATE"]
+    resources: ["pods"]
+    scope: "Namespaced"
+  # Para onde enviar
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: webhook-system
+      path: "/mutate"
+      port: 443
+    caBundle: <base64-ca-cert>
+  # Filtros
+  namespaceSelector:
+    matchLabels:
+      environment: production
+  objectSelector:
+    matchLabels:
+      inject: "true"
+  # Comportamento em falha
+  failurePolicy: Fail  # ou Ignore
+  # Timeout
+  timeoutSeconds: 5

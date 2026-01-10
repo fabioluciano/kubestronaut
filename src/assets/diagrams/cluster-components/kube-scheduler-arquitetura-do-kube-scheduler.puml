@@ -1,0 +1,35 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Arquitetura do kube-scheduler
+
+package "kube-scheduler" {
+    [Scheduling Queue] as queue
+    [Scheduling Cycle] as cycle
+    package "Framework Plugins" {
+        [Filter Plugins] as filter
+        [Score Plugins] as score
+        [Reserve/Bind Plugins] as bind
+    }
+}
+
+package "kube-apiserver" {
+    [API Server] as api
+}
+
+database "etcd" as etcd
+
+[Unscheduled\nPods] as unscheduled
+
+unscheduled --> queue : Watch pods sem node
+queue --> cycle : Pod para scheduling
+cycle --> filter : Filtra nodes viaveis
+filter --> score : Ranqueia nodes
+score --> bind : Seleciona melhor node
+bind --> api : Bind pod ao node
+api --> etcd
+
+@enduml

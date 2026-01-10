@@ -1,0 +1,39 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Portas do Kubernetes - Visao Geral
+
+rectangle "Control Plane Node" as cp {
+    card "API Server\n:6443" as api
+    card "etcd\n:2379-2380" as etcd
+    card "Controller\n:10257" as ctrl
+    card "Scheduler\n:10259" as sched
+}
+
+rectangle "Worker Node" as worker {
+    card "Kubelet\n:10250" as kubelet
+    card "Kubelet RO\n:10255 (OFF)" as kubeletro #lightcoral
+    card "NodePort\n:30000-32767" as nodeport
+}
+
+rectangle "External" as ext {
+    card "kubectl" as kubectl
+    card "Users" as users
+}
+
+kubectl --> api : 6443/TCP
+users --> nodeport : 30000+/TCP
+api --> kubelet : 10250/TCP
+api --> etcd : 2379/TCP
+ctrl --> api : interno
+sched --> api : interno
+
+note right of kubeletro
+  Deve estar DESABILITADO
+  em producao
+end note
+
+@enduml

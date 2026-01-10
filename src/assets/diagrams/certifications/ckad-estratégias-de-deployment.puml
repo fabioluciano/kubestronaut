@@ -1,0 +1,19 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title ESTRATÉGIAS DE DEPLOYMENT
+
+rectangle "Blue-Green" {
+  card "Blue (v1)\n100% → 0%" as bg1
+  card "Green (v2)\n0% → 100%" as bg2
+  bg1 --> bg2 : switch
+}
+
+rectangle "Canary" {
+  card "Stable (v1)\n90%" as c1
+  card "Canary (v2)\n10%" as c2
+  c1 --> c2 : gradual
+}
+
+@enduml

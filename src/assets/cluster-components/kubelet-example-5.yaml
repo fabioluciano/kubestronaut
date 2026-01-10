@@ -1,0 +1,9 @@
+# /var/lib/kubelet/config.yaml
+authentication:
+  anonymous:
+    enabled: false  # IMPORTANTE: desabilitar
+  webhook:
+    enabled: true
+    cacheTTL: 2m0s
+  x509:
+    clientCAFile: /etc/kubernetes/pki/ca.crt

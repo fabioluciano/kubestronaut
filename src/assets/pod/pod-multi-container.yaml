@@ -1,0 +1,21 @@
+# Multi-container com sidecar
+apiVersion: v1
+kind: Pod
+metadata:
+  name: multi-container
+spec:
+  containers:
+  - name: app
+    image: nginx
+    volumeMounts:
+    - name: logs
+      mountPath: /var/log/nginx
+  - name: sidecar
+    image: busybox
+    command: ["sh", "-c", "tail -f /var/log/nginx/access.log"]
+    volumeMounts:
+    - name: logs
+      mountPath: /var/log/nginx
+  volumes:
+  - name: logs
+    emptyDir: {}

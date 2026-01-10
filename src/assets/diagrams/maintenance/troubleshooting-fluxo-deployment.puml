@@ -1,0 +1,13 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Fluxo de Troubleshooting - Criação de Deployment
+
+:O Cliente envia o comando ""kubectl""\npara criação de um ""deployment"";
+:O Api server manda envia o objeto\na ser criado para o ""etcd"";
+:O ""kube-scheduller"" faz a análise de qual\nserá o melhor nó para alocar o pod, baseado\nem requisitos como recursos e affinities;
+
+@enduml

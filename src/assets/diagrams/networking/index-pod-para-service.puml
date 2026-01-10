@@ -1,0 +1,25 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title POD para SERVICE
+
+rectangle "Pod Client" as client
+
+rectangle "Service\nmy-svc\n10.96.0.10" as svc
+
+rectangle "Pod 1" as pod1
+rectangle "Pod 2" as pod2
+rectangle "Pod 3" as pod3
+
+client --> svc : DNS
+svc --> pod1
+svc --> pod2
+svc --> pod3
+
+note bottom of svc
+  DNS: my-svc.default.svc.cluster.local → 10.96.0.10
+  kube-proxy mantém regras iptables/ipvs para load balance
+end note
+
+@enduml

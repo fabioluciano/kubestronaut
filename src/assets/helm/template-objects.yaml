@@ -1,0 +1,15 @@
+# Release info
+{{ .Release.Name }}        # Nome da release
+{{ .Release.Namespace }}   # Namespace
+{{ .Release.IsInstall }}   # true se é instalação
+{{ .Release.IsUpgrade }}   # true se é upgrade
+{{ .Release.Revision }}    # Número da revisão
+
+# Chart info
+{{ .Chart.Name }}          # Nome do chart
+{{ .Chart.Version }}       # Versão do chart
+{{ .Chart.AppVersion }}    # Versão da app
+
+# Values
+{{ .Values.replicaCount }}
+{{ .Values.image.repository }}

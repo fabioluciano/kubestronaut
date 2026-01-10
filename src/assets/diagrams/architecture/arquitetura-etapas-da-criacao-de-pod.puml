@@ -1,0 +1,32 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title ETAPAS DA CRIACAO DE POD
+
+rectangle "1. SUBMISSAO" as s1 {
+  card "Usuario submete YAML" as s1a
+  card "API valida e persiste" as s1b
+  card "Pod status: Pending" as s1c
+}
+
+rectangle "2. SCHEDULING" as s2 {
+  card "Scheduler detecta pod" as s2a
+  card "Filtra nodes viaveis" as s2b
+  card "Pontua e seleciona" as s2c
+  card "Bind pod ao node" as s2d
+}
+
+rectangle "3. EXECUCAO" as s3 {
+  card "kubelet detecta pod" as s3a
+  card "Pull da imagem" as s3b
+  card "Cria containers" as s3c
+  card "Pod status: Running" as s3d
+}
+
+s1 --> s2
+s2 --> s3
+
+@enduml

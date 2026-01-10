@@ -1,0 +1,8 @@
+apiVersion: v1                  # Versão da API
+kind: Pod                       # Tipo do objeto
+metadata:                       # Identificação
+  name: my-pod                  # Nome único no namespace
+spec:                           # Estado desejado
+  containers:
+  - name: nginx
+    image: nginx

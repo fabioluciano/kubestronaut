@@ -1,0 +1,31 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DAEMONSET CONTROLLER
+
+rectangle "DaemonSet: fluentd-logging" as ds
+
+rectangle "Node 1" as n1 {
+  rectangle "fluentd Pod" as p1
+}
+
+rectangle "Node 2" as n2 {
+  rectangle "fluentd Pod" as p2
+}
+
+rectangle "Node 3" as n3 {
+  rectangle "fluentd Pod" as p3
+}
+
+ds --> n1
+ds --> n2
+ds --> n3
+
+note bottom
+  📌 Exatamente 1 Pod por Node
+  📌 Novo Node → Novo Pod automaticamente
+  📌 Node removido → Pod deletado
+end note
+
+@enduml

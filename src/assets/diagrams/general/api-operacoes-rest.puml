@@ -1,0 +1,39 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title OPERACOES REST
+
+rectangle "Verbos HTTP" {
+  card "GET" as get
+  card "POST" as post
+  card "PUT" as put
+  card "PATCH" as patch
+  card "DELETE" as delete
+}
+
+rectangle "Operacoes Kubernetes" {
+  card "List/Get" as list
+  card "Create" as create
+  card "Update (replace)" as update
+  card "Update (partial)" as partial
+  card "Delete" as del
+}
+
+get --> list
+post --> create
+put --> update
+patch --> partial
+delete --> del
+
+note bottom
+  GET /api/v1/namespaces/default/pods
+  POST /api/v1/namespaces/default/pods
+  PUT /api/v1/namespaces/default/pods/nginx
+  PATCH /api/v1/namespaces/default/pods/nginx
+  DELETE /api/v1/namespaces/default/pods/nginx
+end note
+
+@enduml

@@ -1,0 +1,22 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title INGRESS vs GATEWAY API
+
+rectangle "INGRESS (Legado)" {
+  card "✗ Apenas HTTP/HTTPS" as i1
+  card "✗ Configuração monolítica" as i2
+  card "✗ Extensibilidade via annotations" as i3
+  card "✗ Um recurso (Ingress) para tudo" as i4
+}
+
+rectangle "GATEWAY API (Moderno)" {
+  card "✓ HTTP, HTTPS, TCP, UDP, gRPC, TLS" as g1
+  card "✓ Separação de responsabilidades (roles)" as g2
+  card "✓ Extensível via CRDs nativos" as g3
+  card "✓ Múltiplos recursos especializados" as g4
+  card "✓ Portabilidade entre implementações" as g5
+}
+
+@enduml

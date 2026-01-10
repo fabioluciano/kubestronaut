@@ -1,0 +1,26 @@
+# Quota aplicada apenas a pods BestEffort
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: besteffort-quota
+  namespace: development
+spec:
+  hard:
+    pods: "10"
+  scopes:
+  - BestEffort  # Apenas pods sem requests/limits
+
+---
+# Quota aplicada apenas a pods não-BestEffort
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: not-besteffort-quota
+  namespace: development
+spec:
+  hard:
+    pods: "50"
+    requests.cpu: "10"
+    requests.memory: 20Gi
+  scopes:
+  - NotBestEffort  # Pods com requests/limits definidos

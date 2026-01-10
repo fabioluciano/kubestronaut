@@ -1,0 +1,2 @@
+spec:
+  revisionHistoryLimit: 10  # Quantos ReplicaSets antigos manter (default: 10)

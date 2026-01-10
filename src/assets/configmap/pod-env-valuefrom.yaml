@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-app
+spec:
+  containers:
+  - name: app
+    image: nginx
+    env:
+    - name: DATABASE_HOST
+      valueFrom:
+        configMapKeyRef:
+          name: app-config
+          key: DB_HOST
+    - name: DATABASE_PORT
+      valueFrom:
+        configMapKeyRef:
+          name: app-config
+          key: DB_PORT
+          optional: true  # Não falha se a chave não existir

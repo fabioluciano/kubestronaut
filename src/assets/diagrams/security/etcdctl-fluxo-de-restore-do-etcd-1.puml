@@ -1,0 +1,23 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+
+title FLUXO DE RESTORE DO ETCD
+
+start
+:1. Parar kube-apiserver;
+note right: mv manifesto para /tmp
+:2. Parar etcd (se necessario);
+:3. etcdctl snapshot restore;
+note right
+  Restaura para NOVO diretorio
+  NAO precisa de certificados
+end note
+:4. Atualizar --data-dir no manifesto;
+:5. Atualizar hostPath volume;
+:6. Reiniciar etcd/kubelet;
+:7. Restaurar kube-apiserver;
+:8. Verificar cluster;
+stop
+
+@enduml

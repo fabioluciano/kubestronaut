@@ -1,0 +1,22 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title ARQUITETURA FALCO
+
+rectangle "User Space" as userspace {
+  rectangle "Falco Engine" as engine
+}
+
+note right of engine
+  Rules processing
+  Alert generation
+end note
+
+rectangle "Kernel Space" as kernelspace {
+  rectangle "Falco Module / eBPF Probe\n(intercepta syscalls)" as probe
+}
+
+probe -up-> engine : syscalls
+
+@enduml

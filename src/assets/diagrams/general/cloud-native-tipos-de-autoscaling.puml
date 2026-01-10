@@ -1,0 +1,31 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title TIPOS DE AUTOSCALING
+
+rectangle "HPA" as hpa {
+  note as n1
+    Horizontal Pod Autoscaler
+    Ajusta número de pods
+    Baseado em CPU/mem/custom
+  end note
+}
+
+rectangle "VPA" as vpa {
+  note as n2
+    Vertical Pod Autoscaler
+    Ajusta recursos dos pods
+    Requer restart
+  end note
+}
+
+rectangle "Cluster Autoscaler" as ca {
+  note as n3
+    Ajusta número de nodes
+    Pods pending → add nodes
+    Nodes ociosos → remove
+  end note
+}
+
+@enduml

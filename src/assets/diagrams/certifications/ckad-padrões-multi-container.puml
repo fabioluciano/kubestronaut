@@ -1,0 +1,31 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title PADRÕES MULTI-CONTAINER
+
+rectangle "Sidecar" as s {
+  card "App" as s1
+  card "Log Agent" as s2
+  s1 --> s2 : logs
+}
+
+rectangle "Ambassador" as a {
+  card "App" as a1
+  card "Proxy" as a2
+  a1 --> a2 : localhost
+}
+
+rectangle "Adapter" as ad {
+  card "App" as ad1
+  card "Transformer" as ad2
+  ad1 --> ad2 : transform
+}
+
+rectangle "Init Container" as i {
+  card "Init" as i1
+  card "App" as i2
+  i1 --> i2 : "setup first"
+}
+
+@enduml

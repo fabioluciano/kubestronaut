@@ -1,0 +1,25 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title PIPELINE CI/CD
+
+rectangle "CI" {
+  card "Build" as build
+  card "Test" as test
+  card "Scan" as scan
+}
+
+rectangle "CD" {
+  card "Push Image" as push
+  card "Deploy Staging" as staging
+  card "Deploy Prod" as prod
+}
+
+build --> test
+test --> scan
+scan --> push
+push --> staging
+staging --> prod
+
+@enduml

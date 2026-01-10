@@ -1,0 +1,48 @@
+# Deployment Stable (95% do tráfego)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-stable
+spec:
+  replicas: 9                    # 9 pods stable
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp               # Label comum
+    spec:
+      containers:
+      - name: app
+        image: myapp:v1
+---
+# Deployment Canary (5% do tráfego)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-canary
+spec:
+  replicas: 1                    # 1 pod canary
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp               # Mesma label = service inclui ambos
+    spec:
+      containers:
+      - name: app
+        image: myapp:v2
+---
+# Service balanceia entre todos os pods com label app=myapp
+apiVersion: v1
+kind: Service
+metadata:
+  name: myapp-service
+spec:
+  selector:
+    app: myapp                   # Seleciona ambos deployments
+  ports:
+  - port: 80

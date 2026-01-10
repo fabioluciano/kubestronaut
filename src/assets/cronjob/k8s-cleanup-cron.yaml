@@ -1,0 +1,23 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: k8s-cleanup
+spec:
+  schedule: "0 0 * * *"  # Meia-noite
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: cleanup-sa  # ServiceAccount com permissões
+          containers:
+          - name: kubectl
+            image: bitnami/kubectl
+            command:
+            - /bin/bash
+            - -c
+            - |
+              # Deletar pods com status Evicted
+              kubectl delete pods --field-selector=status.phase==Failed \
+                --all-namespaces
+              echo "Cleanup completed"
+          restartPolicy: OnFailure

@@ -1,0 +1,20 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title ClusterIP
+
+rectangle "Pod interno" as pod
+rectangle "ClusterIP:80" as svc
+rectangle "Pods (targetPort:8080)" as targets
+
+pod -> svc
+svc -> targets
+
+note bottom
+  DNS: web-clusterip.default.svc.cluster.local
+  ⚠️ Não acessível de fora do cluster
+end note
+
+@enduml

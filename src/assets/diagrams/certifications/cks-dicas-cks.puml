@@ -1,0 +1,14 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DICAS CKS
+
+card "1. Network Policies\nDefault deny + allow specific" as d1
+card "2. Pod Security\nRestricted profile, security context" as d2
+card "3. RBAC\nLeast privilege, verify with can-i" as d3
+card "4. Secrets\nEncryption at rest" as d4
+card "5. Image Security\nTrivy, admission control" as d5
+card "6. Audit Logging\nPolicy levels, log analysis" as d6
+
+@enduml

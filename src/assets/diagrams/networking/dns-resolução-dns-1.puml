@@ -1,0 +1,27 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title RESOLUÇÃO DNS
+
+rectangle "Pod A (namespace: frontend)" as pod
+
+rectangle "/etc/resolv.conf" as resolv {
+  note as n1
+    nameserver 10.96.0.10 (CoreDNS)
+    search frontend.svc.cluster.local
+           svc.cluster.local
+           cluster.local
+  end note
+}
+
+rectangle "CoreDNS (kube-system)" as dns
+note bottom of dns
+  Retorna: 10.100.50.25 (ClusterIP do Service)
+end note
+
+pod --> resolv : nslookup backend-svc
+resolv --> dns : Query: backend-svc.frontend.svc.cluster.local
+dns --> pod : 10.100.50.25
+
+@enduml

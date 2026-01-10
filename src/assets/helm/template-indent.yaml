@@ -1,0 +1,9 @@
+# toYaml com nindent para formatação correta
+resources:
+  {{- toYaml .Values.resources | nindent 2 }}
+
+# Equivalente a:
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi

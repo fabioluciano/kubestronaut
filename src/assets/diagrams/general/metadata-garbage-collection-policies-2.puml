@@ -1,0 +1,32 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title GARBAGE COLLECTION POLICIES
+
+rectangle "FOREGROUND" #lightblue {
+  note as fg
+    1. Owner marcado para delecao
+    2. Dependentes sao deletados
+    3. Owner e deletado
+    (Bloqueante)
+  end note
+}
+
+rectangle "BACKGROUND" #lightgreen {
+  note as bg
+    1. Owner e deletado imediatamente
+    2. Dependentes deletados em background
+    (Padrao)
+  end note
+}
+
+rectangle "ORPHAN" #lightyellow {
+  note as orph
+    1. Owner e deletado
+    2. Dependentes mantidos (orfaos)
+    3. ownerReferences removidos
+  end note
+}
+
+@enduml

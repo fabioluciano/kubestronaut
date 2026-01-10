@@ -1,0 +1,43 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title PROBLEMAS COMUNS
+
+card "Pod não inicia" as p1
+card "CrashLoopBackOff" as p2
+card "ImagePullBackOff" as p3
+card "Node NotReady" as p4
+card "Service não funciona" as p5
+
+note right of p1
+  • Verificar eventos
+  • Recursos insuficientes
+  • Node selector/affinity
+end note
+
+note right of p2
+  • Verificar logs
+  • Probes falhando
+  • Comando errado
+end note
+
+note right of p3
+  • Imagem não existe
+  • Registry credentials
+  • Network issue
+end note
+
+note right of p4
+  • kubelet stopped
+  • Disk pressure
+  • Memory pressure
+end note
+
+note right of p5
+  • Selector não match
+  • Endpoints vazios
+  • Network Policy
+end note
+
+@enduml

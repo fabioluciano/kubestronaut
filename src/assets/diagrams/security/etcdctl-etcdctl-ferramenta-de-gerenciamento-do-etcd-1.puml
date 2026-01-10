@@ -1,0 +1,27 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Monospaced
+
+title ETCDCTL - Ferramenta de Gerenciamento do etcd
+
+rectangle "ETCDCTL" as etcdctl {
+  rectangle "Backup\n(snapshot save)" as backup
+  rectangle "Restore\n(snapshot restore)" as restore
+  rectangle "Health Check\n(endpoint health)" as health
+  rectangle "Gerenciamento\n(member list/add/remove)" as manage
+}
+
+rectangle "etcd Cluster" as etcd
+
+etcdctl --> etcd : TLS/mTLS
+
+note bottom of etcd
+  Armazena:
+  - Todos os recursos do cluster
+  - Secrets e ConfigMaps
+  - Estado dos workloads
+  - RBAC e certificados
+end note
+
+@enduml

@@ -1,0 +1,25 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title CONFIGMAP OVERVIEW
+
+rectangle "ConfigMap: app-config" {
+  rectangle "data:" {
+    card "DB_HOST: mysql-service" as d1
+    card "DB_PORT: 3306" as d2
+    card "config.yaml: |\n  server:\n    port: 8080" as d3
+  }
+  
+  rectangle "binaryData:" {
+    card "logo.png: <base64>" as b1
+  }
+}
+
+rectangle "Consumido por:" {
+  card "Variáveis de ambiente" as c1
+  card "Argumentos de linha de comando" as c2
+  card "Volumes montados como arquivos" as c3
+}
+
+@enduml

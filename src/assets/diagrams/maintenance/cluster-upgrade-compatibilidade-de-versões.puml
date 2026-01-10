@@ -1,0 +1,25 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Monospaced
+
+title COMPATIBILIDADE DE VERSÕES
+
+map "Versão Relativa ao API Server" as vmap {
+  kube-apiserver => X (base)
+  kube-controller-manager => X ou X-1
+  kube-scheduler => X ou X-1
+  kubelet => X, X-1 ou X-2
+  kube-proxy => X, X-1 ou X-2
+  kubectl => X+1, X ou X-1
+}
+
+note bottom of vmap
+  **Exemplo (API Server v1.30):**
+  • controller-manager: v1.30 ou v1.29
+  • scheduler: v1.30 ou v1.29
+  • kubelet: v1.30, v1.29 ou v1.28
+  • kubectl: v1.31, v1.30 ou v1.29
+end note
+
+@enduml

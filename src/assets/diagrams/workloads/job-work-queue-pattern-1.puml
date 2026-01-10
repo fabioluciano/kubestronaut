@@ -1,0 +1,29 @@
+@startuml
+skinparam monochrome true
+skinparam defaultFontName Monospaced
+
+title WORK QUEUE PATTERN
+
+queue "Message Queue" as mq {
+  card "item1" as i1
+  card "item2" as i2
+  card "item3" as i3
+  card "item4" as i4
+}
+
+rectangle "Workers" as workers {
+  rectangle "Pod-1\n(worker)" as p1
+  rectangle "Pod-2\n(worker)" as p2
+  rectangle "Pod-3\n(worker)" as p3
+}
+
+mq --> p1
+mq --> p2
+mq --> p3
+
+note bottom of workers
+  📌 Pods consomem itens da fila
+  📌 Job termina quando fila está vazia
+end note
+
+@enduml

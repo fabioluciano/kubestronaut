@@ -1,0 +1,25 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title API OBJECTS - CONCEITO
+
+note as N1
+  API Object = Representação do estado no cluster
+end note
+
+rectangle "O que você DECLARA" {
+  card "Quais workloads rodar (Pods, Deployments)" as w1
+  card "Quais recursos usar (PV, ConfigMap, Secret)" as w2
+  card "Como expor serviços (Service, Ingress)" as w3
+  card "Políticas de segurança (NetworkPolicy, RBAC)" as w4
+}
+
+rectangle "O que o Kubernetes FAZ" {
+  card "Persiste objetos no etcd" as k1
+  card "Monitora estado atual vs desejado" as k2
+  card "Reconcilia diferenças (control loop)" as k3
+  card "Atualiza status dos objetos" as k4
+}
+
+@enduml

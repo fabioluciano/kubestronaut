@@ -1,0 +1,50 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Arquitetura do Falco
+
+package "Aplicações/Containers" {
+    [Container 1] as C1
+    [Container 2] as C2
+}
+
+package "Kernel Linux" {
+    [eBPF/Kernel Module] as DRIVER
+}
+
+package "Falco Engine" {
+    [Rules Engine] as RULES
+    [Detection Engine] as DETECT
+}
+
+package "Outputs" {
+    [stdout] as OUT1
+    [syslog] as OUT2
+    [webhook] as OUT3
+}
+
+C1 --> DRIVER : syscalls
+C2 --> DRIVER : syscalls
+DRIVER --> RULES : events
+RULES --> DETECT
+DETECT --> OUT1 : alerts
+DETECT --> OUT2 : alerts
+DETECT --> OUT3 : alerts
+
+note right of RULES
+    Regras em YAML
+    - condition
+    - output
+    - priority
+end note
+
+note bottom of OUT3
+    Slack
+    PagerDuty
+    etc
+end note
+
+@enduml

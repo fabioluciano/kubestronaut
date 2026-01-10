@@ -1,0 +1,29 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title CONTAINER COMPROMISE
+
+rectangle "Attacker" as att
+
+rectangle "Compromised Pod" as pod {
+  card "1. Exploit app vulnerability" as s1
+  card "2. Access ServiceAccount token" as s2
+  card "3. Query API Server" as s3
+  card "4. Escalate privileges" as s4
+}
+
+att --> s1
+s1 --> s2
+s2 --> s3
+s3 --> s4
+
+note bottom
+  Mitigação:
+  • RBAC mínimo para ServiceAccount
+  • automountServiceAccountToken: false
+  • Network Policy
+  • Pod Security Restricted
+end note
+
+@enduml

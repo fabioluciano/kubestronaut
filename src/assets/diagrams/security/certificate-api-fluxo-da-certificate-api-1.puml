@@ -1,0 +1,23 @@
+@startuml
+skinparam monochrome true
+
+title FLUXO DA CERTIFICATE API
+
+actor "Admin/User" as user
+
+user -> [1. Gera chave privada + CSR]
+[1. Gera chave privada + CSR] -> [2. CSR codificado em base64]
+[2. CSR codificado em base64] -> [3. CertificateSigningRequest criado no K8s]
+
+rectangle "Controller Manager\n(kube-controller-manager)" as cm {
+  note as n1
+    • Verifica CSR
+    • Usa CA do cluster para assinar
+    • /etc/kubernetes/pki/ca.*
+  end note
+}
+
+[3. CertificateSigningRequest criado no K8s] -> cm
+cm -> [5. Admin aprova/rejeita o CSR]
+[5. Admin aprova/rejeita o CSR] -> [6. Certificado disponível em .status.certificate]
+@enduml

@@ -1,0 +1,26 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title KCSA vs OUTRAS CERTIFICAÇÕES
+
+rectangle "Entry Level" {
+  card "KCNA\nConceitos gerais" as kcna
+  card "KCSA\nSegurança (teoria)" as kcsa
+}
+
+rectangle "Practitioner" {
+  card "CKAD\nDesenvolvimento" as ckad
+  card "CKA\nAdministração" as cka
+}
+
+rectangle "Specialist" {
+  card "CKS\nSegurança (prática)" as cks
+}
+
+kcna --> ckad
+kcna --> cka
+kcsa --> cks
+cka --> cks
+
+@enduml

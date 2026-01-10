@@ -1,0 +1,18 @@
+# /etc/kubernetes/manifests/static-logger.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: static-logger
+spec:
+  containers:
+  - name: logger
+    image: busybox:1.35
+    command: ['sh', '-c', 'while true; do echo "$(date): Log entry" >> /var/log/app/app.log; sleep 10; done']
+    volumeMounts:
+    - name: log-volume
+      mountPath: /var/log/app
+  volumes:
+  - name: log-volume
+    hostPath:
+      path: /var/log/myapp
+      type: DirectoryOrCreate

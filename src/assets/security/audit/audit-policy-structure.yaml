@@ -1,0 +1,22 @@
+apiVersion: audit.k8s.io/v1
+kind: Policy
+rules:
+  # Regras são avaliadas em ordem
+  # Primeira regra que casa é aplicada
+  
+  - level: <None|Metadata|Request|RequestResponse>
+    
+    # Filtros (todos são opcionais)
+    users: ["system:admin"]
+    userGroups: ["system:masters"]
+    verbs: ["get", "list", "create", "update", "delete"]
+    resources:
+      - group: ""           # core API group
+        resources: ["pods", "secrets"]
+        resourceNames: ["specific-pod"]
+    namespaces: ["production"]
+    nonResourceURLs: ["/healthz*"]
+    
+    # Omitir estágios específicos
+    omitStages:
+      - "RequestReceived"

@@ -1,0 +1,31 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Static Pods vs Regular Pods
+
+package "Regular Pods" {
+    [kube-apiserver] as api
+    [etcd] as etcd
+    [kubelet] as kub1
+}
+
+package "Static Pods" {
+    folder "/etc/kubernetes/manifests" as manifests
+    [kubelet ] as kub2
+}
+
+api --> etcd : Persiste spec
+api --> kub1 : Envia spec
+manifests --> kub2 : Le spec local
+kub2 --> api : Cria mirror pod\n(apenas para visibilidade)
+
+note bottom of manifests
+  Arquivos YAML neste diretorio
+  sao automaticamente criados
+  como pods pelo kubelet
+end note
+
+@enduml

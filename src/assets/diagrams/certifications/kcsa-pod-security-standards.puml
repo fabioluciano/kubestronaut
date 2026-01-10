@@ -1,0 +1,26 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title POD SECURITY STANDARDS
+
+rectangle "Privileged" as priv #white
+rectangle "Baseline" as base #lightgray
+rectangle "Restricted" as rest #gray
+
+note right of priv
+  Sem restrições
+  Para system workloads
+end note
+
+note right of base
+  Previne escalação conhecida
+  Minimamente restritivo
+end note
+
+note right of rest
+  Hardening máximo
+  Best practices
+end note
+
+@enduml

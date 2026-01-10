@@ -1,0 +1,17 @@
+# Pod com ownerReference (gerado automaticamente)
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-rs-abc123-xyz
+  namespace: default
+  ownerReferences:
+  - apiVersion: apps/v1
+    kind: ReplicaSet
+    name: nginx-rs-abc123
+    uid: 12345-abcd-6789
+    controller: true        # Este e o controller principal
+    blockOwnerDeletion: true
+spec:
+  containers:
+  - name: nginx
+    image: nginx

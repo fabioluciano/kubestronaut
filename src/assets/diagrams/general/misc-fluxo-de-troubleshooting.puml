@@ -1,0 +1,41 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title FLUXO DE TROUBLESHOOTING
+
+start
+
+:Pod nao inicia?;
+
+if (kubectl get pod - Status?) then (Pending)
+  :Verificar scheduler;
+  :kubectl describe pod;
+  :Verificar node resources;
+  :Verificar taints/tolerations;
+else (CrashLoopBackOff/Error)
+  :kubectl logs pod;
+  :kubectl logs pod --previous;
+  :Verificar command/args;
+  :Verificar probes;
+endif
+
+if (ImagePullBackOff?) then (yes)
+  :Verificar imagem existe;
+  :Verificar imagePullSecrets;
+  :Verificar registry access;
+else (no)
+endif
+
+if (CreateContainerConfigError?) then (yes)
+  :Verificar ConfigMap/Secret existe;
+  :Verificar volume mounts;
+else (no)
+endif
+
+:kubectl describe pod;
+:Verificar Events;
+
+stop
+
+@enduml

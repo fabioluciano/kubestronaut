@@ -1,0 +1,13 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ttl-job
+spec:
+  ttlSecondsAfterFinished: 100  # Deletar 100s após completar
+  template:
+    spec:
+      containers:
+      - name: worker
+        image: busybox
+        command: ["echo", "Done!"]
+      restartPolicy: Never

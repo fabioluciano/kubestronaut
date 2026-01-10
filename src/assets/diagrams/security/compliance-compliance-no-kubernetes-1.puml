@@ -1,0 +1,27 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title COMPLIANCE NO KUBERNETES
+
+rectangle "Regulamentações" {
+  card "GDPR" as gdpr
+  card "HIPAA" as hipaa
+  card "PCI DSS" as pci
+  card "SOC 2" as soc
+}
+
+rectangle "Frameworks" {
+  card "CIS Benchmark" as cis
+  card "NIST" as nist
+  card "ISO 27001" as iso
+}
+
+rectangle "Kubernetes" {
+  card "Pod Security" as ps
+  card "RBAC" as rbac
+  card "Audit" as audit
+  card "Network Policy" as np
+}
+
+@enduml

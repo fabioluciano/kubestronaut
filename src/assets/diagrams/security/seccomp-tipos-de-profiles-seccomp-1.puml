@@ -1,0 +1,38 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Tipos de Profiles Seccomp
+
+package "Seccomp Profiles" {
+    rectangle "Unconfined" as unconf #ffcccc
+
+    rectangle "RuntimeDefault" as runtime #ffffcc
+
+    rectangle "Localhost" as local #ccffcc
+}
+
+note right of unconf
+  - Sem restricoes
+  - Todas syscalls permitidas
+  - NAO usar em producao
+end note
+
+note right of runtime
+  - Profile do containerd/CRI-O
+  - Bloqueia ~44 syscalls perigosas
+  - Recomendado como baseline
+end note
+
+note right of local
+  - Profile customizado em JSON
+  - Path: /var/lib/kubelet/seccomp/
+  - Maximo controle
+end note
+
+unconf -[hidden]down-> runtime
+runtime -[hidden]down-> local
+
+@enduml

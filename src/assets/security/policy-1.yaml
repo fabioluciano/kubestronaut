@@ -1,0 +1,25 @@
+# /etc/kubernetes/audit-policy.yaml
+apiVersion: audit.k8s.io/v1
+kind: Policy
+rules:
+  # Log all requests at Metadata level
+  - level: Metadata
+
+  # Log secrets at RequestResponse level
+  - level: RequestResponse
+    resources:
+    - group: ""
+      resources: ["secrets"]
+
+  # Log pod exec commands
+  - level: RequestResponse
+    resources:
+    - group: ""
+      resources: ["pods/exec", "pods/attach"]
+
+  # Don't log read-only requests to certain resources
+  - level: None
+    resources:
+    - group: ""
+      resources: ["events"]
+    verbs: ["get", "list", "watch"]

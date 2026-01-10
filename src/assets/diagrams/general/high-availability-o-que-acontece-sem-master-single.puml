@@ -1,0 +1,20 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title O QUE ACONTECE SEM MASTER (SINGLE)
+
+rectangle "Continua funcionando" #lightgreen {
+  card "✅ Pods CONTINUAM rodando nos workers" as c1
+  card "✅ Services CONTINUAM funcionando" as c2
+  card "✅ Tráfego CONTINUA sendo roteado" as c3
+}
+
+rectangle "Para de funcionar" #pink {
+  card "❌ kubectl NÃO FUNCIONA (API Server down)" as s1
+  card "❌ Novos pods NÃO serão scheduled" as s2
+  card "❌ Pods que morrem NÃO serão recriados" as s3
+  card "❌ Self-healing NÃO funciona" as s4
+}
+
+@enduml

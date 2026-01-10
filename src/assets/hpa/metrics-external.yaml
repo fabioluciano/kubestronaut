@@ -1,0 +1,12 @@
+# Métrica externa (ex: fila de mensagens)
+metrics:
+- type: External
+  external:
+    metric:
+      name: queue_messages_ready
+      selector:
+        matchLabels:
+          queue: worker-tasks
+    target:
+      type: AverageValue
+      averageValue: 30

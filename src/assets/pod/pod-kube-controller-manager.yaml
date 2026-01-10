@@ -1,0 +1,89 @@
+# /etc/kubernetes/manifests/kube-controller-manager.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kube-controller-manager
+  namespace: kube-system
+  labels:
+    component: kube-controller-manager
+    tier: control-plane
+spec:
+  hostNetwork: true
+  priorityClassName: system-node-critical
+  containers:
+  - name: kube-controller-manager
+    image: registry.k8s.io/kube-controller-manager:v1.29.0
+    command:
+    - kube-controller-manager
+    # Conectar ao API Server
+    - --kubeconfig=/etc/kubernetes/controller-manager.conf
+    - --authentication-kubeconfig=/etc/kubernetes/controller-manager.conf
+    - --authorization-kubeconfig=/etc/kubernetes/controller-manager.conf
+    # Certificados
+    - --client-ca-file=/etc/kubernetes/pki/ca.crt
+    - --cluster-signing-cert-file=/etc/kubernetes/pki/ca.crt
+    - --cluster-signing-key-file=/etc/kubernetes/pki/ca.key
+    - --root-ca-file=/etc/kubernetes/pki/ca.crt
+    - --service-account-private-key-file=/etc/kubernetes/pki/sa.key
+    # Bind address
+    - --bind-address=127.0.0.1
+    - --secure-port=10257
+    # Leader election (para HA)
+    - --leader-elect=true
+    - --leader-elect-lease-duration=15s
+    - --leader-elect-renew-deadline=10s
+    - --leader-elect-retry-period=2s
+    # Controllers
+    - --controllers=*,bootstrapsigner,tokencleaner
+    - --use-service-account-credentials=true
+    # Network
+    - --cluster-cidr=10.244.0.0/16
+    - --service-cluster-ip-range=10.96.0.0/12
+    - --allocate-node-cidrs=true
+    # Node controller
+    - --node-monitor-period=5s
+    - --node-monitor-grace-period=40s
+    - --pod-eviction-timeout=5m0s
+    livenessProbe:
+      httpGet:
+        host: 127.0.0.1
+        path: /healthz
+        port: 10257
+        scheme: HTTPS
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      timeoutSeconds: 15
+      failureThreshold: 8
+    startupProbe:
+      httpGet:
+        host: 127.0.0.1
+        path: /healthz
+        port: 10257
+        scheme: HTTPS
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      timeoutSeconds: 15
+      failureThreshold: 24
+    volumeMounts:
+    - name: k8s-certs
+      mountPath: /etc/kubernetes/pki
+      readOnly: true
+    - name: kubeconfig
+      mountPath: /etc/kubernetes/controller-manager.conf
+      readOnly: true
+    - name: ca-certs
+      mountPath: /etc/ssl/certs
+      readOnly: true
+  volumes:
+  - name: k8s-certs
+    hostPath:
+      path: /etc/kubernetes/pki
+      type: DirectoryOrCreate
+  - name: kubeconfig
+    hostPath:
+      path: /etc/kubernetes/controller-manager.conf
+      type: FileOrCreate
+  - name: ca-certs
+    hostPath:
+      path: /etc/ssl/certs
+      type: DirectoryOrCreate

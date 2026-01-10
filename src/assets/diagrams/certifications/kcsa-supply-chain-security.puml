@@ -1,0 +1,30 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title SUPPLY CHAIN SECURITY
+
+rectangle "Build" {
+  card "Source Code\nScan, SAST" as src
+  card "Dependencies\nSCA, SBOM" as dep
+  card "Build Process\nSecure CI/CD" as build
+}
+
+rectangle "Ship" {
+  card "Image Signing\nCosign, Notary" as sign
+  card "Registry Security\nHarbor, private" as reg
+}
+
+rectangle "Run" {
+  card "Admission Control\nImage policies" as admit
+  card "Runtime Security\nFalco, monitoring" as runtime
+}
+
+src --> dep
+dep --> build
+build --> sign
+sign --> reg
+reg --> admit
+admit --> runtime
+
+@enduml

@@ -1,0 +1,18 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title CIS BENCHMARK CATEGORIES
+
+card "1. Control Plane Components" as c1
+card "2. etcd" as c2
+card "3. Control Plane Configuration" as c3
+card "4. Worker Nodes" as c4
+card "5. Policies" as c5
+
+note bottom
+  Ferramenta: kube-bench
+  Níveis: L1 (básico), L2 (avançado)
+end note
+
+@enduml

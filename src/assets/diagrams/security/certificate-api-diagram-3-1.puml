@@ -1,0 +1,30 @@
+@startuml
+skinparam monochrome true
+
+map "DICAS - CERTIFICATE API" as dicas {
+}
+
+note bottom of dicas
+  **Criar certificado:**
+  1. openssl genrsa -out user.key 2048
+  2. openssl req -new -key user.key -out user.csr
+     -subj "/CN=user/O=group"
+  3. Criar CSR com request: $(base64 -w 0 user.csr)
+  4. kubectl certificate approve <name>
+  5. kubectl get csr <name> -o jsonpath=...
+
+  **signerName:**
+  • kubernetes.io/kube-apiserver-client (para usuários)
+
+  **usages:**
+  • client auth (para clientes/usuários)
+  • server auth (para servidores)
+
+  **kubeconfig:**
+  kubectl config set-credentials USER --client-key=...
+  kubectl config set-context NAME --cluster=... --user=...
+
+  **CN = nome do usuário no RBAC**
+  **O = grupo do usuário no RBAC**
+end note
+@enduml

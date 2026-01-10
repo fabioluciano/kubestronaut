@@ -1,0 +1,4 @@
+   authentication:
+     anonymous:
+       enabled: false
+   

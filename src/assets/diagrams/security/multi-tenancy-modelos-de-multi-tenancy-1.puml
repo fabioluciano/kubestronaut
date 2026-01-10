@@ -1,0 +1,21 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title MODELOS DE MULTI-TENANCY
+
+map "SOFT MULTI-TENANCY" as soft {
+  Tenants => Times da mesma organização
+  Confiança => Entre tenants
+  Isolamento => Por namespaces
+  Complexidade => Mais simples de implementar
+}
+
+map "HARD MULTI-TENANCY" as hard {
+  Tenants => Não confiam uns nos outros
+  Escopo => Pode incluir clientes externos
+  Isolamento => Rigoroso em todas as camadas
+  Complexidade => Requer mais configuração
+}
+
+@enduml

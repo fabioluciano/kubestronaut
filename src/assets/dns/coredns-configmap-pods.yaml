@@ -1,0 +1,16 @@
+# ConfigMap do CoreDNS
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: coredns
+  namespace: kube-system
+data:
+  Corefile: |
+    .:53 {
+        kubernetes cluster.local in-addr.arpa ip6.arpa {
+           pods insecure  # Habilita DNS para Pods
+           # pods verified - mais seguro, requer verificação
+           fallthrough in-addr.arpa ip6.arpa
+        }
+        # ...
+    }

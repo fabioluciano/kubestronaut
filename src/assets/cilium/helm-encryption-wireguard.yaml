@@ -1,0 +1,4 @@
+# Habilitar via Helm values
+encryption:
+  enabled: true
+  type: wireguard

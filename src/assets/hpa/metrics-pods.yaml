@@ -1,0 +1,9 @@
+# Métrica customizada por pod
+metrics:
+- type: Pods
+  pods:
+    metric:
+      name: packets-per-second
+    target:
+      type: AverageValue
+      averageValue: 1k

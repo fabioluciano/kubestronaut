@@ -1,0 +1,3 @@
+behavior:
+  scaleDown:
+    selectPolicy: Disabled  # Nunca reduz réplicas

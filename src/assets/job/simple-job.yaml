@@ -1,0 +1,12 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: simple-job
+spec:
+  template:
+    spec:
+      containers:
+      - name: worker
+        image: busybox
+        command: ["echo", "Hello from Job!"]
+      restartPolicy: Never  # Obrigatório para Jobs

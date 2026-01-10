@@ -1,0 +1,24 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Reconciliation Loop
+
+start
+
+:Observe;
+note right: Ler estado atual do cluster
+
+:Analyze;
+note right: Comparar com estado desejado (CR)
+
+:Act;
+note right: Criar/Atualizar/Deletar recursos
+
+:Repetir;
+
+stop
+
+@enduml

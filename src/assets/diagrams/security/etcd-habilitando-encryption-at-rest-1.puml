@@ -1,0 +1,46 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Habilitando Encryption at Rest
+
+start
+
+:1. Gerar chave de criptografia;
+note right
+  head -c 32 /dev/urandom | base64
+end note
+
+:2. Criar EncryptionConfiguration;
+note right
+  /etc/kubernetes/enc/enc.yaml
+end note
+
+:3. Editar API Server manifest;
+note right
+  --encryption-provider-config
+  volumeMounts
+  volumes
+end note
+
+:4. Reiniciar API Server;
+note right
+  Mover/restaurar manifest
+end note
+
+:5. Re-criptografar dados existentes;
+note right
+  kubectl get secrets --all-namespaces -o json | \
+  kubectl replace -f -
+end note
+
+:6. Verificar criptografia;
+note right
+  etcdctl get /registry/secrets/...
+end note
+
+stop
+
+@enduml

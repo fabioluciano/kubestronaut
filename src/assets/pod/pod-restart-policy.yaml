@@ -1,0 +1,5 @@
+spec:
+  restartPolicy: Always    # Padrão para Deployments
+  # Always   - Sempre reinicia containers que terminam
+  # OnFailure - Reinicia apenas se exit code != 0
+  # Never    - Nunca reinicia (usado em Jobs)

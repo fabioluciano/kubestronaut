@@ -1,0 +1,34 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title VOLUMECLAIMTEMPLATES
+
+rectangle "StatefulSet: mysql (replicas: 3)\nvolumeClaimTemplates:\n- metadata:\n    name: data" as sts
+
+rectangle "PVCs criados automaticamente" {
+  database "data-mysql-0" as pvc0
+  database "data-mysql-1" as pvc1
+  database "data-mysql-2" as pvc2
+}
+
+rectangle "Pods" {
+  rectangle "mysql-0" as p0
+  rectangle "mysql-1" as p1
+  rectangle "mysql-2" as p2
+}
+
+sts --> pvc0
+sts --> pvc1
+sts --> pvc2
+
+pvc0 --> p0 : vinculado
+pvc1 --> p1 : vinculado
+pvc2 --> p2 : vinculado
+
+note bottom
+  Formato: <volumeClaim-name>-<statefulset-name>-<ordinal>
+  ⚠️ PVCs NÃO são deletados ao deletar StatefulSet
+end note
+
+@enduml

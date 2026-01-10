@@ -1,0 +1,24 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Monospaced
+
+title ORDEM DE UPGRADE
+
+rectangle "1. Control Plane (Master) - um node por vez" as cp
+note right of cp
+  a. kubeadm
+  b. Componentes do control plane (via kubeadm)
+  c. kubelet e kubectl
+end note
+
+rectangle "2. Worker Nodes - um node por vez" as wk
+note right of wk
+  a. Drain do node
+  b. kubeadm upgrade node
+  c. kubelet e kubectl
+  d. Uncordon do node
+end note
+
+cp -down-> wk
+@enduml

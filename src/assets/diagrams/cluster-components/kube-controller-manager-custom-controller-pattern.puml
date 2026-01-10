@@ -1,0 +1,26 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Custom Controller Pattern
+
+package "Custom Controller" {
+    [Informer/Lister] as informer
+    [Work Queue] as queue
+    [Reconcile Loop] as reconcile
+}
+
+package "Kubernetes API" {
+    [API Server] as api
+    [Custom Resource\nDefinition] as crd
+}
+
+informer --> api : Watch CRD
+api --> informer : Events (Add/Update/Delete)
+informer --> queue : Enqueue key
+queue --> reconcile : Dequeue key
+reconcile --> api : Get/Update resources
+
+@enduml

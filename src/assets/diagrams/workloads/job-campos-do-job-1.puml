@@ -1,0 +1,29 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title CAMPOS DO JOB
+
+rectangle "spec.completions: 5" as completions
+note right of completions : Quantas vezes o job deve completar com sucesso
+
+rectangle "spec.parallelism: 2" as parallelism
+note right of parallelism : Quantos pods podem rodar simultaneamente
+
+rectangle "spec.backoffLimit: 4" as backoffLimit
+note right of backoffLimit : Quantas falhas antes de considerar o job failed
+
+rectangle "spec.activeDeadlineSeconds: 300" as deadline
+note right of deadline : Tempo máximo de execução (inclui retries)
+
+rectangle "spec.ttlSecondsAfterFinished: 100" as ttl
+note right of ttl : Tempo até o job ser deletado automaticamente
+
+rectangle "spec.template.spec.restartPolicy: Never | OnFailure" {
+  note as n6
+    Never: não reinicia container
+    OnFailure: reinicia apenas se falhar
+  end note
+}
+
+@enduml

@@ -1,0 +1,22 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title AMBIENTE DE EXAME - PSI BRIDGE
+
+rectangle "Ambiente Permitido" {
+  card "Terminal com kubectl" as t1
+  card "Documentacao Kubernetes oficial" as t2
+  card "Notepad integrado" as t3
+  card "Uma aba adicional para docs" as t4
+}
+
+rectangle "NAO Permitido" {
+  card "Multiplos monitores" as n1
+  card "Fones de ouvido" as n2
+  card "Telefones/tablets" as n3
+  card "Notas pessoais" as n4
+  card "Outras pessoas no ambiente" as n5
+}
+
+@enduml

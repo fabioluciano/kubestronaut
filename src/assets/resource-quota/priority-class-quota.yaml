@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: high-priority-quota
+  namespace: production
+spec:
+  hard:
+    pods: "10"
+    requests.cpu: "4"
+    requests.memory: 8Gi
+  scopeSelector:
+    matchExpressions:
+    - operator: In
+      scopeName: PriorityClass
+      values:
+      - high-priority
+      - critical

@@ -1,0 +1,28 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DICAS CKA - STATIC PODS
+
+rectangle "1️⃣ IDENTIFICAR STATIC PODS" {
+  card "Procure sufixo do node no nome (etcd-master01)" as i1
+  card "Annotation kubernetes.io/config.source: file" as i2
+}
+
+rectangle "2️⃣ ENCONTRAR O DIRETÓRIO" {
+  card "cat /var/lib/kubelet/config.yaml | grep staticPodPath" as e1
+  card "Padrão: /etc/kubernetes/manifests" as e2
+}
+
+rectangle "3️⃣ CRIAR STATIC POD" {
+  card "kubectl run não funciona para static pods" as c1
+  card "Criar YAML diretamente no diretório" as c2
+  card "Use: kubectl run --dry-run=client -o yaml > pod.yaml\ndepois copie para o diretório de manifests" as c3
+}
+
+rectangle "4️⃣ LEMBRE-SE" {
+  card "kubectl delete NÃO remove static pod" as l1
+  card "Deve remover o arquivo YAML do diretório" as l2
+}
+
+@enduml

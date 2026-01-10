@@ -1,0 +1,22 @@
+@startuml
+
+skinparam backgroundColor white
+
+title Metodologia de Troubleshooting
+
+start
+:Identificar o Sintoma;
+:Coletar Informacoes;
+:Formular Hipoteses;
+:Testar Hipoteses;
+if (Problema Resolvido?) then (sim)
+  :Documentar Solucao;
+  stop
+else (nao)
+  :Refinar Hipoteses;
+  :Coletar Mais Dados;
+endif
+:Escalar se necessario;
+stop
+
+@enduml

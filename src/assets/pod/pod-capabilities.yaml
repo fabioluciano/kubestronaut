@@ -1,0 +1,10 @@
+containers:
+- name: app
+  image: nginx
+  securityContext:
+    capabilities:
+      drop:
+        - ALL                    # Remove todas capabilities
+      add:
+        - NET_BIND_SERVICE       # Adiciona específicas
+        - SYS_TIME

@@ -1,0 +1,20 @@
+@startuml
+skinparam monochrome true
+
+map "RESTRICTED - RESTRIÇÕES" as restricted {
+}
+
+note bottom of restricted
+  **❌ Tudo do Baseline, MAIS:**
+
+  **OBRIGATÓRIO:**
+  • runAsNonRoot: true
+  • allowPrivilegeEscalation: false
+  • seccompProfile.type: RuntimeDefault OU Localhost
+  • capabilities.drop: ["ALL"]
+
+  **BLOQUEADO:**
+  • runAsUser: 0 (root)
+  • Qualquer capability (exceto NET_BIND_SERVICE)
+end note
+@enduml

@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: complete-quota
+  namespace: production
+spec:
+  hard:
+    # Compute
+    requests.cpu: "10"
+    requests.memory: 20Gi
+    limits.cpu: "20"
+    limits.memory: 40Gi
+    
+    # Objects
+    pods: "50"
+    services: "20"
+    secrets: "50"
+    configmaps: "50"
+    replicationcontrollers: "20"
+    persistentvolumeclaims: "20"
+    
+    # Storage
+    requests.storage: 500Gi
+    
+    # Services específicos
+    services.loadbalancers: "5"
+    services.nodeports: "10"
+    
+    # Count de recursos específicos
+    count/deployments.apps: "20"
+    count/jobs.batch: "50"
+    count/cronjobs.batch: "10"

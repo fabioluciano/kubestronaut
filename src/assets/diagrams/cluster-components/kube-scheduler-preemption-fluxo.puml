@@ -1,0 +1,26 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Preemption - Fluxo
+
+start
+
+:Pod alta prioridade nao consegue\nser scheduled (sem recursos);
+
+:Scheduler busca pods de menor\nprioridade para preemptar;
+
+if (Encontrou candidatos?) then (sim)
+    :Seleciona pod(s) para preemptar;
+    :Envia sinal de termination\n(graceful shutdown);
+    :Aguarda terminacao;
+    :Schedula pod de alta prioridade;
+else (nao)
+    :Pod permanece Pending;
+endif
+
+stop
+
+@enduml

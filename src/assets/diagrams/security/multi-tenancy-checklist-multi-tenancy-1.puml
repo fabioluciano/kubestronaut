@@ -1,0 +1,32 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title CHECKLIST MULTI-TENANCY
+
+map "Control Plane" as cp {
+  ☐ => Namespace por tenant
+  ☐ => RBAC restritivo por namespace
+  ☐ => ResourceQuota configurada
+  ☐ => LimitRange com defaults
+}
+
+map "Data Plane" as dp {
+  ☐ => NetworkPolicy default deny
+  ☐ => StorageClass por tenant (se necessário)
+  ☐ => Node isolation (se necessário)
+}
+
+map "Runtime" as rt {
+  ☐ => Pod Security Admission habilitado
+  ☐ => RuntimeClass para tenants sensíveis
+  ☐ => Seccomp/AppArmor profiles
+}
+
+map "Extras" as extras {
+  ☐ => PriorityClass por criticidade
+  ☐ => Pod-to-pod encryption
+  ☐ => Audit logs habilitados
+}
+
+@enduml

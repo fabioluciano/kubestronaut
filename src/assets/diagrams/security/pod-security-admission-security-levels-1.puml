@@ -1,0 +1,42 @@
+@startuml
+skinparam monochrome true
+
+title SECURITY LEVELS
+
+rectangle "PRIVILEGED" as priv {
+  note as n1
+    • Sem restrições
+    • Permite qualquer configuração
+    • Use apenas quando necessário (kube-system)
+  end note
+}
+
+rectangle "BASELINE" as base {
+  note as n2
+    • Previne escalação de privilégios conhecida
+    • Permite a maioria das cargas de trabalho
+    • Bloqueia: privileged, hostPID, hostNetwork...
+  end note
+}
+
+rectangle "RESTRICTED" as rest {
+  note as n3
+    • Hardening máximo
+    • Segue melhores práticas
+    • Requer: runAsNonRoot, drop ALL capabilities...
+  end note
+}
+
+priv -[hidden]down-> base : Menos Restritivo
+base -[hidden]down-> rest : Mais Restritivo
+
+note left of priv
+  **Menos Restritivo**
+  ↑
+end note
+
+note left of rest
+  ↓
+  **Mais Restritivo**
+end note
+@enduml

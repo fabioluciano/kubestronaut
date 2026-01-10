@@ -1,0 +1,22 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title PILARES CLOUD NATIVE
+
+rectangle "Cloud Native" {
+  card "Containers" as c
+  card "Microservices" as m
+  card "DevOps" as d
+  card "CI/CD" as ci
+}
+
+note bottom
+  Aplicações cloud native são:
+  • Escaláveis
+  • Resilientes
+  • Gerenciáveis
+  • Observáveis
+end note
+
+@enduml

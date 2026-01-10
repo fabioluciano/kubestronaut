@@ -1,0 +1,35 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title OCI - ESPECIFICACOES
+
+rectangle "OCI Standards" {
+  card "Image Spec\n(image-spec)" as img
+  card "Runtime Spec\n(runtime-spec)" as rt
+  card "Distribution Spec\n(distribution-spec)" as dist
+}
+
+note bottom of img
+  Define formato de imagem:
+  - Layers
+  - Manifests
+  - Configuracao
+end note
+
+note bottom of rt
+  Define como executar container:
+  - Lifecycle
+  - Configuracao
+  - Filesystem bundle
+end note
+
+note bottom of dist
+  Define distribuicao de imagens:
+  - API de registry
+  - Pull/Push
+end note
+
+@enduml

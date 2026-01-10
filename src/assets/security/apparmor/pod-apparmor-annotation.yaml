@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: apparmor-pod
+  annotations:
+    # Formato: container.apparmor.security.beta.kubernetes.io/<container-name>
+    container.apparmor.security.beta.kubernetes.io/nginx: localhost/my-custom-profile
+spec:
+  containers:
+  - name: nginx
+    image: nginx

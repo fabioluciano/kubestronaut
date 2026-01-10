@@ -1,0 +1,22 @@
+# Service sem selector (não cria endpoints automaticamente)
+apiVersion: v1
+kind: Service
+metadata:
+  name: external-database
+spec:
+  ports:
+  - port: 5432
+    targetPort: 5432
+# Note: sem selector!
+---
+# Endpoints manual para o service
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: external-database  # DEVE ter o mesmo nome do Service
+subsets:
+- addresses:
+  - ip: 192.168.1.100  # IP do servidor externo
+  - ip: 192.168.1.101  # Outro servidor (failover)
+  ports:
+  - port: 5432

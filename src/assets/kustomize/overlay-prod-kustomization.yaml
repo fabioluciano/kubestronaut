@@ -1,0 +1,22 @@
+# overlays/prod/kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- ../../base
+
+namePrefix: prod-
+namespace: production
+
+commonLabels:
+  env: prod
+
+# Patch de arquivo
+patches:
+- path: patch-replicas.yaml
+- path: patch-resources.yaml
+
+# Imagem de produção
+images:
+- name: nginx
+  newTag: 1.20-alpine

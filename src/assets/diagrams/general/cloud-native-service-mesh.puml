@@ -1,0 +1,26 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title SERVICE MESH
+
+rectangle "Pod A" {
+  component "App" as app1
+  component "Sidecar\nProxy" as proxy1
+}
+
+rectangle "Pod B" {
+  component "App" as app2
+  component "Sidecar\nProxy" as proxy2
+}
+
+rectangle "Control Plane" as cp
+
+app1 --> proxy1 : localhost
+proxy1 --> proxy2 : mTLS
+proxy2 --> app2 : localhost
+
+cp --> proxy1 : config
+cp --> proxy2 : config
+
+@enduml

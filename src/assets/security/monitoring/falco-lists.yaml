@@ -1,0 +1,7 @@
+# Lista de binários shell
+- list: shell_binaries
+  items: [bash, csh, ksh, sh, tcsh, zsh, dash]
+
+# Lista de diretórios sensíveis
+- list: sensitive_directories
+  items: [/etc, /root, /var/log]

@@ -1,0 +1,39 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Fluxo CRI - Criacao de Pod
+
+actor kubelet
+participant "CRI Plugin" as cri
+participant "Image Service" as img
+participant "Container Service" as cont
+participant "runc" as runc
+
+kubelet -> cri : RunPodSandbox()
+cri -> cont : Cria sandbox (pause container)
+cont -> runc : Executa pause
+runc --> cont : Container ID
+cont --> cri : Sandbox ID
+cri --> kubelet : Sandbox Ready
+
+kubelet -> cri : PullImage()
+cri -> img : Pull image layers
+img --> cri : Image ID
+cri --> kubelet : Image Ready
+
+kubelet -> cri : CreateContainer()
+cri -> cont : Cria container no sandbox
+cont --> cri : Container ID
+cri --> kubelet : Container Created
+
+kubelet -> cri : StartContainer()
+cri -> cont : Inicia container
+cont -> runc : Executa processo
+runc --> cont : PID
+cont --> cri : Started
+cri --> kubelet : Container Running
+
+@enduml

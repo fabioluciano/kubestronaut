@@ -1,0 +1,43 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DECLARATIVO vs IMPERATIVO
+
+rectangle "IMPERATIVO (como fazer)" {
+  note as imp
+    kubectl run nginx --image=nginx
+    kubectl scale deployment nginx --replicas=3
+    kubectl set image deployment/nginx nginx=nginx:1.21
+  end note
+}
+
+rectangle "DECLARATIVO (o que quero)" {
+  note as dec
+    kubectl apply -f deployment.yaml
+  end note
+  
+  note as yaml
+    deployment.yaml:
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: nginx
+    spec:
+      replicas: 3
+      template:
+        spec:
+          containers:
+          - image: nginx:1.21
+  end note
+}
+
+note as rec
+  ✅ RECOMENDADO: Declarativo
+  • Versionável (Git)
+  • Reproduzível
+  • Auditável
+  • GitOps friendly
+end note
+
+@enduml

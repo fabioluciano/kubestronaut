@@ -1,0 +1,31 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title SLI / SLO / SLA
+
+rectangle "SLI" as sli {
+  note as n1
+    Service Level Indicator
+    Métrica: latência, error rate
+  end note
+}
+
+rectangle "SLO" as slo {
+  note as n2
+    Service Level Objective
+    Meta: p99 latência < 200ms
+  end note
+}
+
+rectangle "SLA" as sla {
+  note as n3
+    Service Level Agreement
+    Contrato: 99.9% uptime
+  end note
+}
+
+sli --> slo : define meta
+slo --> sla : formaliza contrato
+
+@enduml

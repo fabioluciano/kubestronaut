@@ -1,0 +1,47 @@
+# Role: permissoes em um namespace especifico
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: pod-manager
+  namespace: development
+rules:
+# Regra 1: Pods completo
+- apiGroups: [""]  # "" = core API group
+  resources: ["pods"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+# Regra 2: Logs (subresource)
+- apiGroups: [""]
+  resources: ["pods/log"]
+  verbs: ["get"]
+# Regra 3: Exec (subresource)
+- apiGroups: [""]
+  resources: ["pods/exec"]
+  verbs: ["create"]
+# Regra 4: Deployments
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["get", "list", "watch"]
+---
+# RoleBinding: associa Role a subjects
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: pod-manager-binding
+  namespace: development
+subjects:
+# Usuario individual
+- kind: User
+  name: john
+  apiGroup: rbac.authorization.k8s.io
+# Grupo de usuarios
+- kind: Group
+  name: developers
+  apiGroup: rbac.authorization.k8s.io
+# ServiceAccount
+- kind: ServiceAccount
+  name: ci-pipeline
+  namespace: development
+roleRef:
+  kind: Role
+  name: pod-manager
+  apiGroup: rbac.authorization.k8s.io

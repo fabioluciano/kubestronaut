@@ -1,0 +1,19 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DOMÍNIOS DO CKAD
+
+card "Application Design and Build" as d1 #lightgray
+card "Application Deployment" as d2 #lightgray
+card "Application Observability and Maintenance" as d3 #lightgray
+card "Application Environment, Configuration and Security" as d4 #lightgray
+card "Services and Networking" as d5 #lightgray
+
+note right of d1 : 20%
+note right of d2 : 20%
+note right of d3 : 15%
+note right of d4 : 25%
+note right of d5 : 20%
+
+@enduml

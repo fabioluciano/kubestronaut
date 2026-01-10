@@ -1,0 +1,20 @@
+# /etc/kubernetes/manifests/static-nginx.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: static-nginx
+  labels:
+    app: static-nginx
+spec:
+  containers:
+  - name: nginx
+    image: nginx:1.21
+    ports:
+    - containerPort: 80
+    resources:
+      limits:
+        memory: "128Mi"
+        cpu: "250m"
+      requests:
+        memory: "64Mi"
+        cpu: "125m"

@@ -1,0 +1,30 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Calculo de Recursos com RuntimeClass Overhead
+
+rectangle "Pod Spec" as podspec {
+    card "requests.memory: 100Mi" as req
+    card "limits.memory: 256Mi" as lim
+}
+
+rectangle "RuntimeClass" as rc {
+    card "overhead.podFixed.memory: 120Mi" as overhead
+}
+
+rectangle "Scheduling" as sched {
+    card "Total para Scheduling:\n100Mi + 120Mi = **220Mi**" as total #lightgreen
+}
+
+rectangle "Limites Efetivos" as eff {
+    card "Container limits: 256Mi\n(overhead nao afeta)" as efflim
+}
+
+podspec --> sched
+rc --> sched
+podspec --> eff
+
+@enduml

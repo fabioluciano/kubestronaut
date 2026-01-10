@@ -1,0 +1,27 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title COMPARAÇÃO
+
+map "OPA Gatekeeper" as opa {
+  ✓ => Linguagem Rego (flexível mas complexa)
+  ✓ => Políticas genéricas (qualquer recurso)
+  ✓ => Auditoria de recursos existentes
+  ✗ => Curva de aprendizado maior
+}
+
+map "Pod Security Admission (PSA)" as psa {
+  ✓ => Nativo do Kubernetes
+  ✓ => Simples de usar (privileged/baseline/restricted)
+  ✗ => Apenas para Pods
+  ✗ => Pouca flexibilidade
+}
+
+map "Kyverno" as kyverno {
+  ✓ => Políticas em YAML (familiar)
+  ✓ => Pode gerar e mutar recursos
+  ✓ => Mais fácil que Rego
+}
+
+@enduml

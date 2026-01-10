@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app
+  annotations:
+    kubernetes.io/change-cause: "Initial deployment"
+spec:
+  replicas: 3                              # Número de pods desejados
+  revisionHistoryLimit: 10                 # Quantas revisões manter (default: 10)
+  progressDeadlineSeconds: 600             # Timeout para rollout (default: 600s)
+  minReadySeconds: 0                       # Tempo mínimo pod ready antes de available
+  paused: false                            # Se true, pausa rollouts
+  selector:
+    matchLabels:
+      app: my-app
+    # Ou usando matchExpressions
+    matchExpressions:
+    - key: app
+      operator: In
+      values:
+      - my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+      - name: app
+        image: my-app:v1

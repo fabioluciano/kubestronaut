@@ -1,0 +1,13 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: deadline-job
+spec:
+  activeDeadlineSeconds: 60  # Máximo 60 segundos
+  template:
+    spec:
+      containers:
+      - name: worker
+        image: busybox
+        command: ["sh", "-c", "sleep 120"]  # Excede deadline
+      restartPolicy: Never

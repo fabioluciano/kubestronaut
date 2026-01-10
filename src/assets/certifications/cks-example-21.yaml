@@ -1,0 +1,6 @@
+# Habilitar no kube-apiserver
+# --audit-policy-file=/etc/kubernetes/audit-policy.yaml
+# --audit-log-path=/var/log/kubernetes/audit.log
+# --audit-log-maxage=30
+# --audit-log-maxbackup=10
+# --audit-log-maxsize=100

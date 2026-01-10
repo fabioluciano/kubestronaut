@@ -1,0 +1,28 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title GARANTIR POD EM NODE ESPECÍFICO
+
+rectangle "PROBLEMA" {
+  card "Toleration permite ir para o node, mas não garante" as p1
+  card "nodeAffinity garante ir para o node, mas não impede outros" as p2
+}
+
+rectangle "SOLUÇÃO: Usar AMBOS!" {
+  rectangle "1. No NODE" {
+    card "Taint: dedicated=database:NoSchedule" as n1
+    card "Label: dedicated=database" as n2
+  }
+  
+  rectangle "2. No POD" {
+    card "Toleration: dedicated=database" as pod1
+    card "nodeAffinity: dedicated=database" as pod2
+  }
+}
+
+note bottom
+  Resultado: Pod VAI para o node E outros pods NÃO VÃO
+end note
+
+@enduml

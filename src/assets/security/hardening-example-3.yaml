@@ -1,0 +1,10 @@
+--enable-admission-plugins=\
+  NodeRestriction,\
+  PodSecurity,\
+  ServiceAccount,\
+  LimitRanger,\
+  ResourceQuota,\
+  DefaultStorageClass,\
+  DefaultTolerationSeconds,\
+  MutatingAdmissionWebhook,\
+  ValidatingAdmissionWebhook

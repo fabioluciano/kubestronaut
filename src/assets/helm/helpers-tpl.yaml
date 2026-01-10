@@ -1,0 +1,28 @@
+{{/*
+Nome completo do chart
+*/}}
+{{- define "my-chart.fullname" -}}
+{{- if .Values.fullnameOverride }}
+{{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- $name := default .Chart.Name .Values.nameOverride }}
+{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" }}
+{{- end }}
+{{- end }}
+
+{{/*
+Labels comuns
+*/}}
+{{- define "my-chart.labels" -}}
+helm.sh/chart: {{ include "my-chart.chart" . }}
+{{ include "my-chart.selectorLabels" . }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}
+
+{{/*
+Selector labels
+*/}}
+{{- define "my-chart.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "my-chart.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}

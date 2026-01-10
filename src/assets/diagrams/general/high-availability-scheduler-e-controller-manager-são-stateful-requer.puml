@@ -1,0 +1,19 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title Scheduler e Controller Manager são STATEFUL - requerem eleição
+
+rectangle "Scheduler\nLEADER ✓" as sched1 #lightgray
+rectangle "Scheduler\nstandby" as sched2
+rectangle "Scheduler\nstandby" as sched3
+
+rectangle "Ctrl Manager\nstandby" as cm1
+rectangle "Ctrl Manager\nLEADER ✓" as cm2 #lightgray
+rectangle "Ctrl Manager\nstandby" as cm3
+
+note bottom
+  Apenas 1 ATIVO por vez - usa LEASE para eleição
+end note
+
+@enduml

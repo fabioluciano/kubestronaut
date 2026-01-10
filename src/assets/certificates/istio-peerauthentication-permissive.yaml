@@ -1,0 +1,9 @@
+# Modo permissivo (para migração gradual)
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: default
+  namespace: my-namespace
+spec:
+  mtls:
+    mode: PERMISSIVE

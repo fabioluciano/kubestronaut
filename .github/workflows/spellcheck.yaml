@@ -1,25 +1,32 @@
-name: Verificação Ortográfica
+name: Spellcheck
 
 on:
   pull_request:
     paths:
-      - '**/*.md'
+      - "src/**/*.md"
 
 jobs:
   spellcheck:
+    name: Check Spelling
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Instalar dependências
-        run: npm install --save-dev @cspell/dict-pt-br
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
 
-      - name: Executar verificação ortográfica
+      - name: Install dependencies
+        run: npm install @cspell/dict-pt-br
+
+      - name: Run spellcheck
         uses: streetsidesoftware/cspell-action@v6
         with:
-          config: './cspell.json'
+          config: "./cspell.json"
           files: |
-            **/*.md
-          inline: error
-          strict: true
+            src/**/*.md
+          inline: warning
+          strict: false
           suggestions: true

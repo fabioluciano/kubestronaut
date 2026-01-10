@@ -1,0 +1,23 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title CHECKLIST DE SAUDE DO CLUSTER
+
+rectangle "VERIFICAR" {
+  card "1. Todos nodes Ready?\nkubectl get nodes" as v1
+
+  card "2. Pods do sistema rodando?\nkubectl get pods -n kube-system" as v2
+
+  card "3. DNS funcionando?\nnslookup kubernetes.default" as v3
+
+  card "4. API respondendo?\nkubectl cluster-info" as v4
+
+  card "5. Metricas disponiveis?\nkubectl top nodes\nkubectl top pods" as v5
+
+  card "6. Eventos com erros?\nkubectl get events -A" as v6
+}
+
+@enduml

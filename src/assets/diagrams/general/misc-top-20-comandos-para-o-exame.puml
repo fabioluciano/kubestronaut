@@ -1,0 +1,40 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title TOP 20 COMANDOS PARA O EXAME
+
+rectangle "CRIACAO RAPIDA" {
+  note as n1
+    kubectl run nginx --image=nginx
+    kubectl create deploy nginx --image=nginx
+    kubectl expose deploy nginx --port=80
+    kubectl create cm/secret/sa/role...
+  end note
+}
+
+rectangle "GERACAO DE YAML" {
+  note as n2
+    --dry-run=client -o yaml > file.yaml
+    kubectl get <resource> -o yaml
+  end note
+}
+
+rectangle "DEBUGGING" {
+  note as n3
+    kubectl describe <resource>
+    kubectl logs <pod>
+    kubectl exec -it <pod> -- sh
+    kubectl get events --sort-by='.lastTimestamp'
+  end note
+}
+
+rectangle "NAVEGACAO" {
+  note as n4
+    kubectl config use-context
+    kubectl config set-context --current --namespace
+    kubectl api-resources
+  end note
+}
+
+@enduml

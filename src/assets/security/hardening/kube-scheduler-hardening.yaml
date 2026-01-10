@@ -1,0 +1,68 @@
+# /etc/kubernetes/manifests/kube-scheduler.yaml
+# Configuracao de hardening do Scheduler
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kube-scheduler
+  namespace: kube-system
+  labels:
+    component: kube-scheduler
+    tier: control-plane
+spec:
+  containers:
+  - name: kube-scheduler
+    image: registry.k8s.io/kube-scheduler:v1.29.0
+    command:
+    - kube-scheduler
+
+    # === AUTENTICACAO ===
+    # Kubeconfig para autenticacao com API Server
+    - --kubeconfig=/etc/kubernetes/scheduler.conf
+    - --authentication-kubeconfig=/etc/kubernetes/scheduler.conf
+    - --authorization-kubeconfig=/etc/kubernetes/scheduler.conf
+
+    # === BIND ===
+    # Bind apenas em localhost (CIS 1.4.2)
+    - --bind-address=127.0.0.1
+
+    # Porta segura
+    - --secure-port=10259
+
+    # === PROFILING ===
+    # Desabilitar profiling (CIS 1.4.1)
+    - --profiling=false
+
+    # === LEADER ELECTION ===
+    - --leader-elect=true
+
+    volumeMounts:
+    - name: kubeconfig
+      mountPath: /etc/kubernetes/scheduler.conf
+      readOnly: true
+
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+
+    livenessProbe:
+      httpGet:
+        path: /healthz
+        port: 10259
+        scheme: HTTPS
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      timeoutSeconds: 15
+      failureThreshold: 8
+
+  hostNetwork: true
+  priorityClassName: system-node-critical
+
+  volumes:
+  - name: kubeconfig
+    hostPath:
+      path: /etc/kubernetes/scheduler.conf
+      type: File

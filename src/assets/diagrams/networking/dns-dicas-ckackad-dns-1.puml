@@ -1,0 +1,43 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DICAS CKA/CKAD - DNS
+
+rectangle "Formatos de DNS" {
+  note as dns_formats
+    • Service: <svc>.<ns>.svc.cluster.local
+    • Pod: <ip-dashes>.<ns>.pod.cluster.local
+    • StatefulSet: <pod-name>.<svc>.<ns>.svc.cluster.local
+  end note
+}
+
+rectangle "Formas curtas (mesmo namespace)" {
+  note as short_forms
+    • Service: apenas <svc-name>
+    • Cross-namespace: <svc>.<namespace>
+  end note
+}
+
+rectangle "CoreDNS" {
+  note as coredns
+    • Namespace: kube-system
+    • ConfigMap: coredns
+    • Service: kube-dns (10.96.0.10)
+  end note
+}
+
+rectangle "Debug" {
+  note as debug
+    kubectl run test --rm -it --image=busybox -- nslookup <svc>
+  end note
+}
+
+rectangle "Headless Service (StatefulSet)" {
+  note as headless
+    • clusterIP: None
+    • Cada Pod recebe DNS individual
+  end note
+}
+
+@enduml

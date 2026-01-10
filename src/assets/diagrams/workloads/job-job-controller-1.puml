@@ -1,0 +1,24 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title JOB CONTROLLER
+
+rectangle "Job: batch-process" {
+  card "completions: 3 (quantas vezes completar)" as c1
+  card "parallelism: 2 (quantos pods simultâneos)" as c2
+  card "backoffLimit: 4 (tentativas em caso de falha)" as c3
+}
+
+rectangle "Execução" {
+  card "Batch 1: Pod-1 ✓  Pod-2 ✓" as b1
+  card "Batch 2: Pod-3 ✓" as b2
+  card "Status: 3/3 completions" as status
+}
+
+note bottom
+  📌 Pods finalizados permanecem (Completed)
+  📌 Job status: Complete
+end note
+
+@enduml

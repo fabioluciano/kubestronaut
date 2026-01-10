@@ -1,0 +1,28 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title RAFT CONSENSUS (etcd)
+
+rectangle "LEADER" as leader
+rectangle "Follower 1" as f1
+rectangle "Follower 2" as f2
+rectangle "Follower 3" as f3
+
+note right of leader
+  Recebe escritas
+end note
+
+leader --> f1 : replica
+leader --> f2 : replica
+leader --> f3 : replica
+
+note as N1
+  1. Um LEADER é eleito entre os members
+  2. Todas as escritas vão para o leader
+  3. Leader replica para followers
+  4. Escrita confirmada quando MAIORIA confirma
+  5. Se leader falha, nova eleição ocorre
+end note
+
+@enduml

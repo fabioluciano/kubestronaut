@@ -1,0 +1,19 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title REDES DO KUBERNETES
+
+package "CLUSTER NETWORK\n(Nodes, API Server, etcd)\n10.0.0.0/16" as cn {
+}
+
+package "POD NETWORK\n(Comunicação entre Pods - CNI)\n10.244.0.0/16" as pn {
+}
+
+package "SERVICE NETWORK\n(ClusterIP para Services)\n10.96.0.0/12" as sn {
+}
+
+cn -[hidden]down-> pn
+pn -[hidden]down-> sn
+
+@enduml

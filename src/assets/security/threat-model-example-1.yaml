@@ -1,0 +1,9 @@
+# Configuração INSEGURA (evitar)
+securityContext:
+  privileged: true
+  # OU
+  capabilities:
+    add: ["SYS_ADMIN"]
+  # OU
+  hostPID: true
+  hostNetwork: true

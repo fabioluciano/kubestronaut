@@ -1,0 +1,13 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title SOC 2 - TRUST SERVICE CRITERIA
+
+card "Security\nProteção contra acesso não autorizado" as sec
+card "Availability\nSistema disponível para uso" as avail
+card "Processing Integrity\nProcessamento correto" as proc
+card "Confidentiality\nProteção de dados confidenciais" as conf
+card "Privacy\nProteção de dados pessoais" as priv
+
+@enduml

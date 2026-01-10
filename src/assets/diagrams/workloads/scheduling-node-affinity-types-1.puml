@@ -1,0 +1,29 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title NODE AFFINITY TYPES
+
+rectangle "requiredDuringSchedulingIgnoredDuringExecution" {
+  note as n1
+    OBRIGATÓRIO: Pod só é scheduled se regra for satisfeita
+    Se nenhum node atende, Pod fica Pending
+  end note
+}
+
+rectangle "preferredDuringSchedulingIgnoredDuringExecution" {
+  note as n2
+    PREFERÊNCIA: Scheduler tenta, mas não é obrigatório
+    Se nenhum node atende, agenda em qualquer um
+    weight (1-100) define prioridade entre preferências
+  end note
+}
+
+rectangle "IgnoredDuringExecution" {
+  note as n3
+    Se labels mudarem após scheduling,
+    Pod NÃO é removido
+  end note
+}
+
+@enduml

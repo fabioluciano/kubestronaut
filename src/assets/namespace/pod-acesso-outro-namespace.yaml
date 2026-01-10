@@ -1,0 +1,16 @@
+# Pod acessando service em outro namespace
+apiVersion: v1
+kind: Pod
+metadata:
+  name: client
+  namespace: development
+spec:
+  containers:
+  - name: client
+    image: busybox
+    command:
+    - sh
+    - -c
+    - |
+      # Acessar service "db" no namespace "production"
+      wget -qO- http://db.production.svc.cluster.local:5432

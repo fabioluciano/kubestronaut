@@ -1,0 +1,42 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DICAS - NETWORKING
+
+rectangle "CKA" as cka {
+  note as ncka
+    • Entender fluxo de tráfego (Pod→Service→Pod)
+    • Troubleshooting de DNS (nslookup, dig)
+    • Verificar CNI e kube-proxy
+    • NetworkPolicy básica
+  end note
+}
+
+rectangle "CKAD" as ckad {
+  note as nckad
+    • Como Pods se comunicam (mesmo Pod, diferentes Pods)
+    • Resolução DNS de Services
+    • NetworkPolicy para restringir acesso
+  end note
+}
+
+rectangle "CKS" as cks {
+  note as ncks
+    • NetworkPolicy deny-all como baseline
+    • Segmentação de namespaces
+    • Egress policies
+  end note
+}
+
+rectangle "FQDN" as fqdn {
+  note as nfqdn
+    <service>.<namespace>.svc.cluster.local
+  end note
+}
+
+cka -[hidden]down-> ckad
+ckad -[hidden]down-> cks
+cks -[hidden]down-> fqdn
+
+@enduml

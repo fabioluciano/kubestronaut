@@ -1,0 +1,27 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: ab-testing-route
+spec:
+  parentRefs:
+    - name: main-gateway
+  hostnames:
+    - "app.example.com"
+  rules:
+    # Usuários beta com header X-Beta: true
+    - matches:
+        - headers:
+            - name: X-Beta
+              value: "true"
+      backendRefs:
+        - name: app-beta
+          port: 8080
+    
+    # Todos os outros usuários
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: app-stable
+          port: 8080

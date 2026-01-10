@@ -1,0 +1,5 @@
+# /var/lib/kubelet/config.yaml
+tlsCertFile: /var/lib/kubelet/pki/kubelet.crt
+tlsPrivateKeyFile: /var/lib/kubelet/pki/kubelet.key
+rotateCertificates: true
+serverTLSBootstrap: true

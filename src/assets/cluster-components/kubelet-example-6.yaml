@@ -1,0 +1,3 @@
+authorization:
+  mode: Webhook  # Usa API Server para autorizar
+  # Alternativas: AlwaysAllow (inseguro), AlwaysDeny

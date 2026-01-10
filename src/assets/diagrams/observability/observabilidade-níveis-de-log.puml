@@ -1,0 +1,35 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title NÍVEIS DE LOG
+
+rectangle "Container" as container
+rectangle "Pod" as pod
+rectangle "Node" as node
+rectangle "Cluster" as cluster
+
+container --> pod
+pod --> node
+node --> cluster
+
+note bottom of container
+  1. Container Logs (stdout/stderr)
+     kubectl logs <pod>
+end note
+
+note bottom of node
+  2. Node Logs (/var/log/)
+     - kubelet.log
+     - kube-proxy.log
+     - container runtime logs
+end note
+
+note bottom of cluster
+  3. Control Plane Logs
+     - /var/log/kube-apiserver.log
+     - /var/log/kube-scheduler.log
+     - /var/log/kube-controller-manager.log
+end note
+
+@enduml

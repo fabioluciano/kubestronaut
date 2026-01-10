@@ -1,0 +1,117 @@
+# RuntimeClasses para FaaS/Serverless
+# Ideal para executar codigo de usuarios nao confiaveis
+---
+# FaaS com gVisor (startup rapido, bom isolamento)
+apiVersion: node.k8s.io/v1
+kind: RuntimeClass
+metadata:
+  name: faas-gvisor
+  labels:
+    use-case: faas
+    runtime-type: sandbox
+    startup: fast
+  annotations:
+    description: "Para funcoes serverless - startup rapido com gVisor"
+handler: runsc
+overhead:
+  podFixed:
+    cpu: "50m"
+    memory: "30Mi"
+scheduling:
+  nodeSelector:
+    node-pool: faas
+    runtime.class/gvisor: "true"
+---
+# FaaS com Kata (isolamento maximo, mas startup mais lento)
+apiVersion: node.k8s.io/v1
+kind: RuntimeClass
+metadata:
+  name: faas-kata
+  labels:
+    use-case: faas
+    runtime-type: vm
+    security: maximum
+  annotations:
+    description: "Para funcoes que precisam de isolamento de VM"
+handler: kata-qemu
+overhead:
+  podFixed:
+    cpu: "200m"
+    memory: "120Mi"
+scheduling:
+  nodeSelector:
+    node-pool: faas-secure
+    runtime.class/kata: "true"
+---
+# FaaS com Firecracker (MicroVM rapida)
+apiVersion: node.k8s.io/v1
+kind: RuntimeClass
+metadata:
+  name: faas-firecracker
+  labels:
+    use-case: faas
+    runtime-type: microvm
+    startup: fast
+    security: high
+  annotations:
+    description: "MicroVM Firecracker - rapido e seguro"
+handler: kata-fc
+overhead:
+  podFixed:
+    cpu: "100m"
+    memory: "50Mi"
+scheduling:
+  nodeSelector:
+    node-pool: faas
+    runtime.class/firecracker: "true"
+---
+# Exemplo de Job FaaS usando RuntimeClass
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: user-function
+  namespace: faas-functions
+spec:
+  # Timeout para funcoes
+  activeDeadlineSeconds: 300
+  # Nao retry em caso de falha
+  backoffLimit: 0
+  template:
+    spec:
+      # Usar gVisor para funcao de usuario
+      runtimeClassName: faas-gvisor
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        fsGroup: 65534
+
+      automountServiceAccountToken: false
+
+      containers:
+      - name: function
+        image: user-function:latest
+        imagePullPolicy: Always
+
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+
+        resources:
+          requests:
+            cpu: 100m
+            memory: 64Mi
+          limits:
+            cpu: "1"
+            memory: 256Mi
+
+        env:
+        - name: FUNCTION_TIMEOUT
+          value: "60"
+
+      restartPolicy: Never
+      # Terminar rapidamente
+      terminationGracePeriodSeconds: 5

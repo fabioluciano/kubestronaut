@@ -1,0 +1,10 @@
+containers:
+- name: app
+  image: myapp
+  resources:
+    requests:              # Mínimo garantido (usado para scheduling)
+      memory: "64Mi"       # 64 Mebibytes
+      cpu: "100m"          # 100 millicores = 0.1 CPU
+    limits:                # Máximo permitido
+      memory: "128Mi"
+      cpu: "200m"

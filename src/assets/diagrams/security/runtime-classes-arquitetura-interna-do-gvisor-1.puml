@@ -1,0 +1,51 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Arquitetura Interna do gVisor
+
+rectangle "Container Process" as app {
+    card "Aplicacao" as aplicacao
+}
+
+rectangle "gVisor Sandbox" as gvisor #lightgreen {
+    rectangle "Sentry" as sentry {
+        card "Kernel em Userspace\n(Go)" as kernel
+        card "Network Stack\n(netstack)" as netstack
+        card "VFS" as vfs
+    }
+
+    rectangle "Gofer" as gofer {
+        card "Filesystem\nProxy" as fsproxy
+    }
+}
+
+rectangle "Host" as host {
+    card "Host Kernel" as hostkernel
+    card "Host Filesystem" as hostfs
+}
+
+aplicacao --> kernel : syscalls\n(interceptadas)
+kernel --> hostkernel : syscalls limitadas\n(~60 de ~330)
+kernel --> netstack : networking
+kernel --> vfs : file ops
+vfs --> gofer : 9P protocol
+gofer --> hostfs : host I/O
+
+note right of sentry
+  **Sentry**:
+  - Implementa ~200 syscalls
+  - Escrito em Go (memory-safe)
+  - Executa em userspace
+end note
+
+note right of gofer
+  **Gofer**:
+  - Proxy para filesystem
+  - Comunicacao via 9P
+  - Processo separado
+end note
+
+@enduml
