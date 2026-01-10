@@ -1,13 +1,14 @@
 # cks7262:~/8_p1.yaml
-apiVersion: "cilium.io/v2"kind: CiliumNetworkPolicy
+apiVersion: "cilium.io/v2"
+kind: CiliumNetworkPolicy
 metadata:
-	name: p1
-	namespace: team-orange
+  name: p1
+  namespace: team-orange
 spec:
-	endpointSelector:
-		matchLabels:
-			type: messenger
-	egressDeny:
-		- toEndpoints:
-			- matchLabels:
-				type: database # we use the label of the Pods behind the Service "database"
+  endpointSelector:
+    matchLabels:
+      type: messenger
+  egressDeny:
+    - toEndpoints:
+      - matchLabels:
+          type: database # we use the label of the Pods behind the Service "database"

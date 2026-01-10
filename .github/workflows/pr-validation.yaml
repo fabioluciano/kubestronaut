@@ -62,8 +62,14 @@ jobs:
           echo "Validando arquivos YAML..."
           error_count=0
           for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+            # Skip Helm template files (contain Go template syntax)
+            if [[ "$file" == *"/helm/"* ]] && [[ "$file" == *"template"* || "$file" == *"helpers"* ]]; then
+              echo "  Pulando template Helm: $file"
+              continue
+            fi
             echo "  Verificando $file..."
-            if ! python3 -c "import yaml; yaml.safe_load(open('$file'))"; then
+            # Use safe_load_all to support multi-document YAML files (separated by ---)
+            if ! python3 -c "import yaml; list(yaml.safe_load_all(open('$file')))"; then
               echo "::error file=$file::Erro de sintaxe YAML"
               error_count=$((error_count + 1))
             fi

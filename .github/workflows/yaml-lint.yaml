@@ -31,15 +31,12 @@ jobs:
         run: |
           # Exclude files that are intentionally not valid standalone YAML:
           # - Helm templates contain Go template syntax ({{ }})
-          # - Example snippets are partial YAML for documentation
-          # - CiliumNetworkPolicy p1-p3 have formatting issues (tabs, missing spaces)
+          # - GitHub Actions templates with Go syntax
           python scripts/validate_yaml.py .github/workflows/ src/assets/ -v \
             --exclude \
               "**/helm/deployment-template.yaml" \
               "**/helm/helpers-tpl.yaml" \
               "**/helm/template-*.yaml" \
-              "**/backup-e-restore-example-*.yaml" \
-              "**/audit-example-2.yaml" \
-              "**/hardening-example-2.yaml" \
-              "**/hardening-example-3.yaml" \
-              "**/ciliumnetworkpolicy-p*.yaml"
+              "**/helm/hook-job.yaml" \
+              "**/trivy-github-action.yaml" \
+              "**/flux-imageupdateautomation.yaml"
