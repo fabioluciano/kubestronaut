@@ -1,5 +1,11 @@
 # Semantic Versioning Changelog
 
+## [1.2.4](https://github.com/fabioluciano/kubestronaut/compare/v1.2.3...v1.2.4) (2026-01-10)
+
+### Code Refactor 💅
+
+* atualizando estrutura dos documentos ([#13](https://github.com/fabioluciano/kubestronaut/issues/13)) ([304a045](https://github.com/fabioluciano/kubestronaut/commit/304a045676f99d2dea9c60be2f71c43633cb27d1))
+
 ## [1.2.3](https://github.com/fabioluciano/kubestronaut/compare/v1.2.2...v1.2.3) (2025-05-02)
 
 ### Bug Fix(es) 🐛️
