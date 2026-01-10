@@ -286,6 +286,37 @@ class TestFindYAMLFiles(unittest.TestCase):
         yml_files = [f for f in found if f.suffix == '.yml']
         self.assertGreater(len(yaml_files), 0)
         self.assertGreater(len(yml_files), 0)
+    
+    def test_exclude_pattern(self):
+        """Test excluding files with a glob pattern."""
+        # Create some template files
+        (self.test_path / "template.yaml").write_text("test: template")
+        (self.test_path / "subdir1" / "template-file.yaml").write_text("test: template")
+        
+        # Find without exclusion
+        found_all = find_yaml_files([self.test_path])
+        self.assertGreater(len(found_all), 4)
+        
+        # Find with exclusion
+        found_filtered = find_yaml_files([self.test_path], ["**/template*.yaml"])
+        self.assertLess(len(found_filtered), len(found_all))
+        self.assertEqual(len(found_all) - len(found_filtered), 2)
+    
+    def test_exclude_multiple_patterns(self):
+        """Test excluding files with multiple glob patterns."""
+        # Create some files
+        (self.test_path / "example-1.yaml").write_text("test: 1")
+        (self.test_path / "example-2.yaml").write_text("test: 2")
+        (self.test_path / "helm-template.yaml").write_text("test: helm")
+        
+        found_filtered = find_yaml_files(
+            [self.test_path], 
+            ["**/*example*.yaml", "**/helm-*.yaml"]
+        )
+        
+        # Should exclude example-1, example-2, and helm-template
+        found_all = find_yaml_files([self.test_path])
+        self.assertEqual(len(found_all) - len(found_filtered), 3)
 
 
 if __name__ == '__main__':

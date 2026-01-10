@@ -6,12 +6,13 @@ This script validates YAML files, including those containing multiple documents
 separated by '---'. Each document is validated independently.
 
 Usage:
-    python validate_yaml.py <file_or_directory>...
+    python validate_yaml.py <file_or_directory>... [--exclude PATTERN ...]
 
 Examples:
     python validate_yaml.py file.yaml
     python validate_yaml.py src/assets/
     python validate_yaml.py file1.yaml file2.yaml dir/
+    python validate_yaml.py src/ --exclude "**/templates/*" "*-example-*.yaml"
 """
 
 import sys
@@ -86,18 +87,20 @@ def validate_yaml_file(file_path: Path) -> Tuple[bool, List[str]]:
         return False, errors
 
 
-def find_yaml_files(paths: List[Path]) -> List[Path]:
+def find_yaml_files(paths: List[Path], exclude_patterns: List[str] = None) -> List[Path]:
     """
     Find all YAML files in the given paths.
     
     Args:
         paths: List of file or directory paths
+        exclude_patterns: List of glob patterns to exclude (e.g., '**/helm/*', '*-example-*.yaml')
         
     Returns:
         List of YAML file paths
     """
     yaml_files = []
     yaml_extensions = {'.yaml', '.yml'}
+    exclude_patterns = exclude_patterns or []
     
     for path in paths:
         if path.is_file():
@@ -106,6 +109,19 @@ def find_yaml_files(paths: List[Path]) -> List[Path]:
         elif path.is_dir():
             for ext in yaml_extensions:
                 yaml_files.extend(path.rglob(f'*{ext}'))
+    
+    # Filter out excluded files
+    if exclude_patterns:
+        filtered_files = []
+        for yaml_file in yaml_files:
+            excluded = False
+            for pattern in exclude_patterns:
+                if yaml_file.match(pattern):
+                    excluded = True
+                    break
+            if not excluded:
+                filtered_files.append(yaml_file)
+        return sorted(set(filtered_files))
                 
     return sorted(set(yaml_files))
 
@@ -133,11 +149,17 @@ Examples:
         action='store_true',
         help='Show detailed validation results'
     )
+    parser.add_argument(
+        '--exclude',
+        nargs='*',
+        default=[],
+        help='Glob patterns to exclude (e.g., "**/helm/*" "*-example-*.yaml")'
+    )
     
     args = parser.parse_args()
     
     # Find all YAML files
-    yaml_files = find_yaml_files(args.paths)
+    yaml_files = find_yaml_files(args.paths, args.exclude)
     
     if not yaml_files:
         print("No YAML files found to validate.")
