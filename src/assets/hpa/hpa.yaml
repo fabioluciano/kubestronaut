@@ -31,7 +31,6 @@ metadata:
     run: php-apache
 spec:
   ports:
-  :wqa
   - port: 80
   selector:
     run: php-apache
