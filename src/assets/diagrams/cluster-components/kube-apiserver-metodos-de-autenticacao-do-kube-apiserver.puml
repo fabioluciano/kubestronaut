@@ -1,0 +1,49 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Metodos de Autenticacao do kube-apiserver
+
+rectangle "Requisicao" as req {
+    [Credenciais]
+}
+
+rectangle "Authentication Chain" as chain {
+    package "Static Methods" {
+        [X.509 Client\nCertificates] as x509
+        [Static Token File] as static
+        [Bootstrap Tokens] as bootstrap
+    }
+
+    package "Dynamic Methods" {
+        [Service Account\nTokens] as sa
+        [OIDC Tokens] as oidc
+        [Webhook Token\nAuthentication] as webhook
+    }
+
+    package "Proxy" {
+        [Authenticating\nProxy] as proxy
+    }
+}
+
+actor "User" as user
+actor "Pod" as pod
+cloud "Identity Provider" as idp
+
+user --> x509 : Client certificate
+user --> oidc : JWT token
+user --> webhook : Custom token
+pod --> sa : Mounted JWT
+idp --> oidc : Validate JWT
+
+req --> chain
+
+note bottom of chain
+  Autenticadores sao avaliados em ordem
+  Primeiro a retornar usuario valido vence
+  Se todos falharem: 401 Unauthorized
+end note
+
+@enduml

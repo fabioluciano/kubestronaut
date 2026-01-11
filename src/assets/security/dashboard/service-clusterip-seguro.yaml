@@ -1,0 +1,11 @@
+# ✅ SEGURO - ClusterIP só permite acesso interno
+apiVersion: v1
+kind: Service
+metadata:
+  name: kubernetes-dashboard
+  namespace: kubernetes-dashboard
+spec:
+  type: ClusterIP  # Acesso apenas via kubectl proxy
+  ports:
+  - port: 443
+    targetPort: 8443

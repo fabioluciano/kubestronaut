@@ -1,0 +1,22 @@
+# Promtail DaemonSet (coleta logs)
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: promtail
+spec:
+  selector:
+    matchLabels:
+      app: promtail
+  template:
+    spec:
+      containers:
+      - name: promtail
+        image: grafana/promtail:latest
+        volumeMounts:
+        - name: logs
+          mountPath: /var/log
+          readOnly: true
+      volumes:
+      - name: logs
+        hostPath:
+          path: /var/log

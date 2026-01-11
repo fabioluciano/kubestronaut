@@ -1,0 +1,18 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Monospaced
+
+rectangle "O QUE O ETCD ARMAZENA" as etcdData
+
+note right of etcdData
+  • Configuração de todos os recursos
+  • Secrets e ConfigMaps
+  • Estado dos Deployments, Services, etc.
+  • RBAC (Roles, ClusterRoles, Bindings)
+  • Certificados e configurações
+  • Informações dos Nodes
+  
+  **SEM BACKUP = SEM CLUSTER!**
+end note
+@enduml

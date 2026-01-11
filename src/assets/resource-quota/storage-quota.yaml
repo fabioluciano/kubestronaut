@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: storage-quota
+  namespace: development
+spec:
+  hard:
+    requests.storage: 100Gi
+    persistentvolumeclaims: "10"
+    # Por StorageClass
+    gold.storageclass.storage.k8s.io/requests.storage: 50Gi
+    gold.storageclass.storage.k8s.io/persistentvolumeclaims: "5"
+    silver.storageclass.storage.k8s.io/requests.storage: 100Gi

@@ -1,0 +1,23 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Headless Service
+
+rectangle "DNS Query:\nweb-headless.default.svc.cluster.local" as dns
+
+rectangle "Retorna (múltiplos A records)" as response {
+  rectangle "10.244.1.5 (Pod 1)" as pod1
+  rectangle "10.244.2.3 (Pod 2)" as pod2
+  rectangle "10.244.3.8 (Pod 3)" as pod3
+}
+
+dns --> response
+
+note bottom
+  📌 Usado por StatefulSets para DNS individual por Pod
+  📌 Cliente decide para qual Pod conectar
+end note
+
+@enduml

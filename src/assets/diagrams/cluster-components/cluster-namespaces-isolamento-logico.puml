@@ -1,0 +1,40 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title NAMESPACES - ISOLAMENTO LOGICO
+
+rectangle "Cluster Kubernetes" as cluster {
+  rectangle "Namespace: default" as def #lightyellow {
+    card "Pod A" as pa
+    card "Service A" as sa
+  }
+
+  rectangle "Namespace: production" as prod #lightgreen {
+    card "Pod B" as pb
+    card "Service B" as sb
+    card "ConfigMap" as cm
+  }
+
+  rectangle "Namespace: development" as dev #lightblue {
+    card "Pod C" as pc
+    card "Service C" as sc
+  }
+
+  rectangle "Namespace: kube-system" as sys #lightgray {
+    card "CoreDNS" as dns
+    card "kube-proxy" as proxy
+  }
+}
+
+note bottom of cluster
+  Cada namespace tem:
+  - Seus proprios recursos
+  - Quotas de recursos
+  - RBAC policies
+  - Network policies
+end note
+
+@enduml

@@ -1,0 +1,12 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: my-app
+  namespace: flux-system
+spec:
+  interval: 1m
+  url: https://github.com/myorg/my-app
+  ref:
+    branch: main
+  secretRef:
+    name: git-credentials  # Se privado

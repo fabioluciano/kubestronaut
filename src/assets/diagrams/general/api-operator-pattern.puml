@@ -1,0 +1,34 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title OPERATOR PATTERN
+
+rectangle "Operator" {
+  component "Custom Resource\nDefinition (CRD)" as crd
+  component "Custom\nController" as ctrl
+}
+
+rectangle "Cluster" {
+  card "Custom Resource\n(CR)" as cr
+  card "Pods, Services,\nConfigMaps..." as resources
+}
+
+actor "Usuario" as user
+
+user --> cr : kubectl apply
+cr --> ctrl : watch
+ctrl --> resources : create/update/delete
+ctrl --> cr : update status
+
+note bottom of ctrl
+  O Controller:
+  1. Observa Custom Resources
+  2. Compara estado atual vs desejado
+  3. Reconcilia diferencas
+  4. Atualiza status
+end note
+
+@enduml

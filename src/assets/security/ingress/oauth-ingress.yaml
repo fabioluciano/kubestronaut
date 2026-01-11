@@ -1,0 +1,9 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: oauth-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/auth-url: "https://oauth.example.com/oauth2/auth"
+    nginx.ingress.kubernetes.io/auth-signin: "https://oauth.example.com/oauth2/start?rd=$escaped_request_uri"
+spec:
+  # ...

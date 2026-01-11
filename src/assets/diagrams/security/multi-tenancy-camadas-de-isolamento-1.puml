@@ -1,0 +1,35 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title CAMADAS DE ISOLAMENTO
+
+package "CONTROL PLANE ISOLATION" {
+  [Namespaces] as ns
+  note right of ns : separação lógica
+  [RBAC] as rbac
+  note right of rbac : controle de acesso
+  [ResourceQuotas] as rq
+  note right of rq : limites de recursos
+  [LimitRanges] as lr
+  note right of lr : defaults e limites por pod
+}
+
+package "DATA PLANE ISOLATION" {
+  [NetworkPolicy] as np
+  note right of np : isolamento de rede
+  [Storage] as st
+  note right of st : StorageClass por tenant
+  [Node Isolation] as ni
+  note right of ni : taints/tolerations, nodeSelector
+}
+
+package "RUNTIME ISOLATION" {
+  [Pod Security] as ps
+  note right of ps : PSA/PSS
+  [RuntimeClass] as rc
+  note right of rc : gVisor, Kata
+  [Seccomp/AppArmor] as sa
+}
+
+@enduml

@@ -1,0 +1,24 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title ACESSO EXTERNO
+
+cloud "Internet" as inet
+rectangle "LB / Ingress" as lb
+note right of lb: LoadBalancer Service ou\nIngress Controller
+
+rectangle "NodePort" as np
+note right of np: Porta 30000-32767 em cada Node
+
+rectangle "ClusterIP" as cip
+note right of cip: IP interno do Service
+
+rectangle "Pods" as pods
+
+inet --> lb
+lb --> np
+np --> cip
+cip --> pods
+
+@enduml

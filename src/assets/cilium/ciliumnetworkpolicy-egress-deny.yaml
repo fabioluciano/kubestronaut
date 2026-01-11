@@ -1,0 +1,13 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: deny-database-access
+  namespace: team-orange
+spec:
+  endpointSelector:
+    matchLabels:
+      type: messenger
+  egressDeny:
+  - toEndpoints:
+    - matchLabels:
+        type: database

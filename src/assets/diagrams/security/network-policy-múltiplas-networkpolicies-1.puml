@@ -1,0 +1,21 @@
+@startuml
+skinparam monochrome true
+
+title MÚLTIPLAS NETWORKPOLICIES
+
+rectangle "Pod" as pod
+rectangle "Policy A\n(permite porta 80)" as pA
+rectangle "Policy B\n(permite porta 443)" as pB
+
+pA --> pod
+pB --> pod
+
+note bottom of pod
+  **Resultado: permite porta 80 E 443**
+  
+  Se múltiplas NetworkPolicies selecionam o mesmo Pod:
+  • Regras são ADITIVAS (união)
+  • Tráfego é permitido se QUALQUER policy permite
+  • NÃO há ordem de precedência
+end note
+@enduml

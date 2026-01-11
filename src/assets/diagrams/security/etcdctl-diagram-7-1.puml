@@ -1,0 +1,35 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+
+rectangle "DICAS CKA/CKS - ETCDCTL" as main
+
+note bottom of main
+  **SEMPRE PRIMEIRO:**
+  export ETCDCTL_API=3
+
+  **BACKUP (precisa de certificados):**
+  etcdctl snapshot save backup.db \
+    --endpoints=https://127.0.0.1:2379 \
+    --cacert=/etc/kubernetes/pki/etcd/ca.crt \
+    --cert=/etc/kubernetes/pki/etcd/server.crt \
+    --key=/etc/kubernetes/pki/etcd/server.key
+
+  **RESTORE (NAO precisa de certificados):**
+  etcdctl snapshot restore backup.db \
+    --data-dir=/var/lib/etcd-from-backup
+
+  **ENCONTRAR CERTIFICADOS:**
+  cat /etc/kubernetes/manifests/etcd.yaml
+
+  **APOS RESTORE:**
+  1. Atualizar --data-dir no manifesto
+  2. Atualizar hostPath volume
+  3. Reiniciar kubelet se necessario
+
+  **VERIFICAR HEALTH:**
+  etcdctl endpoint health
+  etcdctl member list
+end note
+
+@enduml

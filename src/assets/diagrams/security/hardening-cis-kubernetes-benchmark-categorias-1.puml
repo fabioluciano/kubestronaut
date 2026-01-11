@@ -1,0 +1,42 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title CIS Kubernetes Benchmark - Categorias
+
+rectangle "CIS Benchmark" {
+    rectangle "1. Control Plane" as cp #lightblue {
+        card "1.1 Control Plane Node Config" as cp1
+        card "1.2 API Server" as cp2
+        card "1.3 Controller Manager" as cp3
+        card "1.4 Scheduler" as cp4
+    }
+
+    rectangle "2. etcd" as etcd #lightgreen {
+        card "2.1 Node Config Files" as etcd1
+        card "2.2 etcd" as etcd2
+    }
+
+    rectangle "3. Control Plane Config" as cpc #lightyellow {
+        card "3.1 Authentication" as cpc1
+        card "3.2 Logging" as cpc2
+    }
+
+    rectangle "4. Worker Nodes" as wn #pink {
+        card "4.1 Worker Node Config" as wn1
+        card "4.2 Kubelet" as wn2
+    }
+
+    rectangle "5. Policies" as pol #lightgray {
+        card "5.1 RBAC and SA" as pol1
+        card "5.2 Pod Security Standards" as pol2
+        card "5.3 Network Policies" as pol3
+        card "5.4 Secrets Management" as pol4
+        card "5.5 Extensible Admission" as pol5
+        card "5.7 General Policies" as pol7
+    }
+}
+
+@enduml

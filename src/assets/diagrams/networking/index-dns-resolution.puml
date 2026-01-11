@@ -1,0 +1,26 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DNS RESOLUTION
+
+rectangle "Formato FQDN" as fqdn
+note bottom of fqdn
+  <service>.<namespace>.svc.<cluster-domain>
+end note
+
+rectangle "Exemplos" {
+  card "my-svc.default.svc.cluster.local" as e1
+  card "my-svc.default (search domain)" as e2
+  card "my-svc (mesmo namespace)" as e3
+}
+
+rectangle "Para Pods (quando habilitado)" {
+  card "10-244-1-5.default.pod.cluster.local" as p1
+}
+
+rectangle "Para Headless Service" {
+  card "pod-name.my-svc.default.svc.cluster.local" as h1
+}
+
+@enduml

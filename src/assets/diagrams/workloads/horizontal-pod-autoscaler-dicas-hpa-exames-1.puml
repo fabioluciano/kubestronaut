@@ -1,0 +1,26 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DICAS HPA - EXAMES
+
+rectangle "CKA" {
+  card "kubectl autoscale deployment <n> --cpu-percent=X --min --max" as cka1
+  card "Saber que Metrics Server é pré-requisito" as cka2
+  card "Verificar se HPA está funcionando com kubectl get hpa" as cka3
+}
+
+rectangle "CKAD" {
+  card "Criar HPA via kubectl e via YAML" as ckad1
+  card "Entender apiVersion: autoscaling/v2" as ckad2
+  card "resources.requests é OBRIGATÓRIO para métricas de CPU/mem" as ckad3
+}
+
+note bottom
+  **Lembre-se:**
+  • Sem requests → HPA mostra <unknown>
+  • minReplicas >= 1 (não pode ser 0, exceto com KEDA)
+  • behavior só existe em autoscaling/v2
+end note
+
+@enduml

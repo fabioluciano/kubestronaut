@@ -1,0 +1,22 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title CONTROL GROUPS (cgroups)
+
+rectangle "cgroups" {
+  card "CPU\nLimitar ciclos" as cpu
+  card "Memory\nLimitar RAM" as mem
+  card "I/O\nLimitar disco" as io
+  card "Network\nLimitar banda" as net
+  card "PIDs\nLimitar processos" as pids
+}
+
+note bottom
+  cgroups v1: hierarquia por recurso
+  cgroups v2: hierarquia unificada (moderno)
+end note
+
+@enduml

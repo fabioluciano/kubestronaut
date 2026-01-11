@@ -1,0 +1,50 @@
+@startuml
+skinparam monochrome true
+
+title PIPELINE DE SUPPLY CHAIN
+
+rectangle "1. DESENVOLVIMENTO" as dev
+note right of dev
+  • SAST (análise estática de código)
+  • Dependency check (SCA)
+  • Secrets scanning
+end note
+
+rectangle "2. BUILD" as build
+note right of build
+  • Multi-stage Dockerfile
+  • Base image mínima
+  • Gerar SBOM (Syft)
+end note
+
+rectangle "3. SCAN" as scan
+note right of scan
+  • Trivy image scan
+  • Grype SBOM scan
+  • Fail on HIGH/CRITICAL
+end note
+
+rectangle "4. SIGN" as sign
+note right of sign : Cosign sign image
+
+rectangle "5. DEPLOY" as deploy
+note right of deploy
+  • Verify signature
+  • OPA/Gatekeeper policies
+  • PSA enforcement
+  • Kube-linter validation
+end note
+
+rectangle "6. RUNTIME" as runtime
+note right of runtime
+  • Runtime security (Falco)
+  • Continuous scanning
+  • Drift detection
+end note
+
+dev --> build
+build --> scan
+scan --> sign
+sign --> deploy
+deploy --> runtime
+@enduml

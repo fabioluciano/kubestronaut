@@ -1,0 +1,5 @@
+spec:
+  selector:
+    matchLabels:
+      app: web
+      tier: frontend

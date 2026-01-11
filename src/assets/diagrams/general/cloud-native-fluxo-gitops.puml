@@ -1,0 +1,21 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title FLUXO GITOPS
+
+actor "Developer" as dev
+entity "Git Repo" as git
+entity "GitOps Agent\n(ArgoCD/Flux)" as agent
+entity "Kubernetes\nCluster" as k8s
+dev --> git : push
+git --> agent : detect changes
+agent --> k8s : apply
+k8s --> agent : reconcile
+
+note bottom of agent
+  Pull-based model
+  Agent dentro do cluster
+end note
+
+@enduml

@@ -1,0 +1,21 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DOMÍNIOS DO CKS
+
+card "Cluster Setup" as d1 #lightgray
+card "Cluster Hardening" as d2 #lightgray
+card "System Hardening" as d3 #lightgray
+card "Minimize Microservice Vulnerabilities" as d4 #lightgray
+card "Supply Chain Security" as d5 #lightgray
+card "Monitoring, Logging and Runtime Security" as d6 #lightgray
+
+note right of d1 : 10%
+note right of d2 : 15%
+note right of d3 : 15%
+note right of d4 : 20%
+note right of d5 : 20%
+note right of d6 : 20%
+
+@enduml

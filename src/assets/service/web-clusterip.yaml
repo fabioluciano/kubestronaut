@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-clusterip
+spec:
+  type: ClusterIP  # Padrão, pode omitir
+  selector:
+    app: web
+  ports:
+  - port: 80         # Porta do Service
+    targetPort: 8080 # Porta do container
+    protocol: TCP

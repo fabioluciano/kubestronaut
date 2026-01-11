@@ -1,0 +1,20 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title OS 4 Cs
+
+rectangle "CLOUD" as cloud #white {
+  rectangle "CLUSTER" as cluster #lightgray {
+    rectangle "CONTAINER" as container #gray {
+      rectangle "CODE" as code #darkgray
+    }
+  }
+}
+
+note bottom of cloud
+  Se a camada externa não é segura,
+  a interna também não será!
+end note
+
+@enduml

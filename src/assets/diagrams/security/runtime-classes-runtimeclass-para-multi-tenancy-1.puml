@@ -1,0 +1,35 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title RuntimeClass para Multi-tenancy
+
+rectangle "Cluster Kubernetes Multi-tenant" {
+    rectangle "Tenant A - Trusted\n(Aplicacoes internas)" as ta #lightgreen {
+        card "RuntimeClass: (padrao)" as ta1
+        card "Runtime: runc" as ta2
+        card "Isolamento: Namespaces" as ta3
+    }
+
+    rectangle "Tenant B - Semi-trusted\n(Parceiros)" as tb #lightyellow {
+        card "RuntimeClass: gvisor" as tb1
+        card "Runtime: runsc" as tb2
+        card "Isolamento: Kernel userspace" as tb3
+    }
+
+    rectangle "Tenant C - Untrusted\n(Codigo de terceiros)" as tc #lightcoral {
+        card "RuntimeClass: kata" as tc1
+        card "Runtime: kata-runtime" as tc2
+        card "Isolamento: VM completa" as tc3
+    }
+}
+
+note right of tc
+  Codigo nao auditado
+  ou potencialmente
+  malicioso
+end note
+
+@enduml

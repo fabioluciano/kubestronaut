@@ -1,0 +1,18 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title PROCESSO DE THREAT MODELING
+
+rectangle "1. Identificar Assets" as a1
+rectangle "2. Criar Arquitetura" as a2
+rectangle "3. Identificar Ameaças" as a3
+rectangle "4. Avaliar Riscos" as a4
+rectangle "5. Definir Mitigações" as a5
+
+a1 --> a2
+a2 --> a3
+a3 --> a4
+a4 --> a5
+
+@enduml

@@ -1,0 +1,134 @@
+# Job para executar kube-bench no cluster
+# Executa verificacao CIS Benchmark
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: kube-bench
+  namespace: kube-system
+spec:
+  template:
+    metadata:
+      labels:
+        app: kube-bench
+    spec:
+      hostPID: true
+      containers:
+      - name: kube-bench
+        image: docker.io/aquasec/kube-bench:v0.7.0
+        command:
+        - kube-bench
+        - run
+        - --targets
+        - node,master,etcd,policies
+        volumeMounts:
+        - name: var-lib-etcd
+          mountPath: /var/lib/etcd
+          readOnly: true
+        - name: var-lib-kubelet
+          mountPath: /var/lib/kubelet
+          readOnly: true
+        - name: var-lib-kube-scheduler
+          mountPath: /var/lib/kube-scheduler
+          readOnly: true
+        - name: var-lib-kube-controller-manager
+          mountPath: /var/lib/kube-controller-manager
+          readOnly: true
+        - name: etc-systemd
+          mountPath: /etc/systemd
+          readOnly: true
+        - name: lib-systemd
+          mountPath: /lib/systemd/
+          readOnly: true
+        - name: srv-kubernetes
+          mountPath: /srv/kubernetes/
+          readOnly: true
+        - name: etc-kubernetes
+          mountPath: /etc/kubernetes
+          readOnly: true
+        - name: usr-bin
+          mountPath: /usr/local/mount-from-host/bin
+          readOnly: true
+        - name: etc-cni-netd
+          mountPath: /etc/cni/net.d/
+          readOnly: true
+        - name: opt-cni-bin
+          mountPath: /opt/cni/bin/
+          readOnly: true
+      restartPolicy: Never
+      volumes:
+      - name: var-lib-etcd
+        hostPath:
+          path: /var/lib/etcd
+          type: DirectoryOrCreate
+      - name: var-lib-kubelet
+        hostPath:
+          path: /var/lib/kubelet
+          type: DirectoryOrCreate
+      - name: var-lib-kube-scheduler
+        hostPath:
+          path: /var/lib/kube-scheduler
+          type: DirectoryOrCreate
+      - name: var-lib-kube-controller-manager
+        hostPath:
+          path: /var/lib/kube-controller-manager
+          type: DirectoryOrCreate
+      - name: etc-systemd
+        hostPath:
+          path: /etc/systemd
+          type: DirectoryOrCreate
+      - name: lib-systemd
+        hostPath:
+          path: /lib/systemd
+          type: DirectoryOrCreate
+      - name: srv-kubernetes
+        hostPath:
+          path: /srv/kubernetes
+          type: DirectoryOrCreate
+      - name: etc-kubernetes
+        hostPath:
+          path: /etc/kubernetes
+          type: DirectoryOrCreate
+      - name: usr-bin
+        hostPath:
+          path: /usr/bin
+          type: DirectoryOrCreate
+      - name: etc-cni-netd
+        hostPath:
+          path: /etc/cni/net.d/
+          type: DirectoryOrCreate
+      - name: opt-cni-bin
+        hostPath:
+          path: /opt/cni/bin/
+          type: DirectoryOrCreate
+---
+# CronJob para executar kube-bench periodicamente
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: kube-bench-scheduled
+  namespace: kube-system
+spec:
+  # Executar toda segunda-feira as 3:00 AM
+  schedule: "0 3 * * 1"
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: kube-bench
+        spec:
+          hostPID: true
+          containers:
+          - name: kube-bench
+            image: docker.io/aquasec/kube-bench:v0.7.0
+            command:
+            - /bin/sh
+            - -c
+            - |
+              kube-bench run --json > /tmp/results.json
+              # Aqui voce pode adicionar logica para enviar resultados
+              # para um sistema de monitoramento
+              cat /tmp/results.json
+          restartPolicy: OnFailure
+      backoffLimit: 3

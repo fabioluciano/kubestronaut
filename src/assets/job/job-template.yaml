@@ -1,0 +1,15 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: NOME
+spec:
+  completions: 1         # Quantas vezes
+  parallelism: 1         # Pods simultâneos
+  backoffLimit: 4        # Retries
+  template:
+    spec:
+      containers:
+      - name: worker
+        image: IMAGE
+        command: ["COMANDO"]
+      restartPolicy: Never

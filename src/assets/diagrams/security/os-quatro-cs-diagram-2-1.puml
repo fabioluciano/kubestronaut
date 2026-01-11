@@ -1,0 +1,29 @@
+@startuml
+skinparam monochrome true
+
+rectangle "CLOUD SECURITY" as cloud
+
+note bottom of cloud
+  **INFRAESTRUTURA FÍSICA:**
+  • Datacenter security
+  • Acesso físico restrito
+  • Redundância e disaster recovery
+
+  **REDE:**
+  • Firewalls
+  • Security Groups
+  • VPCs e subnets privadas
+  • Bastion hosts / VPN
+
+  **SERVIDORES/VMs:**
+  • Hardening do SO
+  • Patches de segurança
+  • SSH keys (não passwords)
+  • Desabilitar root login
+
+  **IAM (Identity and Access Management):**
+  • Princípio do menor privilégio
+  • MFA obrigatório
+  • Rotação de credenciais
+end note
+@enduml

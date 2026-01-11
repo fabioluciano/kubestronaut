@@ -1,0 +1,22 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title PADRÕES DE COMUNICAÇÃO
+
+rectangle "Síncrono" {
+  card "REST/HTTP" as rest
+  card "gRPC" as grpc
+}
+
+rectangle "Assíncrono" {
+  card "Message Queue\n(RabbitMQ, Kafka)" as mq
+  card "Event-Driven" as event
+}
+
+note bottom
+  Síncrono: Request-Response
+  Assíncrono: Fire-and-forget ou Pub/Sub
+end note
+
+@enduml

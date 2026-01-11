@@ -1,0 +1,28 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title SEGURANÇA DO CONTROL PLANE
+
+rectangle "Control Plane" {
+  component "kube-apiserver" as api
+  component "etcd" as etcd
+  component "kube-scheduler" as sched
+  component "controller-manager" as ctrl
+}
+
+note bottom of api
+  • TLS obrigatório
+  • Autenticação/Autorização
+  • Admission Controllers
+  • Audit logging
+end note
+
+note bottom of etcd
+  • Criptografia at rest
+  • mTLS entre membros
+  • Backup criptografado
+  • Acesso restrito
+end note
+
+@enduml

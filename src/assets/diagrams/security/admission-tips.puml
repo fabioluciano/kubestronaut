@@ -1,0 +1,29 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title DICAS ADMISSION CONTROLLERS
+
+note as dicas
+  **1. LOCALIZAÇÃO:**
+  /etc/kubernetes/manifests/kube-apiserver.yaml
+
+  **2. FLAGS:**
+  --enable-admission-plugins=Plugin1,Plugin2
+  --disable-admission-plugins=Plugin1
+
+  **3. VER WEBHOOKS:**
+  kubectl get mutatingwebhookconfigurations
+  kubectl get validatingwebhookconfigurations
+
+  **4. ORDEM:**
+  Mutating -> Schema Validation -> Validating -> etcd
+
+  **5. ImagePolicyWebhook:**
+  Requer admission-control-config-file
+  defaultAllow: false para segurança
+end note
+
+@enduml

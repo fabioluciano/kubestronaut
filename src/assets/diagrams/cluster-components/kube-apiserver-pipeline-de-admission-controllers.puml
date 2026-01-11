@@ -1,0 +1,51 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Pipeline de Admission Controllers
+
+rectangle "Requisicao\nAutenticada e Autorizada" as req
+
+package "Mutating Admission Controllers" as mutating {
+    [NamespaceAutoProvision] as nap
+    [DefaultStorageClass] as dsc
+    [DefaultTolerationSeconds] as dts
+    [LimitRanger] as lr1
+    [ServiceAccount] as sa
+    [PodPreset] as pp
+    [MutatingAdmissionWebhook] as maw
+}
+
+rectangle "Object Schema\nValidation" as schema
+
+package "Validating Admission Controllers" as validating {
+    [NamespaceLifecycle] as nl
+    [LimitRanger ] as lr2
+    [ResourceQuota] as rq
+    [PodSecurity] as ps
+    [NodeRestriction] as nr
+    [ValidatingAdmissionWebhook] as vaw
+}
+
+database "etcd" as etcd
+
+req --> mutating
+mutating --> schema
+schema --> validating
+validating --> etcd
+
+note bottom of mutating
+  Executados sequencialmente
+  Podem MODIFICAR objetos
+  Ordem definida em --enable-admission-plugins
+end note
+
+note bottom of validating
+  Executados em paralelo
+  Podem ACEITAR ou REJEITAR
+  Nao modificam objetos
+end note
+
+@enduml

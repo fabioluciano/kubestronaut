@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: backend-rs
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend
+    matchExpressions:
+    - key: environment
+      operator: In
+      values:
+      - production
+      - staging
+    - key: version
+      operator: NotIn
+      values:
+      - deprecated
+  template:
+    metadata:
+      labels:
+        app: backend
+        environment: production
+        version: v2
+    spec:
+      containers:
+      - name: api
+        image: myapi:v2
+        ports:
+        - containerPort: 8080

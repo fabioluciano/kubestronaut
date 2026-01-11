@@ -1,0 +1,39 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Historia do Kubernetes
+
+rectangle "2003-2004" as Y1 {
+  card "Google desenvolve\no Borg internamente" as B1
+}
+
+rectangle "2013" as Y2 {
+  card "Docker e lancado\npopularizando containers" as B2
+}
+
+rectangle "2014" as Y3 {
+  card "Google anuncia\nKubernetes open-source" as B3
+}
+
+rectangle "2015" as Y4 {
+  card "Kubernetes v1.0\nCNCF e fundada" as B4
+}
+
+rectangle "2017" as Y5 {
+  card "Adocao massiva\npor cloud providers" as B5
+}
+
+rectangle "2018" as Y6 {
+  card "Primeiro projeto\ngraduated da CNCF" as B6
+}
+
+Y1 -right-> Y2
+Y2 -right-> Y3
+Y3 -down-> Y4
+Y4 -left-> Y5
+Y5 -left-> Y6
+
+@enduml

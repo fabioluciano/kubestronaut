@@ -1,0 +1,10 @@
+rules:
+  - matches:
+      - headers:
+          - name: X-Version
+            value: "v2"
+            type: Exact  # Exact ou RegularExpression
+      - headers:
+          - name: X-Request-ID
+            type: RegularExpression
+            value: "^[a-f0-9]{8}-.*"

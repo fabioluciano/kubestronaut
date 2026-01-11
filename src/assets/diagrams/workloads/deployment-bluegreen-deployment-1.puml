@@ -1,0 +1,33 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Blue/Green Deployment
+
+rectangle "Blue (v1 - Atual)" as BLUE {
+    [Pod v1] as BP1
+    [Pod v1] as BP2
+    [Pod v1] as BP3
+}
+
+rectangle "Green (v2 - Nova)" as GREEN {
+    [Pod v2] as GP1
+    [Pod v2] as GP2
+    [Pod v2] as GP3
+}
+
+entity "Service" as SVC
+actor Usuario
+
+Usuario --> SVC
+SVC --> BLUE : selector: version=blue
+
+note bottom of GREEN
+    Pronto para receber trafego.
+    Basta mudar o selector do
+    Service para version=green
+end note
+
+@enduml

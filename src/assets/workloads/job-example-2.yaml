@@ -1,0 +1,4 @@
+# Pods processam até fila esvaziar
+spec:
+  parallelism: 5
+  # Sem completions - pods determinam quando parar

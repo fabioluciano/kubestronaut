@@ -1,0 +1,22 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title LIMITRANGE OVERVIEW
+
+rectangle "LimitRange: default-limits\nNamespace: development" {
+  rectangle "Container" {
+    rectangle "min:\ncpu: 50m\nmem: 64Mi" as min
+    rectangle "default:\ncpu: 200m\nmem: 256Mi" as def
+    rectangle "max:\ncpu: 1000m\nmem: 1Gi" as max
+    rectangle "defaultRequest:\ncpu: 100m\nmem: 128Mi" as defreq
+  }
+}
+
+note bottom
+  📌 Aplicado automaticamente se Pod não especificar recursos
+  📌 Validado pelo Admission Controller na criação
+  📌 Afeta apenas recursos criados APÓS o LimitRange
+end note
+
+@enduml

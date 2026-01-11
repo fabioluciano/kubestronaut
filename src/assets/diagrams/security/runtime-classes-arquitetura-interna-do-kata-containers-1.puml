@@ -1,0 +1,64 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Arquitetura Interna do Kata Containers
+
+rectangle "Host" as host {
+    rectangle "kubelet" as kubelet
+    rectangle "containerd" as containerd
+    rectangle "kata-runtime" as kataruntime
+    rectangle "KVM/QEMU" as kvm
+}
+
+rectangle "MicroVM (Kata)" as vm #lightyellow {
+    rectangle "Guest Kernel\n(Linux otimizado)" as guestkernel
+
+    rectangle "kata-agent" as kataagent #lightblue
+
+    rectangle "Container" as container #lightgreen {
+        card "Aplicacao" as app
+    }
+
+    rectangle "Volumes" as volumes {
+        card "9pfs/virtio-fs" as virtio
+    }
+}
+
+rectangle "Virtio Devices" as virtio_dev {
+    card "virtio-net" as vnet
+    card "virtio-blk" as vblk
+    card "vsock" as vsock
+}
+
+kubelet --> containerd : CRI
+containerd --> kataruntime : OCI
+kataruntime --> kvm : VM lifecycle
+
+kvm --> guestkernel : boot
+guestkernel --> kataagent : init
+
+containerd <--> kataagent : vsock\n(container ops)
+
+app --> guestkernel : syscalls
+guestkernel --> kvm : trap
+kvm --> host : hypervisor
+
+virtio --> vblk : storage
+container --> virtio : files
+
+note right of kataagent
+  **kata-agent**:
+  Gerencia containers
+  dentro da VM
+end note
+
+note right of guestkernel
+  **Guest Kernel**:
+  Linux otimizado (~5s boot)
+  Kernel por Pod
+end note
+
+@enduml

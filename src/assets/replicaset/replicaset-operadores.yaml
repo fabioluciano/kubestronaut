@@ -1,0 +1,14 @@
+# Exemplo com todos os operadores
+spec:
+  selector:
+    matchExpressions:
+    - key: app
+      operator: In
+      values: [web, api]
+    - key: environment
+      operator: NotIn
+      values: [dev, test]
+    - key: monitored
+      operator: Exists
+    - key: deprecated
+      operator: DoesNotExist

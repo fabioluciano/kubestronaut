@@ -1,0 +1,39 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Monospaced
+
+title COMPARAÇÃO: DRAIN vs CORDON
+
+rectangle "CORDON" as cordon
+note right of cordon
+  • Marca node como Unschedulable
+  • Pods existentes continuam rodando
+  • Novos pods NÃO são agendados no node
+  
+  **Usado para:** prevenir novos pods
+  antes de manutenção
+end note
+
+rectangle "DRAIN" as drain
+note right of drain
+  • Marca node como Unschedulable (cordon)
+  • MOVE pods existentes para outros nodes
+  
+  **Usado para:** manutenção que
+  requer node vazio
+end note
+
+rectangle "UNCORDON" as uncordon
+note right of uncordon
+  • Marca node como Schedulable novamente
+  • Permite novos pods serem agendados
+  
+  **Usado para:** após conclusão
+  da manutenção
+end note
+
+cordon -down-> drain
+drain -down-> uncordon
+
+@enduml

@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ecommerce-frontend
+  namespace: production
+  labels:
+    app.kubernetes.io/name: ecommerce
+    app.kubernetes.io/component: frontend
+    app.kubernetes.io/version: "3.2.1"
+    app.kubernetes.io/managed-by: argocd
+    team: platform
+    cost-center: cc-1234
+  annotations:
+    # Build info
+    build.company.com/commit: "abc123def456"
+    build.company.com/pipeline: "github-actions-123"
+    build.company.com/timestamp: "2024-01-15T10:30:00Z"
+    # Documentacao
+    docs.company.com/runbook: "https://wiki.company.com/runbook/frontend"
+    kubernetes.io/change-cause: "Update to v3.2.1 - fix cart bug"
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ecommerce
+      app.kubernetes.io/component: frontend
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: ecommerce
+        app.kubernetes.io/component: frontend
+        app.kubernetes.io/version: "3.2.1"
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+    spec:
+      containers:
+      - name: frontend
+        image: company/ecommerce-frontend:3.2.1
+        ports:
+        - containerPort: 8080

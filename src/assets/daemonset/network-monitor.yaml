@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: network-monitor
+spec:
+  selector:
+    matchLabels:
+      app: network-monitor
+  template:
+    metadata:
+      labels:
+        app: network-monitor
+    spec:
+      hostNetwork: true       # Usa rede do host
+      hostPID: true           # Acesso a PIDs do host
+      containers:
+      - name: monitor
+        image: network-tools
+        securityContext:
+          privileged: true    # Acesso total ao sistema

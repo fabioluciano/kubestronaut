@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: liveness-demo
+spec:
+  containers:
+  - name: app
+    image: nginx
+    ports:
+    - containerPort: 80
+    livenessProbe:
+      httpGet:
+        path: /healthz
+        port: 80
+      initialDelaySeconds: 15    # Esperar antes da 1ª verificação
+      periodSeconds: 10          # Intervalo entre verificações
+      timeoutSeconds: 3          # Timeout da requisição
+      successThreshold: 1        # Sucessos para considerar saudável
+      failureThreshold: 3        # Falhas para considerar não saudável

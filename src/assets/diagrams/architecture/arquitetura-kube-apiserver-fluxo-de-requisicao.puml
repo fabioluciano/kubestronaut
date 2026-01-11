@@ -1,0 +1,44 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title KUBE-APISERVER - FLUXO DE REQUISICAO
+
+actor "kubectl" as client
+actor "kubelet" as kubelet
+actor "scheduler" as scheduler
+
+rectangle "kube-apiserver" {
+  component "1. Authentication" as auth
+  component "2. Authorization\n(RBAC)" as authz
+  component "3. Admission\nControl" as adm
+  component "4. Validation" as valid
+  component "5. etcd" as store
+}
+
+client --> auth
+kubelet --> auth
+scheduler --> auth
+
+auth --> authz : Identidade verificada
+authz --> adm : Permissao concedida
+adm --> valid : Mutacoes/Validacoes
+valid --> store : Objeto valido
+
+note right of auth
+  Metodos:
+  - Client Certificates
+  - Bearer Tokens
+  - OIDC
+  - Webhook
+end note
+
+note right of adm
+  Webhooks:
+  - Mutating
+  - Validating
+end note
+
+@enduml

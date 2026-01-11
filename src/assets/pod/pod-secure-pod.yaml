@@ -1,0 +1,11 @@
+# Pod sem ServiceAccount token
+apiVersion: v1
+kind: Pod
+metadata:
+  name: secure-pod
+spec:
+  serviceAccountName: myapp-sa
+  automountServiceAccountToken: false
+  containers:
+  - name: app
+    image: nginx

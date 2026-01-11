@@ -1,0 +1,14 @@
+- macro: container
+  condition: container.id != host
+
+- macro: shell_procs
+  condition: proc.name in (shell_binaries)
+
+- macro: spawned_process
+  condition: evt.type = execve and evt.dir = <
+
+- macro: open_write
+  condition: evt.type in (open, openat) and evt.is_open_write=true
+
+- macro: open_read
+  condition: evt.type in (open, openat) and evt.is_open_read=true

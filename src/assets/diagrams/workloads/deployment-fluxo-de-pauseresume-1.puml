@@ -1,0 +1,29 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Fluxo de Pause/Resume
+
+start
+
+:Deployment rodando normalmente;
+
+:kubectl rollout pause;
+note right: Alteracoes nao\ntrigger rollout
+
+partition "Multiplas Alteracoes" {
+    :set image;
+    :set resources;
+    :set env;
+}
+
+:kubectl rollout resume;
+note right: Um unico rollout\ncom todas alteracoes
+
+:Rollout executado;
+
+stop
+
+@enduml

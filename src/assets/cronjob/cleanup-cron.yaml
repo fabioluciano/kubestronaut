@@ -1,0 +1,28 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cleanup-job
+spec:
+  schedule: "0 3 * * 0"  # Todo domingo às 3:00
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: cleanup
+            image: busybox
+            command:
+            - /bin/sh
+            - -c
+            - |
+              echo "Cleaning files older than 30 days..."
+              find /data -type f -mtime +30 -delete
+              echo "Cleanup completed at $(date)"
+            volumeMounts:
+            - name: data-volume
+              mountPath: /data
+          restartPolicy: OnFailure
+          volumes:
+          - name: data-volume
+            persistentVolumeClaim:
+              claimName: data-pvc

@@ -1,0 +1,30 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title BEST PRACTICES - ARQUITETURA
+
+rectangle "CONTROL PLANE" {
+  card "3+ masters (impar)" as bp1
+  card "etcd em SSD" as bp2
+  card "Load balancer na frente" as bp3
+  card "Backups regulares do etcd" as bp4
+}
+
+rectangle "WORKER NODES" {
+  card "Separar por workload type" as bp5
+  card "Node pools/groups" as bp6
+  card "Recursos adequados" as bp7
+  card "Monitoramento ativo" as bp8
+}
+
+rectangle "SEGURANCA" {
+  card "TLS em todas conexoes" as bp9
+  card "RBAC bem configurado" as bp10
+  card "Network policies" as bp11
+  card "Audit logging" as bp12
+}
+
+@enduml

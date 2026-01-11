@@ -1,0 +1,34 @@
+@startuml
+
+skinparam backgroundColor white
+
+title Diagnostico de Pod Pending
+
+start
+:kubectl describe pod <nome>;
+:Verificar secao Events;
+
+if (Evento "FailedScheduling"?) then (sim)
+  if (Mensagem "Insufficient cpu/memory"?) then (sim)
+    :Verificar recursos disponiveis;
+    :Ajustar requests/limits;
+  else (nao)
+    if (Mensagem "node(s) had taint"?) then (sim)
+      :Verificar taints nos nodes;
+      :Adicionar tolerations;
+    else (nao)
+      if (Mensagem "nodeSelector"?) then (sim)
+        :Verificar labels dos nodes;
+        :Ajustar nodeSelector;
+      else (nao)
+        :Verificar affinity rules;
+      endif
+    endif
+  endif
+else (nao)
+  :Verificar se scheduler esta running;
+endif
+
+stop
+
+@enduml

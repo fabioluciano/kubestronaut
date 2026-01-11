@@ -1,0 +1,26 @@
+# /var/lib/kubelet/config.yaml
+
+# Desabilitar anonymous auth
+authentication:
+  anonymous:
+    enabled: false
+  webhook:
+    enabled: true
+
+# Autorização
+authorization:
+  mode: Webhook
+
+# Desabilitar read-only port
+readOnlyPort: 0
+
+# TLS
+tlsCertFile: /var/lib/kubelet/pki/kubelet.crt
+tlsPrivateKeyFile: /var/lib/kubelet/pki/kubelet.key
+
+# Rotação de certificados
+rotateCertificates: true
+serverTLSBootstrap: true
+
+# Protect kernel defaults
+protectKernelDefaults: true

@@ -1,0 +1,26 @@
+@startuml
+skinparam monochrome true
+
+title POD SECURITY ADMISSION
+
+actor User
+entity "kubectl apply -f pod.yaml" as kubectl
+entity "API Server" as api
+entity "Admission Controllers" as admission
+rectangle "Pod Security Admission" as psa {
+  note as ns
+    **Namespace: production**
+    Labels:
+      pod-security.kubernetes.io/enforce: restricted
+      pod-security.kubernetes.io/warn: restricted
+  end note
+}
+
+User -> kubectl
+kubectl -> api
+api -> admission
+admission -> psa
+
+psa --> [✓ ALLOW] : Pod não viola política
+psa --> [✗ DENY] : Pod viola política
+@enduml

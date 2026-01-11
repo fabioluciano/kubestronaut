@@ -1,0 +1,39 @@
+@startuml
+skinparam monochrome true
+
+title FLUXO DE REQUISIÇÃO NO API SERVER
+
+actor "Requisição\n(kubectl, API)" as req
+
+rectangle "1. AUTHENTICATION (AuthN)" as authn {
+  note right
+    **Quem é você?**
+    • Certificados X.509
+    • Bearer Tokens
+    • OIDC
+  end note
+}
+
+rectangle "2. AUTHORIZATION (AuthZ)" as authz {
+  note right
+    **O que você pode fazer?**
+    • RBAC
+    • Node
+    • Webhook
+  end note
+}
+
+rectangle "3. ADMISSION CONTROL" as admission {
+  note right
+    **Validar/Mutar requisição**
+    • Validating webhooks
+    • Mutating webhooks
+  end note
+}
+
+entity "4. PERSIST (etcd)" as persist
+req --> authn
+authn --> authz
+authz --> admission
+admission --> persist
+@enduml

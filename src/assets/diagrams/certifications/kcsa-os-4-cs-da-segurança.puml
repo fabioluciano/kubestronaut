@@ -1,0 +1,35 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title OS 4 Cs DA SEGURANÇA
+
+rectangle "Cloud" as cloud {
+  rectangle "Cluster" as cluster {
+    rectangle "Container" as container {
+      rectangle "Code" as code
+    }
+  }
+}
+
+note right of cloud
+  Infraestrutura do
+  provedor de cloud
+end note
+
+note right of cluster
+  Componentes do
+  Kubernetes
+end note
+
+note right of container
+  Runtime, imagem,
+  configuração
+end note
+
+note right of code
+  Código da
+  aplicação
+end note
+
+@enduml

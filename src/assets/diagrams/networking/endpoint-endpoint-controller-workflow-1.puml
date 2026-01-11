@@ -1,0 +1,16 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Monospaced
+
+title ENDPOINT CONTROLLER WORKFLOW
+
+start
+:1. Watch Services\nMonitora criação/atualização de Services;
+:2. Identificar Pods\nEncontra Pods que match com selector;
+:3. Verificar Ready\nInclui apenas Pods com status Ready;
+:4. Atualizar Endpoints\nCria/atualiza objeto Endpoints;
+:5. Propagar para kube-proxy\nkube-proxy atualiza iptables/ipvs;
+stop
+
+@enduml

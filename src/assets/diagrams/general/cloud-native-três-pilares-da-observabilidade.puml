@@ -1,0 +1,19 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title TRÊS PILARES DA OBSERVABILIDADE
+
+rectangle "MÉTRICAS" as m {
+  card "Números agregados\nPrometheus, Grafana" as m1
+}
+
+rectangle "LOGS" as l {
+  card "Eventos textuais\nFluentd, Loki, ELK" as l1
+}
+
+rectangle "TRACES" as t {
+  card "Requests distribuídos\nJaeger, Zipkin, Tempo" as t1
+}
+
+@enduml

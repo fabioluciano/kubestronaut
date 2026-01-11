@@ -1,0 +1,28 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DAEMONSET COM TAINTS
+
+rectangle "Node (tainted)\nkey=value:NoSchedule" as node
+
+rectangle "DaemonSet SEM tolerations" as ds_sem {
+  card "Pod não criado" as pod_no #lightgray
+}
+
+rectangle "DaemonSet COM tolerations" as ds_com {
+  card "Pod criado" as pod_yes
+}
+
+node ..x ds_sem : Bloqueado
+node --> ds_com : Permitido
+
+note bottom
+  Tolerations necessárias:
+  - key: "key"
+    value: "value"
+    operator: Equal
+    effect: NoSchedule
+end note
+
+@enduml

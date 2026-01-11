@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: storage-limits
+  namespace: development
+spec:
+  limits:
+  - type: PersistentVolumeClaim
+    min:
+      storage: "1Gi"   # Mínimo de storage
+    max:
+      storage: "10Gi"  # Máximo de storage

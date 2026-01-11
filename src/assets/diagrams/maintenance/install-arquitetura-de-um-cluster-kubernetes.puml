@@ -1,0 +1,36 @@
+@startuml
+
+skinparam backgroundColor white
+
+title Arquitetura de um Cluster Kubernetes
+
+package "Control Plane" {
+  [kube-apiserver] as api
+  [etcd] as etcd
+  [kube-scheduler] as scheduler
+  [kube-controller-manager] as controller
+}
+
+package "Worker Node 1" {
+  [kubelet] as kubelet1
+  [kube-proxy] as proxy1
+  [Container Runtime] as cri1
+}
+
+package "Worker Node 2" {
+  [kubelet] as kubelet2
+  [kube-proxy] as proxy2
+  [Container Runtime] as cri2
+}
+
+api --> etcd
+api --> scheduler
+api --> controller
+kubelet1 --> api
+kubelet2 --> api
+proxy1 --> api
+proxy2 --> api
+kubelet1 --> cri1
+kubelet2 --> cri2
+
+@enduml

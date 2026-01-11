@@ -1,0 +1,16 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title PRINCÍPIOS GITOPS
+
+card "1. Declarativo\nTodo estado é descrito declarativamente" as p1
+card "2. Versionado\nGit como single source of truth" as p2
+card "3. Automático\nMudanças aplicadas automaticamente" as p3
+card "4. Reconciliação\nAgentes garantem estado desejado" as p4
+
+p1 -[hidden]down-> p2
+p2 -[hidden]down-> p3
+p3 -[hidden]down-> p4
+
+@enduml

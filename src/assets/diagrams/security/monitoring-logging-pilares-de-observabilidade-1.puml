@@ -1,0 +1,30 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title PILARES DE OBSERVABILIDADE
+
+map "LOGS" as logs {
+  1 => Container logs (stdout/stderr)
+  2 => System logs (kubelet, containerd)
+  3 => Audit logs (API Server)
+}
+
+map "METRICS" as metrics {
+  1 => Resource usage (CPU, memory)
+  2 => API Server metrics
+  3 => Custom application metrics
+}
+
+map "TRACES" as traces {
+  1 => Request tracing
+  2 => Distributed tracing
+}
+
+map "SECURITY EVENTS" as security {
+  1 => Syscall monitoring (Falco)
+  2 => Network anomalies
+  3 => Policy violations
+}
+
+@enduml

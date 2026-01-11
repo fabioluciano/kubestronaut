@@ -1,0 +1,25 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Monospaced
+
+title FLUXO SERVICE → ENDPOINTS
+
+rectangle "Service" as svc {
+  label "selector:\napp: web" as sel
+}
+
+rectangle "Endpoints" as ep {
+  label "10.244.1.5" as ip1
+  label "10.244.2.3" as ip2
+  label "10.244.3.8" as ip3
+}
+
+svc -down-> ep : cria automaticamente
+
+note right of ep
+  IPs dos Pods
+  com app=web
+end note
+
+@enduml

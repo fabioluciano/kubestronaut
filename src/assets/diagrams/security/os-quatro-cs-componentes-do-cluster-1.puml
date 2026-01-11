@@ -1,0 +1,44 @@
+@startuml
+skinparam monochrome true
+
+title COMPONENTES DO CLUSTER
+
+package "CONTROL PLANE" {
+  component "kube-apiserver" as api {
+  }
+  note right of api
+    • Porta 6443 (apenas HTTPS)
+    • Autenticação/Autorização
+    • Audit logging
+  end note
+  
+  component "etcd" as etcd {
+  }
+  note right of etcd
+    • Criptografia de dados
+    • Acesso restrito
+    • Backup seguro
+  end note
+  
+  component "kube-controller-manager" as cm {
+  }
+  note right of cm : Bind em 127.0.0.1
+  
+  component "kube-scheduler" as sched {
+  }
+  note right of sched : Bind em 127.0.0.1
+}
+
+package "WORKER NODES" {
+  component "kubelet" as kubelet {
+  }
+  note right of kubelet
+    • Anonymous auth disabled
+    • Authorization mode Webhook
+  end note
+  
+  component "kube-proxy" as proxy {
+  }
+  note right of proxy : Métricas não expostas
+}
+@enduml

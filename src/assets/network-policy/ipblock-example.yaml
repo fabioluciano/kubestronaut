@@ -1,0 +1,6 @@
+ingress:
+  - from:
+      - ipBlock:
+          cidr: 172.16.0.0/16      # Permite este range
+          except:
+            - 172.16.1.0/24        # Exceto este subnet

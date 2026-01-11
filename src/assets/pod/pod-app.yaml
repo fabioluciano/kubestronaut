@@ -1,0 +1,11 @@
+# Pod usando o secret
+apiVersion: v1
+kind: Pod
+metadata:
+  name: app
+spec:
+  containers:
+  - name: app
+    image: registry.example.com/myapp:v1
+  imagePullSecrets:
+  - name: regcred

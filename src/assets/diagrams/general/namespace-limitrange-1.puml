@@ -1,0 +1,22 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title LIMITRANGE
+
+rectangle "Namespace: team-a" {
+  rectangle "LimitRange" #lightcoral {
+    note as lr
+      Container:
+        default: cpu=500m, mem=512Mi
+        defaultRequest: cpu=100m, mem=128Mi
+        max: cpu=2, mem=2Gi
+        min: cpu=50m, mem=64Mi
+    end note
+  }
+
+  card "Pod sem recursos\n(recebe defaults)" as p1
+  card "Pod com recursos\n(validado contra min/max)" as p2
+}
+
+@enduml

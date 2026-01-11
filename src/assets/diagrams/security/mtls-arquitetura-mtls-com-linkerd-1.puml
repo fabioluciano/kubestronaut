@@ -1,0 +1,34 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Arquitetura mTLS com Linkerd
+
+rectangle "Control Plane" as cp {
+  component "linkerd-destination" as dest
+  component "linkerd-identity" as identity
+  component "linkerd-proxy-injector" as injector
+}
+
+rectangle "Pod A" <<namespace>> as podA {
+  component "App A" as appA
+  component "linkerd-proxy" as proxyA
+}
+
+rectangle "Pod B" <<namespace>> as podB {
+  component "App B" as appB
+  component "linkerd-proxy" as proxyB
+}
+
+identity --> proxyA : emite certificados
+identity --> proxyB : emite certificados
+proxyA --> proxyB : mTLS automatico
+
+note bottom of identity
+  Linkerd usa identidades
+  baseadas em ServiceAccount
+end note
+
+@enduml

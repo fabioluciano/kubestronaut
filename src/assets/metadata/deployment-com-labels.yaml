@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  labels:
+    app: frontend  # Labels do Deployment (não usadas para seleção)
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: frontend  # DEVE match com template.metadata.labels
+  template:
+    metadata:
+      labels:
+        app: frontend  # Labels dos pods criados
+    spec:
+      containers:
+      - name: nginx
+        image: nginx

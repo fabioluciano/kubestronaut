@@ -1,0 +1,27 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Modo IPVS - Fluxo de Trafego
+
+actor Cliente
+participant "IPVS\nVirtual Server" as vs
+participant "IPVS\nReal Servers" as rs
+participant "Pod 1" as pod1
+participant "Pod 2" as pod2
+participant "Pod 3" as pod3
+
+Cliente -> vs : Pacote para ClusterIP
+vs -> rs : Selecao por algoritmo\n(rr, lc, dh, sh, sed, nq)
+
+alt Round Robin
+    rs -> pod1 : Request 1
+    rs -> pod2 : Request 2
+    rs -> pod3 : Request 3
+else Least Connection
+    rs -> pod1 : Menos conexoes
+end
+
+@enduml

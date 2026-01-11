@@ -1,0 +1,36 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: sidecar-injector
+webhooks:
+- name: sidecar.inject.io
+  # Servico que implementa o webhook
+  clientConfig:
+    service:
+      name: sidecar-injector
+      namespace: webhook-system
+      path: /mutate
+      port: 443
+    caBundle: <base64-encoded-ca>
+  # Regras de quando executar
+  rules:
+  - operations: ["CREATE"]
+    apiGroups: [""]
+    apiVersions: ["v1"]
+    resources: ["pods"]
+    scope: "Namespaced"
+  # Filtros adicionais
+  namespaceSelector:
+    matchLabels:
+      sidecar-injection: enabled
+  objectSelector:
+    matchExpressions:
+    - key: app
+      operator: NotIn
+      values: ["skip-sidecar"]
+  # Comportamento
+  admissionReviewVersions: ["v1", "v1beta1"]
+  sideEffects: None  # ou NoneOnDryRun
+  failurePolicy: Fail  # ou Ignore
+  timeoutSeconds: 10
+  reinvocationPolicy: IfNeeded  # ou Never

@@ -1,0 +1,28 @@
+# Em Service (apenas matchLabels)
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+spec:
+  selector:
+    app: nginx      # Equality-based apenas
+    tier: frontend
+
+---
+# Em Deployment (matchLabels + matchExpressions)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+spec:
+  selector:
+    matchLabels:
+      app: nginx
+    matchExpressions:
+    - key: env
+      operator: In
+      values:
+      - prod
+      - staging
+    - key: deprecated
+      operator: DoesNotExist

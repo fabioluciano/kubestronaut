@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-with-init
+spec:
+  initContainers:
+  # Primeiro init container
+  - name: init-myservice
+    image: busybox
+    command: ['sh', '-c', 'until nslookup myservice; do echo waiting; sleep 2; done']
+  
+  # Segundo init container (roda após primeiro completar)
+  - name: init-mydb
+    image: busybox
+    command: ['sh', '-c', 'until nslookup mydb; do echo waiting; sleep 2; done']
+  
+  # Container principal (roda após TODOS init containers completarem)
+  containers:
+  - name: app
+    image: myapp

@@ -1,0 +1,14 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DICAS KCNA - CLOUD NATIVE
+
+card "1. Memorize projetos CNCF\nGraduated vs Incubating" as d1
+card "2. Entenda 12-Factor App\nComo mapeia para K8s" as d2
+card "3. Conheça GitOps\nArgoCD, Flux, princípios" as d3
+card "4. Service Mesh\nIstio, Linkerd, funcionalidades" as d4
+card "5. Observabilidade\n3 pilares, OpenTelemetry" as d5
+card "6. Serverless\nKnative, KEDA, scale-to-zero" as d6
+
+@enduml

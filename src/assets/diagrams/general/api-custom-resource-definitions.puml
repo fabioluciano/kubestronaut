@@ -1,0 +1,31 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title CUSTOM RESOURCE DEFINITIONS
+
+rectangle "Kubernetes API" {
+  rectangle "Built-in Resources" as builtin {
+    card "Pod" as pod
+    card "Service" as svc
+    card "Deployment" as deploy
+  }
+
+  rectangle "Custom Resources" as custom {
+    card "Certificate\n(cert-manager)" as cert
+    card "VirtualService\n(Istio)" as vs
+    card "Backup\n(Velero)" as backup
+  }
+}
+
+rectangle "CRD + Controller = Operator" as op
+
+note bottom of op
+  CRD: Define o tipo do recurso
+  Controller: Implementa a logica
+  Operator: CRD + Controller empacotados
+end note
+
+@enduml

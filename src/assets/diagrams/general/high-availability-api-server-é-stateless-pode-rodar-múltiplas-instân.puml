@@ -1,0 +1,21 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title API Server é STATELESS - pode rodar múltiplas instâncias
+
+rectangle "Load Balancer" as LB
+
+rectangle "API Server\n:6443" as api1
+rectangle "API Server\n:6443" as api2
+rectangle "API Server\n:6443" as api3
+
+LB --> api1
+LB --> api2
+LB --> api3
+
+note bottom
+  Todos ativos, load balanced
+end note
+
+@enduml

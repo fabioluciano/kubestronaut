@@ -1,0 +1,30 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title BEST PRACTICES - CLUSTER
+
+rectangle "PLANEJAMENTO" {
+  card "Definir requisitos de HA" as p1
+  card "Escolher CNI apropriado" as p2
+  card "Planejar CIDR ranges" as p3
+  card "Considerar multi-tenancy" as p4
+}
+
+rectangle "SEGURANCA" {
+  card "RBAC desde o inicio" as s1
+  card "Network policies" as s2
+  card "Pod Security Admission" as s3
+  card "Secrets encryption" as s4
+}
+
+rectangle "OPERACOES" {
+  card "Backup etcd automatizado" as o1
+  card "Monitoramento proativo" as o2
+  card "Logging centralizado" as o3
+  card "Alertas configurados" as o4
+}
+
+@enduml

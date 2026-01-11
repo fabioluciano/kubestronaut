@@ -1,0 +1,17 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: frontend-egress
+  namespace: production
+spec:
+  endpointSelector:
+    matchLabels:
+      role: frontend
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        role: backend
+    toPorts:
+    - ports:
+      - port: "8080"
+        protocol: TCP

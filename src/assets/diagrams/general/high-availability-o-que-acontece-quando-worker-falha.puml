@@ -1,0 +1,21 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title O QUE ACONTECE QUANDO WORKER FALHA
+
+|Sequência de Eventos|
+start
+:kubelet para de enviar heartbeats;
+:Node marcado como NotReady (5min default);
+:Pod eviction timer inicia (5min default);
+:Pods são rescheduled para outros nodes;
+stop
+
+note right
+  Configurações:
+  - node-monitor-grace-period: 40s (tempo até NotReady)
+  - pod-eviction-timeout: 5m (tempo até evict pods)
+end note
+
+@enduml

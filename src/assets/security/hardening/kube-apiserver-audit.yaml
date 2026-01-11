@@ -1,0 +1,78 @@
+# Configuracao do API Server para audit logging
+# Adicionar ao /etc/kubernetes/manifests/kube-apiserver.yaml
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kube-apiserver
+  namespace: kube-system
+spec:
+  containers:
+  - name: kube-apiserver
+    command:
+    - kube-apiserver
+    # ... outras flags ...
+
+    # === AUDIT FLAGS ===
+    # Caminho do arquivo de log
+    - --audit-log-path=/var/log/kubernetes/audit/audit.log
+
+    # Retencao de logs (dias)
+    - --audit-log-maxage=30
+
+    # Numero maximo de backups
+    - --audit-log-maxbackup=10
+
+    # Tamanho maximo do arquivo (MB)
+    - --audit-log-maxsize=100
+
+    # Arquivo de policy
+    - --audit-policy-file=/etc/kubernetes/audit-policy.yaml
+
+    # === AUDIT WEBHOOK (opcional) ===
+    # Para enviar logs para sistema externo (SIEM, Elasticsearch, etc)
+    # - --audit-webhook-config-file=/etc/kubernetes/audit-webhook.yaml
+    # - --audit-webhook-batch-buffer-size=10000
+    # - --audit-webhook-batch-max-size=400
+    # - --audit-webhook-batch-max-wait=30s
+    # - --audit-webhook-batch-throttle-burst=15
+    # - --audit-webhook-batch-throttle-enable=true
+    # - --audit-webhook-batch-throttle-qps=10
+
+    volumeMounts:
+    # ... outros volumes ...
+
+    # Volume para audit policy
+    - name: audit-policy
+      mountPath: /etc/kubernetes/audit-policy.yaml
+      readOnly: true
+
+    # Volume para audit logs
+    - name: audit-logs
+      mountPath: /var/log/kubernetes/audit
+
+    # Volume para webhook config (se usado)
+    # - name: audit-webhook
+    #   mountPath: /etc/kubernetes/audit-webhook.yaml
+    #   readOnly: true
+
+  volumes:
+  # ... outros volumes ...
+
+  # Audit policy
+  - name: audit-policy
+    hostPath:
+      path: /etc/kubernetes/audit-policy.yaml
+      type: File
+
+  # Audit logs
+  - name: audit-logs
+    hostPath:
+      path: /var/log/kubernetes/audit
+      type: DirectoryOrCreate
+
+  # Webhook config (se usado)
+  # - name: audit-webhook
+  #   hostPath:
+  #     path: /etc/kubernetes/audit-webhook.yaml
+  #     type: File

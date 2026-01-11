@@ -1,0 +1,39 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title ANATOMIA DE UM NODE
+
+rectangle "Node (VM ou Fisica)" as node {
+  rectangle "Sistema Operacional" as os {
+    component "kubelet" as kubelet
+    component "kube-proxy" as proxy
+    component "Container Runtime\n(containerd)" as runtime
+
+    rectangle "Pod 1" as p1 {
+      card "Container A" as c1
+      card "Container B" as c2
+    }
+
+    rectangle "Pod 2" as p2 {
+      card "Container C" as c3
+    }
+  }
+
+  storage "Disco Local" as disk
+  card "CPU" as cpu
+  card "Memoria" as mem
+  card "Rede" as net
+}
+
+note right of node
+  Node Status:
+  - Ready
+  - NotReady
+  - SchedulingDisabled
+  - Unknown
+end note
+
+@enduml

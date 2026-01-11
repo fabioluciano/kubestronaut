@@ -1,0 +1,27 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title REGO BÁSICO
+
+note as N1
+  **package** kubernetes.admission
+  
+  # Regra de violação - retorna mensagem se condição for true
+  **violation**[{"msg": msg}] {
+      # Condições
+      input.review.kind.kind == "Pod"
+      container := input.review.object.spec.containers[_]
+      not container.resources.limits.cpu
+      msg := "Container deve ter CPU limit definido"
+  }
+end note
+
+map "Estrutura do input" as input {
+  input.review.kind => tipo do recurso
+  input.review.object => objeto sendo criado/modificado
+  input.review.oldObject => objeto anterior (updates)
+  input.parameters => parâmetros do Constraint
+}
+
+@enduml

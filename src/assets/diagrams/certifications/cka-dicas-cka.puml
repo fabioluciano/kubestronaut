@@ -1,0 +1,14 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DICAS CKA
+
+card "1. Troubleshooting = 30%\nPratique muito!" as d1
+card "2. etcd backup/restore\nMemorize comandos" as d2
+card "3. kubeadm upgrade\nSiga o processo" as d3
+card "4. RBAC\nRole + RoleBinding" as d4
+card "5. Network Policy\nEntenda ingress/egress" as d5
+card "6. Aliases\nk=kubectl, tempo é crucial" as d6
+
+@enduml

@@ -1,0 +1,10 @@
+metadata:
+  labels:
+    # Formato: prefixo/nome (prefixo é opcional)
+    app: nginx                          # Nome da aplicação
+    environment: production             # Ambiente
+    tier: frontend                      # Camada
+    version: v1.0.0                     # Versão
+    release: stable                     # Release track
+    kubernetes.io/name: "my-app"        # Prefixo reservado
+    app.kubernetes.io/component: server # Recomendado pelo K8s

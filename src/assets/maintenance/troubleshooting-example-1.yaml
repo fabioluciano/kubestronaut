@@ -1,0 +1,15 @@
+# Adicionar tolerations para taints
+spec:
+  tolerations:
+  - key: "node-role.kubernetes.io/control-plane"
+    operator: "Exists"
+    effect: "NoSchedule"
+
+# Ajustar requests de recursos
+spec:
+  containers:
+  - name: app
+    resources:
+      requests:
+        memory: "64Mi"  # Reduzir se necessario
+        cpu: "100m"

@@ -1,0 +1,12 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql
+spec:
+  serviceName: mysql  # Associa ao headless service
+  replicas: 3
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    # ...

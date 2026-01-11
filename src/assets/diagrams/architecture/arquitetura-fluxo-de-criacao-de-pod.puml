@@ -1,0 +1,38 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title FLUXO DE CRIACAO DE POD
+
+actor "kubectl" as user
+participant "kube-apiserver" as api
+database "etcd" as etcd
+participant "kube-scheduler" as sched
+participant "kubelet" as kubelet
+participant "Container Runtime" as runtime
+
+user -> api : kubectl apply -f pod.yaml
+api -> api : Authentication
+api -> api : Authorization
+api -> api : Admission Control
+api -> etcd : Persiste Pod (status: Pending)
+api -> user : Pod created
+
+sched -> api : Watch: pods sem node
+api -> sched : Pod precisa de node
+sched -> sched : Filtering
+sched -> sched : Scoring
+sched -> api : Bind: Pod -> Node X
+api -> etcd : Atualiza nodeName
+
+kubelet -> api : Watch: pods do meu node
+api -> kubelet : Novo pod para voce
+kubelet -> runtime : Criar containers
+runtime -> runtime : Pull image
+runtime -> runtime : Start containers
+kubelet -> api : Status: Running
+api -> etcd : Atualiza status
+
+@enduml

@@ -1,0 +1,14 @@
+@startuml
+skinparam monochrome true
+
+map "BOAS PRÁTICAS DE IMAGENS" as images {
+  1 => Usar imagens base mínimas (distroless, alpine)
+  2 => Uma aplicação por container
+  3 => Usar multi-stage builds
+  4 => Não incluir secrets no build
+  5 => Usar tags específicas (não :latest)
+  6 => Imagens de registries confiáveis
+  7 => Rodar como non-root
+  8 => Escanear antes de usar
+}
+@enduml

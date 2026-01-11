@@ -1,0 +1,37 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DICAS CKA - HA
+
+rectangle "1. Quorum etcd" {
+  note as N1
+    • 3 nodes = tolera 1 falha
+    • 5 nodes = tolera 2 falhas
+    • Sempre número ÍMPAR
+  end note
+}
+
+rectangle "2. Componentes" {
+  note as N2
+    • API Server = stateless (múltiplos ativos)
+    • Scheduler/Controller = leader election (1 ativo)
+  end note
+}
+
+rectangle "3. kubeadm HA" {
+  note as N3
+    • controlPlaneEndpoint para LB
+    • --upload-certs para compartilhar certificados
+    • --control-plane no join de masters
+  end note
+}
+
+rectangle "4. Se master morrer" {
+  note as N4
+    • Pods continuam rodando
+    • Novos pods não são criados
+  end note
+}
+
+@enduml

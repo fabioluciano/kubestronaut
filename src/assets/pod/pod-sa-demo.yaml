@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sa-demo
+spec:
+  serviceAccountName: myapp-sa
+  automountServiceAccountToken: false  # Segurança
+  containers:
+  - name: app
+    image: nginx

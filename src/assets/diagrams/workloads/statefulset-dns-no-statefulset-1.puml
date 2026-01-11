@@ -1,0 +1,23 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DNS NO STATEFULSET
+
+rectangle "StatefulSet: mysql\nNamespace: database\nService: mysql-headless" {
+  rectangle "Pods DNS" {
+    card "mysql-0.mysql-headless.database.svc.cluster.local" as d0
+    card "mysql-1.mysql-headless.database.svc.cluster.local" as d1
+    card "mysql-2.mysql-headless.database.svc.cluster.local" as d2
+  }
+}
+
+note bottom of d2
+  Formato: <pod-name>.<service>.<namespace>.svc.cluster.local
+  
+  Acesso simplificado (mesmo namespace):
+  • mysql-0.mysql-headless
+  • mysql-1.mysql-headless
+end note
+
+@enduml

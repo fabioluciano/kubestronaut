@@ -1,0 +1,24 @@
+@startuml
+skinparam monochrome true
+
+map "SIGNER NAMES" as signers {
+}
+
+note bottom of signers
+  **kubernetes.io/kube-apiserver-client**
+  • Para autenticação de clientes (usuários, CI/CD)
+  • usages: ["client auth"]
+
+  **kubernetes.io/kube-apiserver-client-kubelet**
+  • Para kubelets se autenticarem
+  • Restrito a CN=system:node:*
+
+  **kubernetes.io/kubelet-serving**
+  • Para certificados de servidor do kubelet
+  • usages: ["server auth"]
+
+  **kubernetes.io/legacy-unknown**
+  • Para compatibilidade com versões antigas
+  • Não recomendado
+end note
+@enduml

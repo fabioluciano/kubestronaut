@@ -1,0 +1,30 @@
+@startuml
+skinparam monochrome true
+skinparam defaultFontName Monospaced
+
+title DICAS CKA/CKAD - GATEWAY API
+
+note as N1
+  **Hierarquia:**
+  GatewayClass → Gateway → HTTPRoute → Service
+
+  **GatewayClass:** Define implementação (nginx, istio, etc)
+  **Gateway:** Define listeners (portas, TLS)
+  **HTTPRoute:** Define regras de roteamento
+
+  **HTTPRoute.parentRefs:**
+    - name: gateway-name
+    - namespace: gateway-ns (se diferente)
+    - sectionName: listener-name (opcional)
+
+  **Path types:**
+    • Exact - match exato
+    • PathPrefix - prefixo (mais comum)
+
+  **Weight para canary:**
+  backendRefs:
+    - name: v1, weight: 90
+    - name: v2, weight: 10
+end note
+
+@enduml

@@ -1,0 +1,15 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: mtls-policy
+  namespace: team-orange
+spec:
+  endpointSelector:
+    matchLabels:
+      type: database
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        type: messenger
+    authentication:
+      mode: "required"  # Exige mTLS

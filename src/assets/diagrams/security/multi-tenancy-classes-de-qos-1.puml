@@ -1,0 +1,22 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title CLASSES DE QoS
+
+map "GUARANTEED (Prioridade Alta)" as guaranteed {
+  Recursos => requests == limits para CPU e memória
+  Eviction => Último a ser evicted
+}
+
+map "BURSTABLE (Prioridade Média)" as burstable {
+  Recursos => requests < limits
+  Eviction => Evicted após BestEffort
+}
+
+map "BESTEFFORT (Prioridade Baixa)" as besteffort {
+  Recursos => Sem requests nem limits
+  Eviction => Primeiro a ser evicted
+}
+
+@enduml

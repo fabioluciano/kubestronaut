@@ -1,0 +1,24 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title AMBIENTES POR NAMESPACE
+
+rectangle "Cluster" {
+  rectangle "development" #lightblue {
+    card "app:dev"
+    note right: Recursos limitados\nSem PodDisruptionBudget
+  }
+
+  rectangle "staging" #lightyellow {
+    card "app:staging"
+    note right: Configuracao similar a prod\nTestes de integracao
+  }
+
+  rectangle "production" #lightgreen {
+    card "app:prod"
+    note right: Recursos maiores\nNetworkPolicy restritiva\nRBAC rigoroso
+  }
+}
+
+@enduml

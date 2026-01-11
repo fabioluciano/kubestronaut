@@ -1,0 +1,13 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title GDPR - REQUISITOS CHAVE
+
+card "Data Protection\nCriptografia, pseudonymization" as dp
+card "Access Control\nPrincípio do menor privilégio" as ac
+card "Audit Trail\nRastreabilidade de acessos" as at
+card "Data Portability\nBackup, export" as port
+card "Right to Erasure\nDeleção de dados" as del
+
+@enduml

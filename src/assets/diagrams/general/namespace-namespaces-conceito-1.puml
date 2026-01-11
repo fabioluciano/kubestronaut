@@ -1,0 +1,35 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title NAMESPACES - CONCEITO
+
+note as N1
+  Namespace = Ambiente virtual isolado dentro do cluster
+end note
+
+rectangle "Cluster Kubernetes" {
+  rectangle "Namespace: default" #lightblue {
+    card "Pod A" as pa
+    card "Service A" as sa
+  }
+
+  rectangle "Namespace: production" #lightgreen {
+    card "Pod B" as pb
+    card "Service B" as sb
+    card "ConfigMap B" as cb
+  }
+
+  rectangle "Namespace: development" #lightyellow {
+    card "Pod C" as pc
+    card "Service C" as sc
+  }
+}
+
+note bottom
+  - Recursos ISOLADOS por namespace
+  - Mesmo nome pode existir em namespaces diferentes
+  - Recursos cluster-scoped NAO pertencem a namespaces
+end note
+
+@enduml

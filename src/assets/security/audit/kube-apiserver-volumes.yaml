@@ -1,0 +1,21 @@
+# No kube-apiserver.yaml
+spec:
+  containers:
+  - name: kube-apiserver
+    volumeMounts:
+    # Política de audit
+    - mountPath: /etc/kubernetes/audit/policy.yaml
+      name: audit-policy
+      readOnly: true
+    # Diretório de logs
+    - mountPath: /var/log/kubernetes
+      name: audit-logs
+  volumes:
+  - name: audit-policy
+    hostPath:
+      path: /etc/kubernetes/audit/policy.yaml
+      type: File
+  - name: audit-logs
+    hostPath:
+      path: /var/log/kubernetes
+      type: DirectoryOrCreate

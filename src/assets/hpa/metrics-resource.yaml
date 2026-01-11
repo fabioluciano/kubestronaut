@@ -1,0 +1,17 @@
+# Utilização percentual (requer requests definidos)
+metrics:
+- type: Resource
+  resource:
+    name: cpu
+    target:
+      type: Utilization
+      averageUtilization: 50  # 50% do request
+
+# Valor absoluto
+metrics:
+- type: Resource
+  resource:
+    name: cpu
+    target:
+      type: AverageValue
+      averageValue: 500m  # 500 millicores por pod

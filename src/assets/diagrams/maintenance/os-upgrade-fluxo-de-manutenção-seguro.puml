@@ -1,0 +1,19 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Monospaced
+
+title FLUXO DE MANUTENÇÃO SEGURO
+
+start
+:1. VERIFICAR ESTADO ATUAL\nkubectl get nodes\nkubectl get pods -o wide;
+:2. VERIFICAR PDBs\nkubectl get pdb;
+:3. CORDON (opcional, para planejamento)\nkubectl cordon <node>;
+:4. DRAIN\nkubectl drain <node> --ignore-daemonsets;
+:5. EXECUTAR MANUTENÇÃO\nssh <node>\n# ... manutenção ...;
+:6. VERIFICAR NODE HEALTHY\nkubectl get nodes;
+:7. UNCORDON\nkubectl uncordon <node>;
+:8. VERIFICAR PODS RETORNARAM\nkubectl get pods -o wide;
+stop
+
+@enduml

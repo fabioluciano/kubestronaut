@@ -1,0 +1,34 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title LABELS vs ANNOTATIONS
+
+rectangle "LABELS" #lightblue {
+  note as lab
+    Proposito: Identificar e Selecionar
+    Usadas em: Selectors, Services, Deployments
+    Tamanho: Max 63 chars (value)
+    Indexadas: Sim (etcd)
+
+    Exemplo:
+    app: nginx
+    env: prod
+  end note
+}
+
+rectangle "ANNOTATIONS" #lightgreen {
+  note as ann
+    Proposito: Metadata adicional
+    Usadas em: Ferramentas, humanos
+    Tamanho: Ate 256KB total
+    Indexadas: Nao
+
+    Exemplo:
+    description: "Servidor web principal"
+    prometheus.io/scrape: "true"
+    git-commit: "abc123def456"
+  end note
+}
+
+@enduml

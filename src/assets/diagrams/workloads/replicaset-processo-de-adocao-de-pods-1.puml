@@ -1,0 +1,33 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Processo de Adocao de Pods
+
+state "Pod Existente" as PE {
+    state "Labels: app=adopt-me" as L1
+    state "ownerReferences: null" as O1
+}
+
+state "ReplicaSet Criado" as RS {
+    state "selector: app=adopt-me" as S1
+    state "replicas: 3" as R1
+}
+
+state "Pod Adotado" as PA {
+    state "Labels: app=adopt-me" as L2
+    state "ownerReferences: ReplicaSet" as O2
+}
+
+PE --> RS : ReplicaSet criado\ncom mesmo selector
+RS --> PA : Pod adotado\nownerReferences atualizado
+
+note right of PA
+    O Pod agora e gerenciado
+    pelo ReplicaSet e sera
+    deletado se o RS for deletado
+end note
+
+@enduml

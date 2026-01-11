@@ -1,0 +1,52 @@
+# /etc/kubernetes/scheduler-config.yaml
+apiVersion: kubescheduler.config.k8s.io/v1
+kind: KubeSchedulerConfiguration
+clientConnection:
+  kubeconfig: /etc/kubernetes/scheduler.conf
+leaderElection:
+  leaderElect: true
+  resourceName: kube-scheduler
+  resourceNamespace: kube-system
+profiles:
+  - schedulerName: default-scheduler
+    plugins:
+      preFilter:
+        enabled:
+          - name: NodeResourcesFit
+          - name: NodePorts
+          - name: VolumeBinding
+          - name: PodTopologySpread
+          - name: InterPodAffinity
+      filter:
+        enabled:
+          - name: NodeUnschedulable
+          - name: NodeName
+          - name: TaintToleration
+          - name: NodeAffinity
+          - name: NodePorts
+          - name: NodeResourcesFit
+          - name: VolumeRestrictions
+          - name: EBSLimits
+          - name: GCEPDLimits
+          - name: NodeVolumeLimits
+          - name: AzureDiskLimits
+          - name: VolumeBinding
+          - name: VolumeZone
+          - name: PodTopologySpread
+          - name: InterPodAffinity
+      score:
+        enabled:
+          - name: NodeResourcesBalancedAllocation
+            weight: 1
+          - name: ImageLocality
+            weight: 1
+          - name: InterPodAffinity
+            weight: 1
+          - name: NodeResourcesFit
+            weight: 1
+          - name: NodeAffinity
+            weight: 1
+          - name: PodTopologySpread
+            weight: 2
+          - name: TaintToleration
+            weight: 1

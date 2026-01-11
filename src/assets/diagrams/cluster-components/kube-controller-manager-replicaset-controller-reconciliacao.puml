@@ -1,0 +1,27 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title ReplicaSet Controller - Reconciliacao
+
+start
+
+:Recebe evento de ReplicaSet;
+
+:Conta pods com labels\ncorrespondentes;
+
+if (Pods atuais < Replicas desejadas?) then (sim)
+  :Cria novos pods;
+elseif (Pods atuais > Replicas desejadas?) then (sim)
+  :Remove pods excedentes;
+else (igual)
+  :Nenhuma acao;
+endif
+
+:Atualiza status do ReplicaSet;
+
+stop
+
+@enduml

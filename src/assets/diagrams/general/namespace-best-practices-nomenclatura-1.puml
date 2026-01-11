@@ -1,0 +1,31 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title BEST PRACTICES - NOMENCLATURA
+
+rectangle "Padrao por Ambiente" #lightblue {
+  card "development"
+  card "staging"
+  card "production"
+}
+
+rectangle "Padrao por Time" #lightgreen {
+  card "team-frontend"
+  card "team-backend"
+  card "team-platform"
+}
+
+rectangle "Padrao por Projeto" #lightyellow {
+  card "project-ecommerce"
+  card "project-blog"
+  card "project-api"
+}
+
+rectangle "Padrao Combinado" #lightcoral {
+  card "frontend-production"
+  card "backend-staging"
+  card "api-development"
+}
+
+@enduml

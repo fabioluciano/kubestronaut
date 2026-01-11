@@ -1,0 +1,15 @@
+# Criar certificados com cert-manager
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: my-service-cert
+spec:
+  secretName: my-service-tls
+  issuerRef:
+    name: ca-issuer
+    kind: ClusterIssuer
+  commonName: my-service
+  dnsNames:
+  - my-service
+  - my-service.default.svc
+  - my-service.default.svc.cluster.local

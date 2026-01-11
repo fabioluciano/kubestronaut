@@ -1,0 +1,44 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Metodos de Probe
+
+rectangle "HTTP GET" as http {
+    note as n1
+      httpGet:
+        path: /healthz
+        port: 8080
+        httpHeaders:
+        - name: Custom-Header
+          value: value
+    end note
+}
+
+rectangle "TCP Socket" as tcp {
+    note as n2
+      tcpSocket:
+        port: 8080
+    end note
+}
+
+rectangle "Exec" as exec {
+    note as n3
+      exec:
+        command:
+        - cat
+        - /tmp/healthy
+    end note
+}
+
+rectangle "gRPC" as grpc {
+    note as n4
+      grpc:
+        port: 8080
+        service: health
+    end note
+}
+
+@enduml

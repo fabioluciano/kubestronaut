@@ -1,0 +1,24 @@
+# RuntimeClass com Kata para PCI-DSS
+apiVersion: node.k8s.io/v1
+kind: RuntimeClass
+metadata:
+  name: pci-compliant
+handler: kata-qemu
+scheduling:
+  nodeSelector:
+    compliance: pci-dss
+overhead:
+  podFixed:
+    memory: "160Mi"
+    cpu: "250m"
+---
+# Pod para processamento de pagamentos
+apiVersion: v1
+kind: Pod
+metadata:
+  name: payment-processor
+spec:
+  runtimeClassName: pci-compliant
+  containers:
+  - name: processor
+    image: payment-app:v1

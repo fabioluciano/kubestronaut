@@ -1,0 +1,32 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title SLI / SLO / SLA
+
+rectangle "SLI (Service Level Indicator)" {
+  note as n1
+    Métrica que mede aspecto do serviço
+    Exemplo: Latência, Error Rate, Throughput
+  end note
+}
+
+rectangle "SLO (Service Level Objective)" {
+  note as n2
+    Alvo/meta para o SLI
+    Exemplo: Latência p99 < 200ms
+  end note
+}
+
+rectangle "SLA (Service Level Agreement)" {
+  note as n3
+    Contrato com consequências
+    Exemplo: 99.9% uptime ou créditos
+  end note
+}
+
+note bottom
+  Relação: SLI mede → SLO define meta → SLA formaliza contrato
+end note
+
+@enduml

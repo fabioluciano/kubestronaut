@@ -1,0 +1,125 @@
+# /var/lib/kubelet/config.yaml
+# Configuracao completa de hardening do Kubelet
+apiVersion: kubelet.config.k8s.io/v1beta1
+kind: KubeletConfiguration
+
+# === AUTENTICACAO ===
+# Desabilitar anonymous auth (CIS 4.2.1)
+authentication:
+  anonymous:
+    enabled: false
+  webhook:
+    cacheTTL: 2m0s
+    enabled: true
+  x509:
+    clientCAFile: /etc/kubernetes/pki/ca.crt
+
+# === AUTORIZACAO ===
+# Modo webhook (CIS 4.2.2)
+authorization:
+  mode: Webhook
+  webhook:
+    cacheAuthorizedTTL: 5m0s
+    cacheUnauthorizedTTL: 30s
+
+# === PORTAS ===
+# Desabilitar read-only port (CIS 4.2.4)
+readOnlyPort: 0
+
+# Porta do Kubelet
+port: 10250
+
+# === TLS ===
+# Certificados
+tlsCertFile: /var/lib/kubelet/pki/kubelet.crt
+tlsPrivateKeyFile: /var/lib/kubelet/pki/kubelet.key
+
+# Cipher suites (CIS 4.2.13)
+tlsCipherSuites:
+  - TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+  - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+  - TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+  - TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+
+# Versao minima TLS
+tlsMinVersion: VersionTLS12
+
+# === CERTIFICADOS ===
+# Rotacao de certificados (CIS 4.2.11)
+rotateCertificates: true
+serverTLSBootstrap: true
+
+# === KERNEL ===
+# Proteger kernel defaults (CIS 4.2.6)
+protectKernelDefaults: true
+
+# === EVENTOS ===
+# Limitar QPS de eventos (CIS 4.2.9)
+eventRecordQPS: 0
+eventBurst: 100
+
+# === STREAMING ===
+# Timeout de streaming (CIS 4.2.5)
+streamingConnectionIdleTimeout: 5m0s
+
+# === IPTABLES ===
+# Criar chains iptables (CIS 4.2.7)
+makeIPTablesUtilChains: true
+
+# === DNS ===
+clusterDNS:
+  - 10.96.0.10
+clusterDomain: cluster.local
+
+# === RECURSOS ===
+# Reserva de recursos para sistema
+kubeReserved:
+  cpu: 100m
+  memory: 100Mi
+  ephemeral-storage: 1Gi
+systemReserved:
+  cpu: 100m
+  memory: 100Mi
+  ephemeral-storage: 1Gi
+
+# === EVICTION ===
+# Thresholds de eviction
+evictionHard:
+  memory.available: 100Mi
+  nodefs.available: 10%
+  nodefs.inodesFree: 5%
+  imagefs.available: 15%
+evictionSoft:
+  memory.available: 200Mi
+  nodefs.available: 15%
+evictionSoftGracePeriod:
+  memory.available: 1m30s
+  nodefs.available: 1m30s
+
+# === IMAGENS ===
+# GC de imagens
+imageMinimumGCAge: 2m0s
+imageGCHighThresholdPercent: 85
+imageGCLowThresholdPercent: 80
+
+# === PODS ===
+# Maximo de pods por node
+maxPods: 110
+
+# Failover
+podPidsLimit: 4096
+
+# === HEALTH ===
+# Healthcheck
+healthzBindAddress: 127.0.0.1
+healthzPort: 10248
+
+# === LOGGING ===
+# Configuracao de logs
+logging:
+  format: json
+  verbosity: 2
+
+# === FEATURE GATES ===
+featureGates:
+  RotateKubeletServerCertificate: true

@@ -6,104 +6,134 @@
 # Fundamentos
 
 - [Introdução](introduction.md)
-- [Arquitetura](Arquitetura.md)
-- [Containers](Containers.md)
-  - [Docker](Docker.md)
-  - [containerd](nodes-components/ContainerD.md)
-- [Metadata](Metadata.md)
-- [Namespaces](Namespace.md)
-- [Cluster](Cluster.md)
+- [Arquitetura](fundamentals/arquitetura.md)
+- [Containers](fundamentals/containers.md)
+  - [Docker](fundamentals/docker.md)
+  - [containerd](cluster-components/containerd.md)
+- [Metadata](fundamentals/metadata.md)
+- [Namespaces](fundamentals/namespace.md)
+- [Cluster](fundamentals/cluster.md)
+- [Cloud Native](fundamentals/cloud-native.md)
 
 # Componentes do Cluster
 
-- [Componentes dos Nós](node-components.md)
-  - [kubelet](nodes-components/kubelet.md)
-  - [kube-proxy](nodes-components/kube-proxy.md)
-  - [kube-apiserver](nodes-components/kube-apiserver.md)
-  - [kube-controller-manager](nodes-components/kube-controller-manager.md)
-  - [kube-scheduler](nodes-components/kube-scheduler.md)
-  - [etcd](nodes-components/etcD.md)
+- [Componentes dos Nós](cluster-components/node-components.md)
+  - [kubelet](cluster-components/kubelet.md)
+  - [kube-proxy](cluster-components/kube-proxy.md)
+  - [kube-apiserver](cluster-components/kube-apiserver.md)
+  - [kube-controller-manager](cluster-components/kube-controller-manager.md)
+  - [kube-scheduler](cluster-components/kube-scheduler.md)
+  - [etcd](cluster-components/etcd.md)
 
 # Objetos da API
 
-- [API](API.md)
-- [Objetos da API](ApiObjects.md)
+- [API](api/api.md)
+- [Objetos da API](api/api-objects.md)
+- [CRDs e Operators](api/crds-operators.md)
 
 # Workloads
 
-- [Pods](workload/pod.md)
-- [Static Pods](Static_Pods.md)
-- [ReplicaSet](workload/replicaset.md)
-- [Deployments](workload/deployment.md)
-- [StatefulSet](StatefulSet.md)
-- [DaemonSet](DaemonSet.md)
-- [Job](Job.md)
-- [CronJob](CronJob.md)
-- [Scheduling](Scheduling.md)
-- [Horizontal Pod AutoScaler](HorizontalPodAutoScaler.md)
+- [Pods](workloads/pod.md)
+- [Static Pods](workloads/static-pods.md)
+- [ReplicaSet](workloads/replicaset.md)
+- [Deployments](workloads/deployment.md)
+- [StatefulSet](workloads/statefulset.md)
+- [DaemonSet](workloads/daemonset.md)
+- [Job](workloads/job.md)
+- [CronJob](workloads/cronjob.md)
+- [Scheduling](workloads/scheduling.md)
+- [Probes (Health Checks)](workloads/probes.md)
+- [Horizontal Pod AutoScaler](workloads/horizontal-pod-autoscaler.md)
 
 # Configuração
 
-- [ConfigMap](ConfigMap.md)
-- [Secrets](Secrets.md)
-- [ResourceQuota](ResourceQuota.md)
-- [LimitRange](LimitRange.md)
+- [ConfigMap](configuration/configmap.md)
+- [Secrets](configuration/secrets.md)
+- [ResourceQuota](configuration/resource-quota.md)
+- [LimitRange](configuration/limit-range.md)
+
+# Armazenamento
+
+- [Storage](storage/storage.md)
 
 # Rede
 
-- [Networking](networking.md)
-- [Services](network/service.md)
-- [DNS](DNS.md)
-- [Endpoints](network/endpoint.md)
-- [Gateway API](Gateway_API.md)
+- [Networking](networking/index.md)
+- [Services](networking/service.md)
+- [DNS](networking/dns.md)
+- [Endpoints](networking/endpoint.md)
+- [Gateway API](networking/gateway-api.md)
+- [Ingress](networking/ingress.md)
+- [Service Mesh](networking/service-mesh.md)
 
 # Segurança
 
-- [RBAC](Security/RBAC.md)
-- [ServiceAccount](Security/ServiceAccount.md)
-- [NetworkPolicy](Security/NetworkPolicy.md)
-- [Pod Security Admission](Security/Pod_Security_Admission.md)
-- [OPA - Open Policy Agent](Security/Open_Policy_Agent.md)
-- [Certificados e TLS](Security/TLS.md)
-  - [Certificate API](Security/Certificate_API.md)
-  - [mTLS](Security/mTLS.md)
-- [Hardening](Security/Hardening.md)
-  - [CIS Benchmark](Security/CIS_Benchmark.md)
-  - [AppArmor](Security/AppArmor.md)
-  - [Seccomp](Security/Seccomp.md)
-  - [Runtime Classes](Security/Runtime-Classes.md)
-- [Auditoria e Monitoramento](Security/Monitoring_Logging.md)
-  - [Audit](Security/Audit.md)
-  - [Minimizar acesso ao GUI](Security/Minimizar_Acesso_GUI.md)
-- [Conceitos Complementares](Security/Misc.md)
-  - [Os Quatro Cs](Security/Os_Quatro_Cs.md)
-  - [Primitivos de Segurança](Security/Primitivos_Seguranca.md)
-  - [Supply Chain Security](Security/Supply_Chain_Security.md)
-  - [Multi Tenancy](Security/Multi_Tenancy.md)
+- [Os Quatro Cs](security/os-quatro-cs.md)
+- [Threat Model](security/threat-model.md)
+- [Compliance](security/compliance.md)
+- [Primitivos de Segurança](security/primitivos-seguranca.md)
+- [RBAC](security/rbac.md)
+- [ServiceAccount](security/service-account.md)
+- [NetworkPolicy](security/network-policy.md)
+- [Pod Security Admission](security/pod-security-admission.md)
+- [Admission Controllers](security/admission-controllers.md)
+- [OPA - Open Policy Agent](security/open-policy-agent.md)
+- [Certificados e TLS](security/tls.md)
+  - [Certificate API](security/certificate-api.md)
+  - [mTLS](security/mtls.md)
+- [Hardening](security/hardening.md)
+  - [CIS Benchmark](security/cis-benchmark.md)
+  - [AppArmor](security/apparmor.md)
+  - [Seccomp](security/seccomp.md)
+  - [Runtime Classes](security/runtime-classes.md)
+- [Auditoria](security/audit.md)
+- [Falco (Runtime Security)](security/falco.md)
+- [Monitoring e Logging](security/monitoring-logging.md)
+- [Multi Tenancy](security/multi-tenancy.md)
+- [Supply Chain Security](security/supply-chain-security.md)
+- [Cilium](security/cilium.md)
+- [Aqua Security](security/aqua-security.md)
+- [etcd Security](security/etcd.md)
+- [etcdctl](security/etcdctl.md)
+- [Ingress Security](security/ingress.md)
+- [Verificando Binários](security/verificando-binarios.md)
+- [Minimizar Acesso GUI](security/minimizar-acesso-gui.md)
+- [Misc](security/misc.md)
 
-# Operações
+# Operações e Manutenção
 
-- [Instalação](maintenance/Install.md)
-- [Atualização do Cluster](maintenance/Cluster_Upgrade.md)
-- [Atualização do SO](maintenance/OS_Upgrade.md)
-- [Backup e Restore](maintenance/Backup_e_Restore.md)
-- [Alta Disponibilidade](High_Availability.md)
-- [Troubleshooting](maintenance/Troubleshooting.md)
+- [Instalação](maintenance/install.md)
+- [Atualização do Cluster](maintenance/cluster-upgrade.md)
+- [Atualização do SO](maintenance/os-upgrade.md)
+- [Backup e Restore](maintenance/backup-e-restore.md)
+- [Alta Disponibilidade](fundamentals/high-availability.md)
+- [Troubleshooting](maintenance/troubleshooting.md)
 
 # Observabilidade
 
-- [Monitoring](Monitoring.md)
-- [Observabilidade Geral](Observabilidade.md)
+- [Monitoring](observability/monitoring.md)
+- [Observabilidade Geral](observability/observabilidade.md)
 
 # Ferramentas
 
-- [kubectl](Kubectl.md)
-- [kubeadm](kubeadm.md)
-- [crictl](crictl.md)
-- [Helm](Helm.md)
-- [Kustomize](Kustomize.md)
-- [Configuração do vim](META.md)
+- [kubectl](tools/kubectl.md)
+- [kubeadm](tools/kubeadm.md)
+- [crictl](tools/crictl.md)
+- [Helm](tools/helm.md)
+- [Kustomize](tools/kustomize.md)
+- [GitOps (ArgoCD/Flux)](tools/gitops.md)
 
-# Outros Tópicos
+# Certificações
 
-- [KCNA](KCNA.md)
+- [Checklists de Estudo](certifications/checklists.md)
+- [KCNA](certifications/kcna.md)
+- [KCSA](certifications/kcsa.md)
+- [CKAD](certifications/ckad.md)
+- [CKA](certifications/cka.md)
+- [CKS](certifications/cks.md)
+
+# Outros
+
+- [Apresentação](apresentacao.md)
+- [Configuração do vim](meta.md)
+- [Misc](misc.md)

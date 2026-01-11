@@ -1,0 +1,16 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+
+map "ESTRUTURA DE CHAVES" as chaves {
+  /registry/pods/<namespace>/<name> => Pods
+  /registry/deployments/<namespace>/<name> => Deployments
+  /registry/services/<namespace>/<name> => Services
+  /registry/secrets/<namespace>/<name> => Secrets
+  /registry/configmaps/<namespace>/<name> => ConfigMaps
+  /registry/namespaces/<name> => Namespaces
+  /registry/clusterroles/<name> => ClusterRoles
+  /registry/nodes/<name> => Nodes
+}
+
+@enduml

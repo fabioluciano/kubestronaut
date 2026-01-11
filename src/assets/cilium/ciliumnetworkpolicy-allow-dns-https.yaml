@@ -1,0 +1,22 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: allow-dns-https
+spec:
+  endpointSelector:
+    matchLabels:
+      app: web-client
+  egress:
+  # DNS
+  - toEndpoints:
+    - matchLabels:
+        k8s-app: kube-dns
+    toPorts:
+    - ports:
+      - port: "53"
+        protocol: UDP
+  # HTTPS para qualquer destino
+  - toPorts:
+    - ports:
+      - port: "443"
+        protocol: TCP

@@ -1,0 +1,72 @@
+# /etc/kubernetes/enc/encryption-config.yaml
+# Configuracao completa de encryption at rest
+#
+# Providers disponiveis (em ordem de preferencia):
+# 1. aescbc - AES-CBC com padding PKCS7 (recomendado)
+# 2. aesgcm - AES-GCM (mais rapido, mas chave deve rotacionar frequentemente)
+# 3. kms - KMS externo (AWS KMS, GCP KMS, HashiCorp Vault)
+# 4. secretbox - XSalsa20 e Poly1305
+# 5. identity - sem criptografia (texto plano)
+#
+# IMPORTANTE: O primeiro provider na lista e usado para ENCRYPT
+# Todos os providers sao usados para DECRYPT (permite rotacao de chave)
+---
+apiVersion: apiserver.config.k8s.io/v1
+kind: EncryptionConfiguration
+resources:
+  # Criptografar Secrets
+  - resources:
+      - secrets
+    providers:
+      # Provider primario (usado para encrypt)
+      - aescbc:
+          keys:
+            # Chave atual (mais recente)
+            - name: key2
+              # Gerar com: head -c 32 /dev/urandom | base64
+              secret: TmV3S2V5Rm9yUm90YXRpb24xMjM0NTY3ODkwMTIzNA==
+            # Chave anterior (para decrypt de dados antigos)
+            - name: key1
+              secret: T2xkS2V5Rm9yRGVjcnlwdGlvbjEyMzQ1Njc4OTAxMjM=
+      # Fallback para decrypt de dados nao criptografados
+      - identity: {}
+
+  # Criptografar ConfigMaps (opcional, mas recomendado para dados sensiveis)
+  - resources:
+      - configmaps
+    providers:
+      - aescbc:
+          keys:
+            - name: configmap-key1
+              secret: Q29uZmlnTWFwS2V5MTIzNDU2Nzg5MDEyMzQ1Njc4OTA=
+      - identity: {}
+
+---
+# Exemplo com KMS (AWS)
+# apiVersion: apiserver.config.k8s.io/v1
+# kind: EncryptionConfiguration
+# resources:
+#   - resources:
+#       - secrets
+#     providers:
+#       - kms:
+#           name: aws-kms
+#           endpoint: unix:///var/run/kms-plugin/socket.sock
+#           cachesize: 1000
+#           timeout: 3s
+#       - identity: {}
+
+---
+# Exemplo com KMS (HashiCorp Vault)
+# apiVersion: apiserver.config.k8s.io/v1
+# kind: EncryptionConfiguration
+# resources:
+#   - resources:
+#       - secrets
+#     providers:
+#       - kms:
+#           name: vault
+#           endpoint: unix:///var/run/vault-kms/socket.sock
+#           cachesize: 1000
+#           timeout: 3s
+#       - identity: {}

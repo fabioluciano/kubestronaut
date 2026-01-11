@@ -1,0 +1,37 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Monospaced
+
+rectangle "DICAS CKA - BACKUP/RESTORE" as dicas {
+  rectangle "BACKUP" as bkp
+  rectangle "RESTORE" as rst
+  rectangle "LEMBRE-SE" as lembrese
+}
+
+note right of bkp
+  export ETCDCTL_API=3
+  etcdctl snapshot save backup.db \
+    --endpoints=https://127.0.0.1:2379 \
+    --cacert=/etc/kubernetes/pki/etcd/ca.crt \
+    --cert=/etc/kubernetes/pki/etcd/server.crt \
+    --key=/etc/kubernetes/pki/etcd/server.key
+end note
+
+note right of rst
+  etcdctl snapshot restore backup.db \
+    --data-dir=/var/lib/etcd-from-backup
+end note
+
+note right of lembrese
+  • Backup PRECISA de certificados
+  • Restore NÃO precisa de certificados
+  • Atualizar --data-dir no manifesto do etcd
+  • Verificar volumes (hostPath) também
+  • Parar apiserver antes, reiniciar depois
+  
+  **ENCONTRAR CERTIFICADOS:**
+  cat /etc/kubernetes/manifests/etcd.yaml
+end note
+
+@enduml

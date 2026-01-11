@@ -1,0 +1,12 @@
+# mTLS apenas para workload específico
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: backend-mtls
+  namespace: secure-app
+spec:
+  selector:
+    matchLabels:
+      app: backend
+  mtls:
+    mode: STRICT

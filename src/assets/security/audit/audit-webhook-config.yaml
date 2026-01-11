@@ -1,0 +1,13 @@
+# /etc/kubernetes/audit/webhook-config.yaml
+apiVersion: v1
+kind: Config
+clusters:
+  - name: audit-webhook
+    cluster:
+      server: https://audit-collector.example.com/audit
+      certificate-authority: /etc/kubernetes/pki/ca.crt
+contexts:
+  - name: audit-webhook
+    context:
+      cluster: audit-webhook
+current-context: audit-webhook

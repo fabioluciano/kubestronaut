@@ -1,0 +1,32 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title POD PARA POD (Nodes diferentes)
+
+package "NODE 1" {
+  package "POD A\n10.244.1.5" as poda {
+  }
+  rectangle "Bridge" as bridge1
+  rectangle "eth0" as eth1
+  
+  poda --> bridge1
+  bridge1 --> eth1
+}
+
+package "NODE 2" {
+  package "POD B\n10.244.2.5" as podb {
+  }
+  rectangle "Bridge" as bridge2
+  rectangle "eth0" as eth2
+  
+  podb --> bridge2
+  bridge2 --> eth2
+}
+
+rectangle "CNI Plugin\n(Overlay/Routing)" as cni
+
+eth1 --> cni
+eth2 --> cni
+
+@enduml

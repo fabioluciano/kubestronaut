@@ -1,0 +1,28 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Processo de Restore do etcd
+
+actor Admin
+participant "etcdctl" as ctl
+database "Snapshot" as snap
+entity "Novo Data Dir" as newdir
+participant "etcd" as etcd
+participant "kube-apiserver" as api
+
+Admin -> Admin : 1. Para kube-apiserver
+Admin -> Admin : 2. Para etcd
+Admin -> ctl : 3. etcdctl snapshot restore
+ctl -> snap : Le snapshot
+ctl -> newdir : Restaura dados
+ctl --> Admin : Restore completo
+
+Admin -> Admin : 4. Atualiza data-dir\nno manifest
+Admin -> etcd : 5. Inicia etcd
+etcd -> newdir : Carrega dados
+Admin -> api : 6. Inicia kube-apiserver
+
+@enduml

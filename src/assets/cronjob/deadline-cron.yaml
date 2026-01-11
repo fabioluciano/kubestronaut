@@ -1,0 +1,16 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: deadline-cron
+spec:
+  schedule: "0 * * * *"
+  startingDeadlineSeconds: 200  # Máximo 200s de atraso
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: task
+            image: busybox
+            command: ["echo", "On time!"]
+          restartPolicy: OnFailure

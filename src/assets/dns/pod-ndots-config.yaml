@@ -1,0 +1,6 @@
+# Reduzir ndots para queries externas mais rápidas
+spec:
+  dnsConfig:
+    options:
+      - name: ndots
+        value: "2"

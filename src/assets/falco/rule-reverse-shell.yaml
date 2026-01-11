@@ -1,0 +1,13 @@
+- rule: Reverse shell
+  desc: Detect reverse shell
+  condition: >
+    spawned_process and 
+    container and
+    ((proc.name = bash and proc.cmdline contains "bash -i") or
+     (proc.name = nc and (proc.args contains "-e" or proc.args contains "-c")))
+  output: >
+    Reverse shell detected 
+    (user=%user.name command=%proc.cmdline 
+    container=%container.name)
+  priority: CRITICAL
+  tags: [network, mitre_command_and_control]

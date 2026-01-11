@@ -1,0 +1,30 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title CIS BENCHMARK - SEÇÕES
+
+card "1. Control Plane Components" as s1
+card "2. etcd" as s2
+card "3. Control Plane Configuration" as s3
+card "4. Worker Nodes" as s4
+card "5. Policies" as s5
+
+note right of s1
+  kube-apiserver
+  kube-controller-manager
+  kube-scheduler
+end note
+
+note right of s4
+  kubelet
+  kube-proxy
+end note
+
+note right of s5
+  RBAC, PSP/PSA
+  Network Policies
+  Secrets
+end note
+
+@enduml

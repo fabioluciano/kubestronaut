@@ -1,0 +1,22 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title ExternalName
+
+rectangle "Pod" as pod
+rectangle "external-db.default.svc" as svc
+rectangle "CNAME" as cname
+cloud "db.example.com" as external
+
+pod --> svc
+svc --> cname
+cname --> external
+
+note bottom
+  📌 Útil para migrar serviços externos para dentro do cluster
+  📌 Não cria endpoints, apenas DNS redirect
+end note
+
+@enduml

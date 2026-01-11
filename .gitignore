@@ -1,3 +1,15 @@
 .mdbook-plantuml-cache
 mdbook-admonish.css
 book
+src/mdbook-plantuml-img
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv

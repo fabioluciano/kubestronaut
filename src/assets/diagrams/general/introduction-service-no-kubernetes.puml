@@ -1,0 +1,31 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Service no Kubernetes
+
+rectangle "Service (ClusterIP)" as SVC {
+  card "10.96.0.1:80" as VIP
+}
+
+rectangle "Pods Backend" as PODS {
+  card "Pod 1\n10.244.0.5" as P1
+  card "Pod 2\n10.244.0.6" as P2
+  card "Pod 3\n10.244.0.7" as P3
+}
+
+cloud "Cliente" as C
+
+C --> SVC : my-service:80
+SVC --> P1
+SVC --> P2
+SVC --> P3
+
+note bottom of SVC
+  O Service fornece um IP estavel
+  e faz load balancing entre os Pods
+end note
+
+@enduml

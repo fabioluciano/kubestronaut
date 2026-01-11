@@ -1,0 +1,27 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title COMO O HPA FUNCIONA
+
+rectangle "Processo" {
+  card "1. Coleta métricas (CPU, memória, custom)" as p1
+  card "2. Calcula número desejado de réplicas" as p2
+  card "3. Ajusta o target (Deployment, etc)" as p3
+}
+
+rectangle "Fluxo" {
+  component "Metrics\nServer" as metrics
+  component "HPA" as hpa
+  component "Deploy" as deploy
+  
+  metrics --> hpa : métricas
+  hpa --> deploy : scale
+}
+
+note bottom
+  **Fórmula:**
+  desiredReplicas = ceil[currentReplicas × (current / target)]
+end note
+
+@enduml

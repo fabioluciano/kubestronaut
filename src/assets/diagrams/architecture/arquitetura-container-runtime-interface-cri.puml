@@ -1,0 +1,38 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title CONTAINER RUNTIME INTERFACE (CRI)
+
+rectangle "kubelet" as kubelet
+
+rectangle "CRI" as cri {
+  component "RuntimeService" as rs
+  component "ImageService" as is
+}
+
+rectangle "Runtimes" {
+  component "containerd" as containerd #4CAF50
+  component "CRI-O" as crio #326CE5
+}
+
+rectangle "OCI Runtime" {
+  component "runc" as runc
+  component "gVisor" as gvisor
+  component "Kata" as kata
+}
+
+kubelet --> cri : gRPC
+cri --> containerd
+cri --> crio
+containerd --> runc
+crio --> runc
+
+note bottom of containerd
+  containerd e o padrao
+  em kubeadm >= 1.24
+end note
+
+@enduml

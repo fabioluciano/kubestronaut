@@ -1,0 +1,23 @@
+# Pod criado com apenas limits:
+apiVersion: v1
+kind: Pod
+metadata:
+  name: partial-resources
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+    resources:
+      limits:
+        cpu: "1"
+        memory: "1Gi"
+    # Sem requests
+
+# Resultado:
+# resources:
+#   requests:           (copiado de limits se não especificado)
+#     cpu: "1"
+#     memory: "1Gi"
+#   limits:
+#     cpu: "1"
+#     memory: "1Gi"

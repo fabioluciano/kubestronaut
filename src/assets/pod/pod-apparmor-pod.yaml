@@ -1,0 +1,11 @@
+# Pod com AppArmor
+apiVersion: v1
+kind: Pod
+metadata:
+  name: apparmor-pod
+  annotations:
+    container.apparmor.security.beta.kubernetes.io/nginx: runtime/default
+spec:
+  containers:
+  - name: nginx
+    image: nginx

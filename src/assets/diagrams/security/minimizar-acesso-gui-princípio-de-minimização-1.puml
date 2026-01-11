@@ -1,0 +1,19 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Monospaced
+
+title PRINCÍPIO DE MINIMIZAÇÃO
+
+note as quote
+  "Se você não precisa, não instale"
+end note
+
+rectangle "Princípios" {
+  card "Dashboard não é obrigatório" as p1
+  card "kubectl é suficiente para maioria das operações" as p2
+  card "GUIs locais (Lens, K9s) são mais seguras que web" as p3
+  card "Cada componente adicional = superfície de ataque extra" as p4
+}
+
+@enduml

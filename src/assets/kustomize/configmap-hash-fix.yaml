@@ -1,0 +1,4 @@
+configMapGenerator:
+- name: config
+  options:
+    disableNameSuffixHash: true

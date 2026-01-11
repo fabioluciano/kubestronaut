@@ -1,0 +1,55 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Ciclo de Scheduling
+
+start
+
+partition "Scheduling Queue" {
+    :Pod criado sem nodeName;
+    :Adiciona a fila de scheduling;
+    :Ordena por prioridade;
+}
+
+partition "Filtering (Predicates)" {
+    :Obtem lista de todos nodes;
+    :Executa filter plugins;
+    note right
+      - NodeSelector
+      - Taints/Tolerations
+      - Resources (CPU/Memory)
+      - NodeAffinity
+      - PodAffinity/AntiAffinity
+      - Volume requirements
+    end note
+    if (Nodes viaveis > 0?) then (sim)
+    else (nao)
+        :Pod fica Pending;
+        stop
+    endif
+}
+
+partition "Scoring (Priorities)" {
+    :Executa score plugins;
+    note right
+      - Resource balancing
+      - Spreading
+      - Node affinity weight
+      - Pod affinity weight
+    end note
+    :Soma scores de cada node;
+    :Seleciona node com maior score;
+}
+
+partition "Binding" {
+    :Reserve resources no node;
+    :Assume pod esta bound;
+    :Envia binding ao API Server\n(assincrono);
+}
+
+stop
+
+@enduml

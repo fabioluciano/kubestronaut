@@ -1,0 +1,27 @@
+# Pod com volumes
+apiVersion: v1
+kind: Pod
+metadata:
+  name: volume-demo
+spec:
+  containers:
+  - name: app
+    image: nginx
+    volumeMounts:
+    - name: data
+      mountPath: /data
+    - name: config
+      mountPath: /etc/config
+    - name: secret
+      mountPath: /etc/secrets
+      readOnly: true
+  volumes:
+  - name: data
+    persistentVolumeClaim:
+      claimName: pvc-demo
+  - name: config
+    configMap:
+      name: app-config
+  - name: secret
+    secret:
+      secretName: app-secret

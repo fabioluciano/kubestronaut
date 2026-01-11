@@ -1,0 +1,35 @@
+@startuml
+skinparam monochrome true
+
+map "DICAS CKS - SUPPLY CHAIN" as dicas {
+}
+
+note bottom of dicas
+  **Trivy (mais usado no exame):**
+  trivy image nginx:latest
+  trivy image --severity HIGH,CRITICAL nginx:latest
+  trivy image --output /path/file.txt nginx:latest
+  trivy image --format json nginx:latest
+  trivy k8s pod/nginx
+  trivy config deployment.yaml
+
+  **Syft (SBOM):**
+  syft nginx:latest -o spdx-json > sbom.json
+
+  **Grype:**
+  grype sbom:sbom.json
+  grype nginx:latest
+
+  **Kube-linter:**
+  kube-linter lint deployment.yaml
+
+  **Kubesec:**
+  kubesec scan deployment.yaml
+
+  **Imagens seguras:**
+  • Usar distroless ou alpine
+  • Multi-stage builds
+  • Não usar :latest
+  • Scan antes de deploy
+end note
+@enduml

@@ -1,0 +1,21 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title CRI - CONTAINER RUNTIME INTERFACE
+
+participant "kubelet" as kubelet
+participant "CRI Runtime\n(containerd)" as cri
+participant "OCI Runtime\n(runc)" as oci
+
+kubelet -> cri : RunPodSandbox()
+kubelet -> cri : CreateContainer()
+kubelet -> cri : StartContainer()
+cri -> oci : create
+oci -> oci : start
+kubelet -> cri : StopContainer()
+kubelet -> cri : RemoveContainer()
+
+@enduml

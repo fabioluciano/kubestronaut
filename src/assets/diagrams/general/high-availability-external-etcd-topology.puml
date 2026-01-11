@@ -1,0 +1,54 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam componentStyle rectangle
+
+title EXTERNAL ETCD TOPOLOGY
+
+rectangle "LOAD BALANCER" as LB
+
+rectangle "Master 1" as M1 {
+  component "API Server" as api1
+  component "Scheduler" as sched1
+  component "Ctrl Mgr" as cm1
+}
+
+rectangle "Master 2" as M2 {
+  component "API Server" as api2
+  component "Scheduler" as sched2
+  component "Ctrl Mgr" as cm2
+}
+
+rectangle "Master 3" as M3 {
+  component "API Server" as api3
+  component "Scheduler" as sched3
+  component "Ctrl Mgr" as cm3
+}
+
+database "etcd 1" as etcd1
+database "etcd 2" as etcd2
+database "etcd 3" as etcd3
+
+LB --> M1
+LB --> M2
+LB --> M3
+
+M1 --> etcd1
+M1 --> etcd2
+M1 --> etcd3
+M2 --> etcd1
+M2 --> etcd2
+M2 --> etcd3
+M3 --> etcd1
+M3 --> etcd2
+M3 --> etcd3
+
+etcd1 <--> etcd2
+etcd2 <--> etcd3
+
+note bottom
+  Vantagens: Isolamento, melhor performance
+  Desvantagens: Mais máquinas, complexidade
+end note
+
+@enduml

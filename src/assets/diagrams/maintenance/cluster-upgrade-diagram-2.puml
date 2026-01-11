@@ -1,0 +1,17 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Monospaced
+
+rectangle "REGRAS IMPORTANTES" as rules
+
+note right of rules
+  ✓ Upgrade uma minor version por vez
+    (1.28 → 1.29 → 1.30, NÃO 1.28 → 1.30)
+  ✓ Control plane primeiro, workers depois
+  ✓ kubeadm não atualiza kubelet (manual)
+  ✓ Fazer backup do etcd antes!
+  ✓ Durante upgrade, workloads continuam rodando
+    (mas API pode ficar indisponível brevemente)
+end note
+@enduml

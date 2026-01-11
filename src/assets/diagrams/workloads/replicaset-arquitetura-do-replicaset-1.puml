@@ -1,0 +1,37 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Arquitetura do ReplicaSet
+
+package "Kubernetes Cluster" {
+    component "ReplicaSet Controller" as RSC {
+    }
+
+    note right of RSC
+        Monitora continuamente
+        o estado dos Pods
+    end note
+
+    database "etcd" as ETCD {
+    }
+
+    cloud "Desired State" as DS {
+        [replicas: 3]
+    }
+
+    cloud "Current State" as CS {
+        [Pod 1] as P1
+        [Pod 2] as P2
+        [Pod 3] as P3
+    }
+}
+
+RSC --> DS : Le estado desejado
+RSC --> CS : Monitora estado atual
+RSC --> ETCD : Persiste estado
+RSC ..> CS : Reconcilia\n(cria/deleta Pods)
+
+@enduml

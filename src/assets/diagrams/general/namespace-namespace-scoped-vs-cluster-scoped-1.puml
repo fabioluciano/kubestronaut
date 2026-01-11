@@ -1,0 +1,38 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title NAMESPACE-SCOPED vs CLUSTER-SCOPED
+
+rectangle "NAMESPACE-SCOPED" #lightblue {
+  card "Pod" as p1
+  card "Deployment" as p2
+  card "ReplicaSet" as p3
+  card "StatefulSet" as p4
+  card "DaemonSet" as p5
+  card "Job / CronJob" as p6
+  card "Service" as p7
+  card "ConfigMap" as p8
+  card "Secret" as p9
+  card "PersistentVolumeClaim" as p10
+  card "Role / RoleBinding" as p11
+  card "ServiceAccount" as p12
+  card "NetworkPolicy" as p13
+  card "Ingress" as p14
+  card "ResourceQuota" as p15
+  card "LimitRange" as p16
+}
+
+rectangle "CLUSTER-SCOPED" #lightyellow {
+  card "Node" as c1
+  card "Namespace" as c2
+  card "PersistentVolume" as c3
+  card "StorageClass" as c4
+  card "ClusterRole" as c5
+  card "ClusterRoleBinding" as c6
+  card "CustomResourceDefinition" as c7
+  card "PriorityClass" as c8
+  card "IngressClass" as c9
+}
+
+@enduml

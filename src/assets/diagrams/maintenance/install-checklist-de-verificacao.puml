@@ -1,0 +1,33 @@
+@startuml
+
+skinparam backgroundColor white
+
+title Checklist de Verificacao
+
+start
+:Verificar nodes Ready;
+if (nodes Ready?) then (sim)
+  :Verificar pods kube-system;
+  if (pods Running?) then (sim)
+    :Verificar CoreDNS;
+    if (DNS funcionando?) then (sim)
+      :Criar pod de teste;
+      if (pod Running?) then (sim)
+        :Cluster OK!;
+        stop
+      else (nao)
+        :Verificar logs do pod;
+      endif
+    else (nao)
+      :Verificar CNI;
+    endif
+  else (nao)
+    :Verificar logs dos pods;
+  endif
+else (nao)
+  :Verificar kubelet e containerd;
+endif
+:Troubleshooting;
+stop
+
+@enduml

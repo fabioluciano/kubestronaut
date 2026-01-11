@@ -1,0 +1,26 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Node Controller - Fluxo de Monitoramento
+
+participant "Node Controller" as nc
+participant "API Server" as api
+participant "Node" as node
+
+nc -> api : Watch nodes
+api -> nc : Node status update
+
+alt Node Healthy
+    nc -> nc : Atualiza node-monitor-grace-period
+else Node Not Ready (40s)
+    nc -> api : Marca node como NotReady
+    nc -> nc : Inicia pod-eviction-timeout (5m)
+else Pod Eviction Timeout
+    nc -> api : Evict pods do node
+    note right: Pods sao reagendados\nem outros nodes
+end
+
+@enduml

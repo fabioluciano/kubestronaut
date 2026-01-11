@@ -1,0 +1,11 @@
+env:
+- name: CPU_LIMIT
+  valueFrom:
+    resourceFieldRef:
+      containerName: my-container
+      resource: limits.cpu
+- name: MEMORY_REQUEST
+  valueFrom:
+    resourceFieldRef:
+      containerName: my-container
+      resource: requests.memory

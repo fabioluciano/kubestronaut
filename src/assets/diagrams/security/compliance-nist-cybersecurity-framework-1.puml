@@ -1,0 +1,18 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title NIST CYBERSECURITY FRAMEWORK
+
+card "1. IDENTIFY\nAssets, riscos, vulnerabilidades" as id
+card "2. PROTECT\nControles preventivos" as pr
+card "3. DETECT\nMonitoramento, detecção" as de
+card "4. RESPOND\nResposta a incidentes" as re
+card "5. RECOVER\nRecuperação" as rc
+
+id --> pr
+pr --> de
+de --> re
+re --> rc
+
+@enduml

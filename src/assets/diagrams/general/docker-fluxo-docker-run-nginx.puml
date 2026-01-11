@@ -1,0 +1,26 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title FLUXO: docker run nginx
+
+participant "docker CLI" as cli
+participant "dockerd" as daemon
+participant "containerd" as cd
+participant "runc" as runc
+database "Registry" as reg
+
+cli -> daemon : docker run nginx
+daemon -> reg : Imagem local?
+reg --> daemon : Nao encontrada
+daemon -> reg : Pull nginx:latest
+reg --> daemon : Layers da imagem
+daemon -> cd : Criar container
+cd -> runc : Criar processo
+runc --> cd : Container criado
+cd --> daemon : ID do container
+daemon --> cli : Container iniciado
+
+@enduml

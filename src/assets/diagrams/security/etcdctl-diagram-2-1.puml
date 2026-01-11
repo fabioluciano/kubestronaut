@@ -1,0 +1,16 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+
+map "VERSOES DA API ETCDCTL" as versoes {
+  API v2 => Legado, NAO usar com Kubernetes
+  API v3 => Obrigatorio para Kubernetes moderno
+}
+
+note bottom of versoes
+  **IMPORTANTE para o exame:**
+  Sempre definir ETCDCTL_API=3
+  antes de executar comandos!
+end note
+
+@enduml

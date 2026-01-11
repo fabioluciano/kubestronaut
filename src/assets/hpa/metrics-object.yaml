@@ -1,0 +1,13 @@
+# Métrica de outro objeto (ex: Ingress)
+metrics:
+- type: Object
+  object:
+    metric:
+      name: requests-per-second
+    describedObject:
+      apiVersion: networking.k8s.io/v1
+      kind: Ingress
+      name: main-route
+    target:
+      type: Value
+      value: 10k

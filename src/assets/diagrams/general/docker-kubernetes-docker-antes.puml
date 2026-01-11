@@ -1,0 +1,28 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title KUBERNETES + DOCKER (ANTES)
+
+rectangle "Kubernetes" {
+  card "kubelet" as kl
+}
+
+rectangle "Dockershim" as shim
+rectangle "Docker Daemon" as dd
+rectangle "containerd" as cd
+rectangle "runc" as runc
+
+kl --> shim : CRI
+shim --> dd : Docker API
+dd --> cd
+cd --> runc : OCI
+
+note bottom of shim
+  Dockershim = camada extra
+  Overhead desnecessario
+end note
+
+@enduml

@@ -1,0 +1,24 @@
+@startuml
+skinparam monochrome true
+
+map "BASELINE - RESTRIÇÕES" as baseline {
+}
+
+note bottom of baseline
+  **❌ BLOQUEADO:**
+  • spec.hostNetwork: true
+  • spec.hostPID: true
+  • spec.hostIPC: true
+  • spec.containers[*].securityContext.privileged: true
+  • spec.containers[*].securityContext.capabilities.add:
+    - NET_RAW (exceto se explicitamente permitido)
+  • spec.containers[*].securityContext.procMount != Default
+  • spec.volumes[*].hostPath
+  • spec.containers[*].ports[*].hostPort
+
+  **✅ PERMITIDO:**
+  • runAsRoot (container pode rodar como root)
+  • Capabilities padrão mantidas
+  • Volumes normais (emptyDir, PVC, etc)
+end note
+@enduml

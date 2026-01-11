@@ -1,0 +1,37 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title ARQUITETURA CSI
+
+rectangle "Kubernetes" {
+  rectangle "Control Plane" {
+    card "kube-controller-manager" as kcm
+    card "external-provisioner" as ep
+    card "external-attacher" as ea
+  }
+
+  rectangle "Node" {
+    card "kubelet" as kl
+    card "CSI Node Driver" as cnd
+  }
+}
+
+rectangle "CSI Driver" {
+  card "Controller Plugin" as cp
+  card "Node Plugin" as np
+}
+
+rectangle "Storage Backend" as sb {
+  card "AWS EBS" as ebs
+  card "Ceph" as ceph
+  card "NetApp" as netapp
+}
+
+ep --> cp : CreateVolume
+ea --> cp : ControllerPublish
+kl --> np : NodeStage/NodePublish
+cp --> sb
+np --> sb
+
+@enduml

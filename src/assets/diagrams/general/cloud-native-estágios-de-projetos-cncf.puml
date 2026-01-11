@@ -1,0 +1,32 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title ESTÁGIOS DE PROJETOS CNCF
+
+rectangle "SANDBOX" as sandbox #lightgray
+rectangle "INCUBATING" as incubating #gray
+rectangle "GRADUATED" as graduated #darkgray
+
+sandbox --> incubating : Adoção crescente
+incubating --> graduated : Maturidade comprovada
+
+note bottom of sandbox
+  • Projetos em estágio inicial
+  • Experimental
+  • Revisão anual
+end note
+
+note bottom of incubating
+  • Usado em produção por 3+ empresas
+  • Comunidade ativa
+  • Governança definida
+end note
+
+note bottom of graduated
+  • Maturidade comprovada
+  • Adoção ampla
+  • Seguro para produção
+end note
+
+@enduml

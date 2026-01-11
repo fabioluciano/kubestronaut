@@ -1,0 +1,41 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Arquitetura do kubelet
+
+package "kubelet" {
+    [Pod Lifecycle\nManager] as plm
+    [Volume Manager] as vol
+    [Image Manager] as img
+    [Probe Manager] as probe
+    [cAdvisor] as cadvisor
+    [Certificate Manager] as cert
+    [Node Status Manager] as status
+}
+
+package "Container Runtime" {
+    [CRI] as cri
+    [containerd] as containerd
+}
+
+package "External" {
+    [kube-apiserver] as api
+    [Static Pod\nManifests] as static
+    database "etcd" as etcd
+}
+
+plm --> cri : Gerencia containers
+cri --> containerd
+vol --> plm : Monta volumes
+img --> cri : Pull images
+probe --> plm : Health checks
+cadvisor --> status : Metricas
+status --> api : Reporta status
+api --> etcd
+plm --> api : Watch pods
+static --> plm : Le manifests
+
+@enduml

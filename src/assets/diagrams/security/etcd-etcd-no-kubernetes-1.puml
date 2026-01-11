@@ -1,0 +1,35 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title etcd no Kubernetes
+
+rectangle "Control Plane" {
+    rectangle "API Server" as api
+    database "etcd" as etcd
+}
+
+rectangle "Clients" {
+    actor "kubectl" as kubectl
+    actor "Controller Manager" as kcm
+    actor "Scheduler" as sched
+}
+
+kubectl --> api : HTTPS/TLS
+kcm --> api : HTTPS/TLS
+sched --> api : HTTPS/TLS
+
+api --> etcd : mTLS\n(client cert)
+
+note right of etcd
+  Armazena:
+  - Secrets
+  - ConfigMaps
+  - Pod specs
+  - RBAC rules
+  - Todos os recursos
+end note
+
+@enduml

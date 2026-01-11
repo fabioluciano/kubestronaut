@@ -1,0 +1,28 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultTextAlignment center
+
+rectangle "CAMADAS DE HA NO KUBERNETES" {
+  rectangle "1. Aplicação" as app
+  rectangle "2. Worker Nodes" as workers
+  rectangle "3. Control Plane" as cp
+  rectangle "4. etcd" as etcd
+  rectangle "5. Load Balancer" as lb
+  rectangle "6. Infraestrutura" as infra
+}
+
+note right of app : Múltiplas réplicas (Deployment)
+note right of workers : Múltiplos nodes, anti-affinity
+note right of cp : Múltiplos masters
+note right of etcd : Cluster com quorum
+note right of lb : Balanceamento para API Server
+note right of infra : Múltiplas zonas/regiões
+
+app -[hidden]-> workers
+workers -[hidden]-> cp
+cp -[hidden]-> etcd
+etcd -[hidden]-> lb
+lb -[hidden]-> infra
+
+@enduml

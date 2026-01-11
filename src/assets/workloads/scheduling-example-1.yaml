@@ -1,0 +1,5 @@
+tolerations:
+- key: "node.kubernetes.io/unreachable"
+  operator: "Exists"
+  effect: "NoExecute"
+  tolerationSeconds: 300  # Aguarda 5min antes de ser removido

@@ -1,0 +1,33 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title 12-FACTOR APP (Resumo)
+
+card "1. Codebase" as f1
+card "2. Dependencies" as f2
+card "3. Config" as f3
+card "4. Backing Services" as f4
+card "5. Build/Release/Run" as f5
+card "6. Processes" as f6
+card "7. Port Binding" as f7
+card "8. Concurrency" as f8
+card "9. Disposability" as f9
+card "10. Dev/Prod Parity" as f10
+card "11. Logs" as f11
+card "12. Admin Processes" as f12
+
+note right of f1 : Um repo, múltiplos deploys
+note right of f2 : Declarar e isolar dependências
+note right of f3 : Configuração via ambiente
+note right of f4 : Tratar como recursos anexados
+note right of f5 : Separar estágios estritamente
+note right of f6 : Executar como processos stateless
+note right of f7 : Exportar serviços via porta
+note right of f8 : Escalar via modelo de processo
+note right of f9 : Maximizar robustez
+note right of f10 : Manter ambientes similares
+note right of f11 : Tratar como event streams
+note right of f12 : Rodar admin tasks como one-offs
+
+@enduml

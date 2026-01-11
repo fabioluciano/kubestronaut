@@ -1,0 +1,28 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title TIPOS DE AUTOSCALING
+
+rectangle "Horizontal Pod Autoscaler (HPA)" {
+  note as n1
+    Ajusta número de réplicas baseado em métricas
+    Exemplo: CPU > 80% → adiciona pods
+  end note
+}
+
+rectangle "Vertical Pod Autoscaler (VPA)" {
+  note as n2
+    Ajusta recursos (CPU/memória) dos pods
+    Exemplo: Aumenta requests/limits automaticamente
+  end note
+}
+
+rectangle "Cluster Autoscaler" {
+  note as n3
+    Ajusta número de nodes no cluster
+    Exemplo: Pods pending → adiciona nodes
+  end note
+}
+
+@enduml

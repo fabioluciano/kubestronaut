@@ -1,0 +1,16 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: timezone-cron
+spec:
+  schedule: "0 9 * * *"        # 9:00
+  timeZone: "America/Sao_Paulo" # Timezone específico
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: report
+            image: busybox
+            command: ["sh", "-c", "echo Report generated at $(date)"]
+          restartPolicy: OnFailure

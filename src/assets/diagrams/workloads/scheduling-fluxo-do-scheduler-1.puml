@@ -1,0 +1,30 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title FLUXO DO SCHEDULER
+
+|Scheduler|
+start
+
+:1. QUEUE (Fila);
+note right: Pods ordenados por PriorityClass
+
+:2. FILTER (Filtrar);
+note right
+  Remove nodes que não atendem requisitos
+  Taints, resources, nodeSelector, affinity
+end note
+
+:3. SCORE (Pontuar);
+note right
+  Dá nota aos nodes restantes
+  Spread, resource balance, affinity weight
+end note
+
+:4. BIND (Vincular);
+note right: Associa Pod ao Node com maior score
+
+stop
+
+@enduml

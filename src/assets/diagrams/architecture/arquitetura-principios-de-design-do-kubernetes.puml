@@ -1,0 +1,38 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title PRINCIPIOS DE DESIGN DO KUBERNETES
+
+rectangle "Declarativo" as p1 {
+  note as n1
+    Voce declara O QUE quer
+    Kubernetes descobre COMO fazer
+  end note
+}
+
+rectangle "Estado Desejado" as p2 {
+  note as n2
+    Controllers monitoram continuamente
+    Reconciliam atual vs desejado
+  end note
+}
+
+rectangle "API-Centric" as p3 {
+  note as n3
+    Toda comunicacao via API Server
+    RESTful, extensivel, consistente
+  end note
+}
+
+rectangle "Componentizado" as p4 {
+  note as n4
+    Componentes independentes
+    Comunicam via API
+    Falha isolada
+  end note
+}
+
+@enduml

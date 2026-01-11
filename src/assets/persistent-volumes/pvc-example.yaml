@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-example
+  namespace: default
+spec:
+  accessModes:
+  - ReadWriteOnce
+  
+  resources:
+    requests:
+      storage: 5Gi
+  
+  storageClassName: manual  # "" para usar PV sem StorageClass
+  
+  # Opcional: forçar PV específico
+  # volumeName: pv-example
+  
+  # Opcional: seletor
+  # selector:
+  #   matchLabels:
+  #     type: ssd

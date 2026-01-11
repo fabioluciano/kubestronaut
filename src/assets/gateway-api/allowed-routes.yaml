@@ -1,0 +1,18 @@
+allowedRoutes:
+  namespaces:
+    # Aceita routes de qualquer namespace
+    from: All
+    
+    # Aceita routes apenas do mesmo namespace
+    from: Same
+    
+    # Aceita routes de namespaces com labels específicas
+    from: Selector
+    selector:
+      matchLabels:
+        env: production
+  
+  # Tipos de routes aceitos
+  kinds:
+    - kind: HTTPRoute
+    - kind: TCPRoute

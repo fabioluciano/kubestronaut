@@ -1,0 +1,45 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title VERSIONAMENTO DE API
+
+rectangle "alpha" as alpha #lightcoral {
+  note as n1
+    v1alpha1, v1alpha2, ...
+
+    - Pode ter bugs
+    - Pode ser removida sem aviso
+    - Desabilitada por padrao
+    - NAO usar em producao
+  end note
+}
+
+rectangle "beta" as beta #lightyellow {
+  note as n2
+    v1beta1, v1beta2, ...
+
+    - Bem testada
+    - Habilitada por padrao
+    - Pode mudar em versoes futuras
+    - OK para nao-criticos
+  end note
+}
+
+rectangle "stable" as stable #lightgreen {
+  note as n3
+    v1, v2, ...
+
+    - Estavel e confiavel
+    - Compatibilidade garantida
+    - Suportada por muitas versoes
+    - USAR EM PRODUCAO
+  end note
+}
+
+alpha --> beta : Maturidade
+beta --> stable : Maturidade
+
+@enduml

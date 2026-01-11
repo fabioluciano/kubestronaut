@@ -1,0 +1,18 @@
+# Aplicação típica web
+livenessProbe:
+  httpGet:
+    path: /healthz
+    port: 8080
+  initialDelaySeconds: 30      # Dar tempo para iniciar
+  periodSeconds: 10            # Não muito frequente
+  timeoutSeconds: 5            # Timeout razoável
+  failureThreshold: 3          # Tolerar falhas temporárias
+
+readinessProbe:
+  httpGet:
+    path: /ready
+    port: 8080
+  initialDelaySeconds: 5       # Verificar logo
+  periodSeconds: 5             # Mais frequente que liveness
+  timeoutSeconds: 3
+  failureThreshold: 3

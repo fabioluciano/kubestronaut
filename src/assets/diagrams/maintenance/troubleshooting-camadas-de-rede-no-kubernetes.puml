@@ -1,0 +1,42 @@
+@startuml
+
+skinparam backgroundColor white
+
+title Camadas de Rede no Kubernetes
+
+rectangle "Aplicacao" {
+  rectangle "Pod A" as podA
+  rectangle "Pod B" as podB
+}
+
+rectangle "Service" as svc
+
+rectangle "DNS" as dns
+
+rectangle "CNI Plugin" as cni
+
+rectangle "Node Network" as node
+
+podA --> svc : ClusterIP
+svc --> podB : Endpoints
+podA --> dns : Resolucao de nome
+dns --> svc : kubernetes.default
+podA --> cni : Pod-to-Pod
+cni --> node : Overlay/Routing
+
+note right of dns
+  CoreDNS
+  Problemas: CrashLoop, Timeout
+end note
+
+note right of cni
+  Calico/Flannel/Cilium
+  Problemas: Pods sem IP
+end note
+
+note right of svc
+  kube-proxy
+  Problemas: Service inacessivel
+end note
+
+@enduml

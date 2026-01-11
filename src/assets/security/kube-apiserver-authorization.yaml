@@ -1,0 +1,8 @@
+# /etc/kubernetes/manifests/kube-apiserver.yaml
+spec:
+  containers:
+  - command:
+    - kube-apiserver
+    - --authorization-mode=Node,RBAC  # Ordem importa!
+    # Node primeiro (para kubelets)
+    # RBAC segundo (para usuários e SAs)

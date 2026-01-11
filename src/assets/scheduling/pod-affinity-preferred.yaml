@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: affinity-preferred
+spec:
+  affinity:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 80  # Prioridade alta
+        preference:
+          matchExpressions:
+          - key: disk
+            operator: In
+            values:
+            - ssd
+      - weight: 20  # Prioridade baixa
+        preference:
+          matchExpressions:
+          - key: zone
+            operator: In
+            values:
+            - zone-a
+  containers:
+  - name: nginx
+    image: nginx

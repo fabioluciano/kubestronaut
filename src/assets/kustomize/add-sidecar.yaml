@@ -1,0 +1,12 @@
+# add-sidecar.yaml (Strategic Merge Patch)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp
+spec:
+  template:
+    spec:
+      containers:
+      - name: sidecar
+        image: busybox
+        command: ["sh", "-c", "while true; do echo sidecar; sleep 10; done"]

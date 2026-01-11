@@ -1,0 +1,32 @@
+@startuml
+skinparam monochrome true
+
+map "DICAS CKS - PSA" as dicas {
+}
+
+note bottom of dicas
+  **Labels (não annotations!):**
+  pod-security.kubernetes.io/enforce: <level>
+  pod-security.kubernetes.io/warn: <level>
+  pod-security.kubernetes.io/audit: <level>
+
+  **Levels:**
+  • privileged - sem restrições
+  • baseline - bloqueia escalação
+  • restricted - hardening máximo
+
+  **Modes:**
+  • enforce - bloqueia
+  • warn - avisa
+  • audit - registra
+
+  **Restricted requer:**
+  • runAsNonRoot: true
+  • allowPrivilegeEscalation: false
+  • capabilities.drop: ["ALL"]
+  • seccompProfile.type: RuntimeDefault
+
+  **Comando rápido:**
+  kubectl label ns NAME pod-security.kubernetes.io/enforce=X
+end note
+@enduml

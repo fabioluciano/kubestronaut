@@ -1,0 +1,32 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Monospaced
+
+rectangle "ESTRATÉGIAS DE BACKUP" as main
+
+rectangle "1. SNAPSHOT DO ETCD\n(Recomendado para CKA)" as r1
+note right of r1
+  • Backup do banco de dados completo
+  • Rápido e consistente
+  • Usa etcdctl
+end note
+
+rectangle "2. BACKUP DOS RECURSOS (YAML)" as r2
+note right of r2
+  • Exportar todos os recursos via kubectl
+  • Útil para migração entre clusters
+  • Não inclui estado interno do etcd
+end note
+
+rectangle "3. BACKUP DO DIRETÓRIO DE DADOS" as r3
+note right of r3
+  • Copiar /var/lib/etcd diretamente
+  • Requer parar o etcd
+  • Menos recomendado
+end note
+
+main -down-> r1
+r1 -down-> r2
+r2 -down-> r3
+@enduml

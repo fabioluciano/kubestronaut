@@ -1,0 +1,9 @@
+# CIS 2.1 - Ensure etcd uses TLS
+# Verificar em /etc/kubernetes/manifests/etcd.yaml
+spec:
+  containers:
+  - command:
+    - etcd
+    - --cert-file=/etc/kubernetes/pki/etcd/server.crt
+    - --key-file=/etc/kubernetes/pki/etcd/server.key
+    - --client-cert-auth=true

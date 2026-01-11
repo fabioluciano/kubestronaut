@@ -1,0 +1,46 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title ALTA DISPONIBILIDADE - CONTROL PLANE
+
+rectangle "Load Balancer" as lb #gray
+
+rectangle "Control Plane Node 1" as cp1 {
+  component "api-server" as api1
+  component "scheduler" as sch1
+  component "controller-manager" as cm1
+  database "etcd" as etcd1
+}
+
+rectangle "Control Plane Node 2" as cp2 {
+  component "api-server" as api2
+  component "scheduler (standby)" as sch2 #lightgray
+  component "controller-manager (standby)" as cm2 #lightgray
+  database "etcd" as etcd2
+}
+
+rectangle "Control Plane Node 3" as cp3 {
+  component "api-server" as api3
+  component "scheduler (standby)" as sch3 #lightgray
+  component "controller-manager (standby)" as cm3 #lightgray
+  database "etcd" as etcd3
+}
+
+lb --> api1
+lb --> api2
+lb --> api3
+
+etcd1 <--> etcd2 : Raft
+etcd2 <--> etcd3 : Raft
+etcd1 <--> etcd3 : Raft
+
+note bottom of lb
+  API Servers: Active-Active (stateless)
+  Scheduler/CM: Active-Standby (leader election)
+  etcd: Raft consensus (quorum)
+end note
+
+@enduml

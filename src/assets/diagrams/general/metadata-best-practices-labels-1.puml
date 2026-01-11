@@ -1,0 +1,28 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title BEST PRACTICES - LABELS
+
+rectangle "Labels Recomendadas" {
+  card "app.kubernetes.io/name" as l1
+  card "app.kubernetes.io/instance" as l2
+  card "app.kubernetes.io/version" as l3
+  card "app.kubernetes.io/component" as l4
+  card "app.kubernetes.io/part-of" as l5
+  card "app.kubernetes.io/managed-by" as l6
+}
+
+rectangle "Organizacionais" {
+  card "team: backend" as o1
+  card "environment: production" as o2
+  card "cost-center: engineering" as o3
+}
+
+rectangle "Evitar" {
+  card "Labels muito longas" as e1
+  card "Dados sensiveis em labels" as e2
+  card "Labels nao padronizadas" as e3
+}
+
+@enduml

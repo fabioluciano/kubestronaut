@@ -1,0 +1,13 @@
+# Novo: Sidecar com restartPolicy: Always
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-with-sidecar
+spec:
+  initContainers:
+  - name: sidecar
+    image: envoyproxy/envoy
+    restartPolicy: Always    # Torna este init container um sidecar
+  containers:
+  - name: app
+    image: myapp

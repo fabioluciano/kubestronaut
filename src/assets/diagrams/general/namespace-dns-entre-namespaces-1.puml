@@ -1,0 +1,39 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DNS ENTRE NAMESPACES
+
+rectangle "Namespace: frontend" #lightblue {
+  card "Pod: web-app" as web
+}
+
+rectangle "Namespace: backend" #lightgreen {
+  card "Service: api-service" as api
+  note bottom of api
+    FQDN: api-service.backend.svc.cluster.local
+  end note
+}
+
+rectangle "Namespace: database" #lightyellow {
+  card "Service: mysql" as db
+  note bottom of db
+    FQDN: mysql.database.svc.cluster.local
+  end note
+}
+
+web --> api : api-service.backend
+web --> db : mysql.database
+
+note as N1
+  Formato FQDN:
+  <service>.<namespace>.svc.cluster.local
+
+  Dentro do MESMO namespace:
+  apenas <service>
+
+  ENTRE namespaces:
+  <service>.<namespace>
+end note
+
+@enduml

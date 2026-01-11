@@ -1,0 +1,29 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title RESOURCEQUOTA OVERVIEW
+
+rectangle "ResourceQuota: team-quota\nNamespace: development" {
+  rectangle "Limites de Compute" {
+    card "requests.cpu: 4" as rc
+    card "requests.memory: 8Gi" as rm
+    card "limits.cpu: 8" as lc
+    card "limits.memory: 16Gi" as lm
+  }
+  
+  rectangle "Limites de Objetos" {
+    card "pods: 20" as p
+    card "services: 10" as s
+    card "secrets: 20" as sec
+    card "configmaps: 20" as cm
+    card "persistentvolumeclaims: 10" as pvc
+  }
+}
+
+note bottom
+  📌 Quota é namespace-scoped
+  📌 Pods SEM requests/limits serão rejeitados se quota definir
+end note
+
+@enduml

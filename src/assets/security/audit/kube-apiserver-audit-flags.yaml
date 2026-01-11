@@ -1,0 +1,22 @@
+# /etc/kubernetes/manifests/kube-apiserver.yaml
+spec:
+  containers:
+  - command:
+    - kube-apiserver
+    # Arquivo de política de audit
+    - --audit-policy-file=/etc/kubernetes/audit/policy.yaml
+    
+    # Arquivo de log de audit
+    - --audit-log-path=/var/log/kubernetes/audit.log
+    
+    # Retenção de logs (dias)
+    - --audit-log-maxage=30
+    
+    # Número de arquivos de backup
+    - --audit-log-maxbackup=10
+    
+    # Tamanho máximo por arquivo (MB)
+    - --audit-log-maxsize=100
+    
+    # Formato do log (json ou legacy)
+    - --audit-log-format=json

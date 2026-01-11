@@ -1,0 +1,18 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: NOME
+spec:
+  schedule: "*/5 * * * *"  # A cada 5 minutos
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: worker
+            image: IMAGE
+            command: ["COMANDO"]
+          restartPolicy: OnFailure

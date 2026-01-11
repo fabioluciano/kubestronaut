@@ -1,0 +1,35 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Componentes do mTLS
+
+rectangle "Autoridade Certificadora (CA)" as CA {
+  component "Root CA" as root
+  component "Intermediate CA" as inter
+}
+
+rectangle "Entidade A (Cliente)" as A {
+  component "Certificado A" as certA
+  component "Chave Privada A" as keyA
+}
+
+rectangle "Entidade B (Servidor)" as B {
+  component "Certificado B" as certB
+  component "Chave Privada B" as keyB
+}
+
+root --> inter : assina
+inter --> certA : emite
+inter --> certB : emite
+
+A -[hidden]-> B
+
+note bottom of CA
+  CA e a entidade confiavel
+  que emite os certificados
+end note
+
+@enduml

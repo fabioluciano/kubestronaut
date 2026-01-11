@@ -1,0 +1,25 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title OPÇÕES DE CRIPTOGRAFIA POD-TO-POD
+
+map "1. SERVICE MESH (Istio, Linkerd)" as mesh {
+  Recurso => mTLS automático entre pods
+  Desvantagem => Mais overhead
+}
+
+map "2. CILIUM (WireGuard)" as cilium {
+  Recurso => Criptografia transparente
+  Vantagem => Performance melhor que IPsec
+}
+
+map "3. CALICO (IPsec/WireGuard)" as calico {
+  Recurso => Suporta ambos IPsec e WireGuard
+}
+
+map "4. WEAVE NET" as weave {
+  Recurso => Criptografia sleeve mode
+}
+
+@enduml

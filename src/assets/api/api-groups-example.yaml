@@ -1,0 +1,53 @@
+# Core API Group (legacy)
+# apiVersion: v1
+# Recursos: Pod, Service, ConfigMap, Secret, Namespace, PersistentVolume
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: core-api-example
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+
+---
+
+# Named API Groups - apps/v1
+# Recursos: Deployment, ReplicaSet, StatefulSet, DaemonSet
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: named-api-example
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: example
+  template:
+    metadata:
+      labels:
+        app: example
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+
+---
+
+# Named API Groups - batch/v1
+# Recursos: Job, CronJob
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: batch-api-example
+spec:
+  template:
+    spec:
+      containers:
+      - name: hello
+        image: busybox
+        command: ["echo", "Hello"]
+      restartPolicy: Never

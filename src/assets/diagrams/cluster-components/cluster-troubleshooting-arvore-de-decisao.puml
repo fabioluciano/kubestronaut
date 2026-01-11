@@ -1,0 +1,49 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title TROUBLESHOOTING - ARVORE DE DECISAO
+
+start
+
+:Problema no cluster?;
+
+if (kubectl funciona?) then (nao)
+  :Verificar kubeconfig;
+  :Verificar API Server;
+  if (API Server up?) then (nao)
+    :Verificar manifests em\n/etc/kubernetes/manifests/;
+    :journalctl -u kubelet;
+    stop
+  else (sim)
+    :Verificar certificados;
+    :Verificar rede;
+  endif
+else (sim)
+endif
+
+if (Nodes Ready?) then (nao)
+  :kubectl describe node;
+  :Verificar kubelet;
+  :Verificar container runtime;
+  stop
+else (sim)
+endif
+
+if (Pods Running?) then (nao)
+  :kubectl describe pod;
+  :kubectl logs pod;
+  :Verificar eventos;
+  stop
+else (sim)
+endif
+
+:Verificar networking;
+:Verificar DNS;
+:Verificar Services;
+
+stop
+
+@enduml

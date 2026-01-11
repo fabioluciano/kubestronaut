@@ -1,0 +1,4 @@
+# Rodar exatamente N vezes, independente dos dados
+spec:
+  completions: 10
+  parallelism: 5

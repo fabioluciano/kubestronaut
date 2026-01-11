@@ -1,0 +1,13 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DICAS - COMPLIANCE
+
+card "1. CIS Benchmark\nConheça as seções principais" as d1
+card "2. kube-bench\nSaiba executar e interpretar" as d2
+card "3. Audit logging\nNíveis: None, Metadata, Request, RequestResponse" as d3
+card "4. Frameworks\nNIST (5 pilares), SOC 2 (Trust Criteria)" as d4
+card "5. Tools\nkube-bench, kubescape, Polaris" as d5
+
+@enduml

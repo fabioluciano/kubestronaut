@@ -1,0 +1,55 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title ARQUITETURA DE STORAGE NO KUBERNETES
+
+rectangle "Cluster Kubernetes" {
+  rectangle "Pod" {
+    card "Container" as c1
+    card "volumeMounts" as vm
+  }
+
+  rectangle "Volume" as vol {
+    card "emptyDir" as ed
+    card "hostPath" as hp
+    card "configMap" as cm
+    card "secret" as sec
+    card "PVC" as pvc_vol
+  }
+
+  rectangle "PersistentVolumeClaim (PVC)" as pvc {
+    card "Solicitacao de storage" as req
+    card "accessModes" as am
+    card "resources.requests.storage" as rs
+  }
+
+  rectangle "PersistentVolume (PV)" as pv {
+    card "Storage provisionado" as sp
+    card "capacity" as cap
+    card "reclaimPolicy" as rp
+  }
+
+  rectangle "StorageClass" as sc {
+    card "provisioner" as prov
+    card "parameters" as params
+    card "reclaimPolicy" as scrp
+  }
+}
+
+rectangle "Backend de Storage" as backend {
+  card "AWS EBS" as ebs
+  card "GCE PD" as gcepd
+  card "Azure Disk" as azure
+  card "NFS" as nfs
+  card "Local" as local
+}
+
+c1 --> vm
+vm --> vol
+pvc_vol --> pvc
+pvc --> pv : bind
+pv --> backend
+sc --> pv : provisiona
+
+@enduml

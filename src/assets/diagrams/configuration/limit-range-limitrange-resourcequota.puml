@@ -1,0 +1,24 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title LIMITRANGE + RESOURCEQUOTA
+
+note as N1
+  **CENÁRIO:** ResourceQuota requer requests/limits definidos
+
+  **ResourceQuota:**
+    requests.cpu: 4
+    limits.cpu: 8
+
+  **Sem LimitRange:**
+    Pod sem resources → REJEITADO
+    (quota requer requests/limits)
+
+  **Com LimitRange:**
+    Pod sem resources → valores padrão aplicados → ACEITO
+
+  **RECOMENDAÇÃO:** Sempre usar LimitRange junto com ResourceQuota
+end note
+
+@enduml

@@ -1,0 +1,41 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title ESTRATEGIA DE TEMPO
+
+rectangle "FASE 1: Varredura (10 min)" #LightGreen {
+  card "Ler TODAS as questoes" as f1_1
+  card "Marcar faceis vs dificeis" as f1_2
+  card "Anotar comandos chave" as f1_3
+}
+
+rectangle "FASE 2: Faceis Primeiro (50% tempo)" #LightBlue {
+  card "Resolver questoes faceis" as f2_1
+  card "Garantir pontos rapidos" as f2_2
+  card "Construir confianca" as f2_3
+}
+
+rectangle "FASE 3: Medias (30% tempo)" #LightYellow {
+  card "Questoes de complexidade media" as f3_1
+  card "Usar documentacao quando necessario" as f3_2
+}
+
+rectangle "FASE 4: Dificeis (20% tempo)" #LightPink {
+  card "Questoes complexas" as f4_1
+  card "Troubleshooting" as f4_2
+  card "Nao travar em uma questao" as f4_3
+}
+
+f1_1 --> f1_2
+f1_2 --> f1_3
+f1_3 --> f2_1
+f2_1 --> f2_2
+f2_2 --> f2_3
+f2_3 --> f3_1
+f3_1 --> f3_2
+f3_2 --> f4_1
+f4_1 --> f4_2
+f4_2 --> f4_3
+
+@enduml

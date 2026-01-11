@@ -1,0 +1,10 @@
+rules:
+  - matches:
+      - method: GET
+        path:
+          type: PathPrefix
+          value: /api
+      - method: POST
+        path:
+          type: PathPrefix
+          value: /api

@@ -1,0 +1,26 @@
+# kube-apiserver audit configuration example
+# This is a partial manifest showing relevant volume mounts
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kube-apiserver
+  namespace: kube-system
+spec:
+  containers:
+  - name: kube-apiserver
+    volumeMounts:
+    - mountPath: /etc/kubernetes/prod-audit.yaml
+      name: audit
+      readOnly: true
+    - mountPath: /var/log/prod-secrets.log
+      name: audit-log
+      readOnly: false
+  volumes:
+  - name: audit
+    hostPath:
+      path: /etc/kubernetes/prod-audit.yaml
+      type: File
+  - name: audit-log
+    hostPath:
+      path: /var/log/prod-secrets.log
+      type: FileOrCreate

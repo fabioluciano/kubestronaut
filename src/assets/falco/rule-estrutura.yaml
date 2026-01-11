@@ -1,0 +1,6 @@
+- rule: <nome_da_regra>
+  desc: <descrição>
+  condition: <condição em linguagem Falco>
+  output: <mensagem de alerta>
+  priority: <DEBUG|INFO|NOTICE|WARNING|ERROR|CRITICAL|ALERT|EMERGENCY>
+  tags: [<tags>]

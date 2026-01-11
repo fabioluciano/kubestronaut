@@ -1,0 +1,42 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Arquitetura do Kubernetes
+
+rectangle "Control Plane" as CP {
+  component "API Server" as API
+  component "etcd" as ETCD
+  component "Scheduler" as SCHED
+  component "Controller Manager" as CM
+}
+
+rectangle "Worker Node 1" as W1 {
+  component "kubelet" as K1
+  component "kube-proxy" as KP1
+  component "Container Runtime" as CR1
+
+  rectangle "Pod" as POD1 {
+    card "Container" as C1
+  }
+}
+
+rectangle "Worker Node 2" as W2 {
+  component "kubelet" as K2
+  component "kube-proxy" as KP2
+  component "Container Runtime" as CR2
+
+  rectangle "Pod" as POD2 {
+    card "Container" as C2
+  }
+}
+
+API --> ETCD : Persiste estado
+API --> SCHED : Agenda pods
+API --> CM : Controla recursos
+API --> K1 : Gerencia node
+API --> K2 : Gerencia node
+
+@enduml

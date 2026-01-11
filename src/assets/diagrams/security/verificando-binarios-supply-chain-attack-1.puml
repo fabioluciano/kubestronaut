@@ -1,0 +1,20 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Monospaced
+
+title SUPPLY CHAIN ATTACK
+
+actor Atacante as atk
+actor Você as you
+
+atk --> (Intercepta download) : ataque
+(Intercepta download) --> (Modifica binário)
+(Modifica binário) --> you : entrega
+
+note bottom
+  **Resultado:** Backdoor no seu cluster Kubernetes
+  **Solução:** Verificar HASH do binário após download
+end note
+
+@enduml

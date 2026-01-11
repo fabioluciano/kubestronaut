@@ -1,0 +1,18 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title PROMETHEUS STACK
+
+rectangle "Targets\n/metrics" as targets
+rectangle "Prometheus\n(TSDB)" as prometheus
+rectangle "AlertManager" as alertmgr
+rectangle "Slack / Email" as notify
+rectangle "Grafana\n(Dashboards)" as grafana
+
+targets --> prometheus
+prometheus --> alertmgr
+alertmgr --> notify
+prometheus --> grafana
+
+@enduml

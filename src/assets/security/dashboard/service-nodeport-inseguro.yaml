@@ -1,0 +1,12 @@
+# ❌ INSEGURO - NodePort expõe externamente
+apiVersion: v1
+kind: Service
+metadata:
+  name: kubernetes-dashboard
+  namespace: kubernetes-dashboard
+spec:
+  type: NodePort  # EVITAR em produção!
+  ports:
+  - port: 443
+    targetPort: 8443
+    nodePort: 30443

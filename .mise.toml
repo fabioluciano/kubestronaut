@@ -1,0 +1,10 @@
+[tools]
+mdbook = "0.4.52"
+"cargo:mdbook-admonish" = "latest"
+"cargo:mdbook-alerts" = "latest"
+
+# mdbook-plantuml precisa ser instalado manualmente via:
+# cargo install mdbook-plantuml --git https://github.com/sytsereitsma/mdbook-plantuml --tag v1.0.0-rc.1
+
+[env]
+_.path = ["~/.cargo/bin"]

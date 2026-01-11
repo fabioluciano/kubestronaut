@@ -1,0 +1,8 @@
+apiVersion: example.com/v1
+kind: Backup
+metadata:
+  name: daily-backup
+  namespace: production
+spec:
+  schedule: "0 2 * * *"
+  retention: 7

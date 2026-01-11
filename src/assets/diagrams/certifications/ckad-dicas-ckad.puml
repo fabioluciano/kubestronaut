@@ -1,0 +1,14 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DICAS CKAD
+
+card "1. Use --dry-run=client -o yaml\nGerar YAML rapidamente" as d1
+card "2. kubectl explain\nDocumentação inline" as d2
+card "3. Alias e autocomplete\nalias k=kubectl" as d3
+card "4. Bookmarks permitidos\nkubernetes.io/docs" as d4
+card "5. Gerenciamento de tempo\n~6 min por questão" as d5
+card "6. Não trave em uma questão\nVolte depois se precisar" as d6
+
+@enduml

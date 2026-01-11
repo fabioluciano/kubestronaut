@@ -1,0 +1,25 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title STATIC PODS vs REGULAR PODS
+
+rectangle "REGULAR PODS" {
+  rectangle "User/\nController" as user
+  rectangle "API Server\n(etcd)" as api
+  rectangle "Scheduler" as sched
+  rectangle "Kubelet" as kubelet1
+  
+  user -> api
+  api -> sched
+  sched -> kubelet1
+}
+
+rectangle "STATIC PODS" {
+  rectangle "/etc/kubernetes/\nmanifests/\n├── pod1.yaml\n└── pod2.yaml" as manifests
+  rectangle "Kubelet\n(monitora diretório local)" as kubelet2
+  
+  manifests -> kubelet2
+}
+
+@enduml

@@ -1,0 +1,27 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title NodePort
+
+actor "Externo" as ext
+entity "Node 1\n:30080" as n1
+entity "Node 2\n:30080" as n2
+entity "Node 3\n:30080" as n3
+entity "Service" as svc
+entity "Pods" as pods
+ext --> n1
+ext --> n2
+ext --> n3
+n1 --> svc
+n2 --> svc
+n3 --> svc
+svc --> pods
+
+note bottom
+  Externo → NodeIP:30080 → ClusterIP:80 → Pods:8080
+  📌 Qualquer Node responde na porta
+end note
+
+@enduml

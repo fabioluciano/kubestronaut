@@ -1,0 +1,11 @@
+# Macro para identificar containers
+- macro: container
+  condition: container.id != host
+
+# Macro para processos shell
+- macro: shell_procs
+  condition: proc.name in (shell_binaries)
+
+# Macro para spawn de processo
+- macro: spawned_process
+  condition: evt.type = execve and evt.dir = <

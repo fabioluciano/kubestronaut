@@ -1,0 +1,42 @@
+apiVersion: kubelet.config.k8s.io/v1beta1
+kind: KubeletConfiguration
+
+# Autenticação
+authentication:
+  anonymous:
+    enabled: false
+  webhook:
+    enabled: true
+  x509:
+    clientCAFile: /etc/kubernetes/pki/ca.crt
+
+# Autorização
+authorization:
+  mode: Webhook
+
+# Portas
+port: 10250
+readOnlyPort: 0  # Desabilitado (segurança)
+
+# TLS
+tlsCertFile: /var/lib/kubelet/pki/kubelet.crt
+tlsPrivateKeyFile: /var/lib/kubelet/pki/kubelet.key
+
+# Static Pods
+staticPodPath: /etc/kubernetes/manifests
+
+# cgroup driver (deve coincidir com container runtime)
+cgroupDriver: systemd
+
+# Recursos
+evictionHard:
+  memory.available: "100Mi"
+  nodefs.available: "10%"
+  imagefs.available: "15%"
+
+# Proteção do kernel
+protectKernelDefaults: true
+
+# Garbage collection
+imageGCHighThresholdPercent: 85
+imageGCLowThresholdPercent: 80

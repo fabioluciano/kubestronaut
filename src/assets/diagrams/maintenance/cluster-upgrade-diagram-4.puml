@@ -1,0 +1,28 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Monospaced
+
+rectangle "DICAS CKA - CLUSTER UPGRADE" {
+  rectangle "SEQUÊNCIA CORRETA" {
+    :1. apt-mark unhold kubeadm;
+    :2. apt install kubeadm=X.X.X-1.1;
+    :3. apt-mark hold kubeadm;
+    :4. kubeadm upgrade plan (verificar);
+    :5. kubeadm upgrade apply vX.X.X (primeiro master)\n   OU kubeadm upgrade node (outros nodes);
+    :6. kubectl drain <node> --ignore-daemonsets;
+    :7. apt-mark unhold kubelet kubectl;
+    :8. apt install kubelet=X.X.X-1.1 kubectl=X.X.X-1.1;
+    :9. apt-mark hold kubelet kubectl;
+    :10. systemctl daemon-reload && systemctl restart kubelet;
+    :11. kubectl uncordon <node>;
+  }
+  rectangle "LEMBRE-SE" {
+    :• Control plane PRIMEIRO, workers DEPOIS;
+    :• kubeadm upgrade apply = primeiro master;
+    :• kubeadm upgrade node = outros nodes;
+    :• Sempre drain antes de atualizar kubelet;
+    :• Sempre uncordon depois;
+  }
+}
+@enduml

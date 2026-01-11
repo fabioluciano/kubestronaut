@@ -1,0 +1,15 @@
+# /etc/kubernetes/manifests/kube-apiserver.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kube-apiserver
+  namespace: kube-system
+spec:
+  containers:
+  - command:
+    - kube-apiserver
+    # Habilitar controllers adicionais
+    - --enable-admission-plugins=NodeRestriction,PodSecurity,ImagePolicyWebhook
+    # Desabilitar controllers específicos
+    - --disable-admission-plugins=DefaultStorageClass
+    image: registry.k8s.io/kube-apiserver:v1.28.0

@@ -1,0 +1,43 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title TRÊS PILARES DA OBSERVABILIDADE
+
+rectangle "MÉTRICAS" as metricas {
+  note as nmetricas
+    Números que
+    representam
+    estado
+    ----
+    Prometheus
+    Grafana
+  end note
+}
+
+rectangle "LOGS" as logs {
+  note as nlogs
+    Eventos
+    discretos
+    textuais
+    ----
+    Loki/EFK
+    Fluentd
+  end note
+}
+
+rectangle "TRACES" as traces {
+  note as ntraces
+    Caminho de
+    uma request
+    distribuída
+    ----
+    Jaeger/Zipkin
+    Tempo
+  end note
+}
+
+metricas -[hidden]right-> logs
+logs -[hidden]right-> traces
+
+@enduml

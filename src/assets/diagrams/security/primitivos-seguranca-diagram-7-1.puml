@@ -1,0 +1,32 @@
+@startuml
+skinparam monochrome true
+
+map "DICAS CKS - PRIMITIVOS DE SEGURANÇA" as dicas {
+}
+
+note bottom of dicas
+  **FLUXO DE REQUISIÇÃO:**
+  1. Authentication (quem é você)
+  2. Authorization (o que pode fazer)
+  3. Admission Control (validar/mutar)
+
+  **AUTENTICAÇÃO:**
+  • Certificados: CN=username, O=group
+  • Service Accounts: tokens montados em pods
+  • NÃO usar: basic-auth-file, token-auth-file
+
+  **AUTORIZAÇÃO:**
+  • --authorization-mode=Node,RBAC (padrão kubeadm)
+  • Ordem importa! Primeiro ALLOW ganha
+
+  **VERIFICAR PERMISSÕES:**
+  kubectl auth can-i <verb> <resource>
+  kubectl auth can-i --list
+  kubectl auth can-i create pods --as=myuser
+
+  **KUBECONFIG:**
+  • clusters, users, contexts
+  • current-context = contexto ativo
+  • kubectl config use-context <name>
+end note
+@enduml

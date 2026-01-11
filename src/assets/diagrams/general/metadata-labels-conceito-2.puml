@@ -1,0 +1,47 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title LABELS - CONCEITO
+
+rectangle "Pods" {
+  card "Pod A" as pa #lightblue
+  note right of pa
+    app: nginx
+    env: prod
+    version: v1
+  end note
+
+  card "Pod B" as pb #lightblue
+  note right of pb
+    app: nginx
+    env: prod
+    version: v2
+  end note
+
+  card "Pod C" as pc #lightgreen
+  note right of pc
+    app: redis
+    env: prod
+  end note
+
+  card "Pod D" as pd #lightyellow
+  note right of pd
+    app: nginx
+    env: dev
+  end note
+}
+
+rectangle "Selectors" {
+  card "Service\napp=nginx" as svc
+  card "Deployment\napp=nginx,env=prod" as dep
+}
+
+svc --> pa
+svc --> pb
+svc --> pd
+
+dep --> pa
+dep --> pb
+
+@enduml

@@ -1,0 +1,6 @@
+# Aumentar stabilization window para evitar flutuações
+behavior:
+  scaleUp:
+    stabilizationWindowSeconds: 60
+  scaleDown:
+    stabilizationWindowSeconds: 600  # 10 minutos

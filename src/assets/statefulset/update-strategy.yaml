@@ -1,0 +1,17 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: web
+spec:
+  serviceName: web-headless
+  replicas: 3
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      partition: 1  # Apenas Pods com ordinal >= 1 serão atualizados
+  # Ou: type: OnDelete (só atualiza quando Pod é deletado manualmente)
+  selector:
+    matchLabels:
+      app: web
+  template:
+    # ...

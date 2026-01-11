@@ -1,0 +1,5 @@
+   volumes:
+   - name: data
+     persistentVolumeClaim:
+       claimName: my-pvc
+   

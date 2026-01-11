@@ -1,0 +1,38 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DICAS CKS - MONITORING/LOGGING
+
+map "FALCO" as falco {
+  Arquivos => /etc/falco/
+  Config => falco.yaml
+  Regras => falco_rules.yaml, falco_rules.local.yaml
+}
+
+map "ESTRUTURA DE REGRA" as regra {
+  rule => Nome da regra
+  desc => Descrição
+  condition => Quando alertar
+  output => Mensagem do alerta
+  priority => CRITICAL|WARNING|NOTICE|INFO
+}
+
+map "ELEMENTOS" as elementos {
+  rules => define alertas
+  macros => condições reutilizáveis
+  lists => listas de valores
+}
+
+map "COMANDOS" as comandos {
+  1 => journalctl -fu falco
+  2 => kubectl logs -f -n falco <pod>
+}
+
+map "LOGS IMPORTANTES" as logs {
+  1 => kubectl logs <pod>
+  2 => journalctl -u kubelet
+  3 => /var/log/kubernetes/audit/audit.log
+}
+
+@enduml

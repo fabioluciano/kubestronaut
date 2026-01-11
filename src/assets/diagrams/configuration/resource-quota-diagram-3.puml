@@ -1,0 +1,15 @@
+@startsalt
+{+
+  <b>RESOURCEQUOTA + LIMITRANGE</b>
+  ---
+  <b>PROBLEMA:</b>
+  ResourceQuota com compute resources (requests.cpu, etc)
+  REQUER que Pods definam requests/limits
+  .
+  Pod sem resources → REJEITADO
+  .
+  <b>SOLUÇÃO:</b>
+  Usar LimitRange para definir valores padrão
+  Pod sem resources → valores padrão aplicados → ACEITO
+}
+@endsalt

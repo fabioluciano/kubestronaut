@@ -1,0 +1,58 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Container Runtimes - Niveis de Isolamento
+
+rectangle "Container Padrao (runc)" as runc #lightcoral {
+    rectangle "Container A" as c1
+    rectangle "Container B" as c2
+}
+rectangle "Host Kernel" as kernel1
+
+c1 --> kernel1 : Syscalls diretas
+c2 --> kernel1 : Syscalls diretas
+
+note right of kernel1
+  Containers compartilham
+  o kernel do host.
+  **Menor isolamento.**
+  Namespaces e cgroups apenas.
+end note
+
+rectangle "gVisor (runsc)" as gvisor #lightgreen {
+    rectangle "Container C" as c3
+    rectangle "Sentry\n(kernel userspace)" as sentry
+}
+rectangle "Host Kernel" as kernel2
+
+c3 --> sentry : Syscalls interceptadas
+sentry --> kernel2 : Syscalls limitadas (~60)
+
+note right of sentry
+  Sentry intercepta syscalls
+  e implementa kernel em userspace.
+  **Isolamento aumentado.**
+  Escrito em Go, memory-safe.
+end note
+
+rectangle "Kata Containers" as kata #lightyellow {
+    rectangle "MicroVM" as vm {
+        rectangle "Container D" as c4
+        rectangle "Guest Kernel\n(Linux)" as gkernel
+    }
+}
+rectangle "Host Kernel + KVM" as kernel3
+
+c4 --> gkernel : Syscalls
+gkernel --> kernel3 : Virtualizacao HW
+
+note right of vm
+  Container executa em VM leve.
+  **Isolamento de hardware.**
+  Kernel dedicado por Pod.
+end note
+
+@enduml

@@ -1,0 +1,26 @@
+# Fase 1: Apenas warn
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: app-namespace
+  labels:
+    pod-security.kubernetes.io/warn: baseline
+    pod-security.kubernetes.io/audit: baseline
+---
+# Fase 2: Enforce baseline, warn restricted
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: app-namespace
+  labels:
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/warn: restricted
+    pod-security.kubernetes.io/audit: restricted
+---
+# Fase 3: Enforce restricted
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: app-namespace
+  labels:
+    pod-security.kubernetes.io/enforce: restricted

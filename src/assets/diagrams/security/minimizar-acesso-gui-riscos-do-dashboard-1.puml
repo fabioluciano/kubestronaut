@@ -1,0 +1,16 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Monospaced
+
+title RISCOS DO DASHBOARD
+
+rectangle "Riscos" {
+  card "Exposição via NodePort/LoadBalancer = Acesso externo" as r1
+  card "ServiceAccount com permissões excessivas" as r2
+  card "Tokens de autenticação vazados" as r3
+  card "Histórico: CVE-2018-18264 (bypass de autenticação)" as r4
+  card "Ataques de criptomineração via Dashboard exposto" as r5
+}
+
+@enduml

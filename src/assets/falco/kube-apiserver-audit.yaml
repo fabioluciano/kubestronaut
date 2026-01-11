@@ -1,0 +1,8 @@
+# /etc/kubernetes/manifests/kube-apiserver.yaml
+spec:
+  containers:
+  - command:
+    - kube-apiserver
+    - --audit-policy-file=/etc/kubernetes/audit-policy.yaml
+    - --audit-webhook-config-file=/etc/kubernetes/audit-webhook.yaml
+    - --audit-webhook-batch-max-wait=5s

@@ -1,0 +1,13 @@
+# Reservar recursos para sistema
+systemReserved:
+  cpu: 100m
+  memory: 100Mi
+  ephemeral-storage: 1Gi
+systemReservedCgroup: /system.slice
+
+# Reservar recursos para kubernetes
+kubeReserved:
+  cpu: 100m
+  memory: 100Mi
+  ephemeral-storage: 1Gi
+kubeReservedCgroup: /kubelet.slice

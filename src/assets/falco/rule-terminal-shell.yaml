@@ -1,0 +1,13 @@
+- rule: Terminal shell in container
+  desc: Detect shell opened in a container
+  condition: >
+    spawned_process and 
+    container and 
+    shell_procs and 
+    proc.tty != 0
+  output: >
+    Shell spawned in container 
+    (user=%user.name container=%container.name 
+    shell=%proc.name parent=%proc.pname)
+  priority: WARNING
+  tags: [container, shell, mitre_execution]

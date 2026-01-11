@@ -1,0 +1,48 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title TIPOS DE CLUSTERS POR AMBIENTE
+
+rectangle "DESENVOLVIMENTO" as dev {
+  card "Minikube" as mini
+  card "Kind" as kind
+  card "k3d" as k3d
+  card "Docker Desktop" as docker
+
+  note as ndev
+    - Single node
+    - Local
+    - Rapido para testar
+  end note
+}
+
+rectangle "PRODUCAO ON-PREMISES" as onprem {
+  card "kubeadm" as kubeadm
+  card "Kubespray" as kubespray
+  card "RKE" as rke
+  card "OpenShift" as openshift
+
+  note as nonprem
+    - Multi-node
+    - Full control
+    - Mais complexo
+  end note
+}
+
+rectangle "PRODUCAO CLOUD (Managed)" as cloud {
+  card "EKS (AWS)" as eks
+  card "GKE (Google)" as gke
+  card "AKS (Azure)" as aks
+  card "DOKS (Digital Ocean)" as doks
+
+  note as ncloud
+    - Control plane gerenciado
+    - Menos overhead operacional
+    - Custo por uso
+  end note
+}
+
+@enduml

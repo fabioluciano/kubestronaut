@@ -1,0 +1,22 @@
+# Equality-based selector (= ou !=)
+selector:
+  matchLabels:
+    app: nginx
+    env: prod
+
+# Set-based selector (in, notin, exists)
+selector:
+  matchExpressions:
+    - key: env
+      operator: In
+      values:
+        - prod
+        - staging
+    - key: tier
+      operator: NotIn
+      values:
+        - backend
+    - key: release
+      operator: Exists
+    - key: deprecated
+      operator: DoesNotExist

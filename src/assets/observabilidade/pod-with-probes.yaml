@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: app-with-probes
+spec:
+  containers:
+  - name: app
+    image: nginx
+    ports:
+    - containerPort: 80
+    
+    # Verifica se container está vivo
+    livenessProbe:
+      httpGet:
+        path: /healthz
+        port: 80
+      initialDelaySeconds: 15
+      periodSeconds: 10
+      failureThreshold: 3
+      successThreshold: 1
+    
+    # Verifica se pode receber tráfego
+    readinessProbe:
+      httpGet:
+        path: /ready
+        port: 80
+      initialDelaySeconds: 5
+      periodSeconds: 5
+      failureThreshold: 3
+      successThreshold: 1
+    
+    # Verifica inicialização (apps lentas)
+    startupProbe:
+      httpGet:
+        path: /startup
+        port: 80
+      failureThreshold: 30
+      periodSeconds: 10

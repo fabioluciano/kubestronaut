@@ -1,0 +1,5 @@
+livenessProbe:
+  grpc:
+    port: 50051
+    service: my.health.v1.Health
+  initialDelaySeconds: 10

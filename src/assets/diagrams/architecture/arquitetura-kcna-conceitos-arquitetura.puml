@@ -1,0 +1,16 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title KCNA - CONCEITOS ARQUITETURA
+
+card "Control Plane:\nCerebro do cluster\nAPI Server, etcd, Scheduler, CM" as c1
+card "Worker Node:\nOnde pods executam\nkubelet, kube-proxy, runtime" as c2
+card "etcd:\nBanco de dados\nArmazena todo estado" as c3
+card "API Server:\nPonto central\nToda comunicacao passa por ele" as c4
+card "Scheduler:\nDecide onde pod roda\nFiltering + Scoring" as c5
+card "Controllers:\nReconciliam estado\nAtual vs Desejado" as c6
+
+@enduml

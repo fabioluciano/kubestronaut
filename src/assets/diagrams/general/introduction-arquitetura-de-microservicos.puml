@@ -1,0 +1,43 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Arquitetura de Microservicos
+
+rectangle "Aplicacao E-commerce" {
+  rectangle "Frontend" as FE {
+    card "React App" as REACT
+  }
+
+  rectangle "API Gateway" as GW {
+    card "Kong/Nginx" as KONG
+  }
+
+  rectangle "Servicos" as SVCS {
+    card "Catalogo" as CAT
+    card "Carrinho" as CART
+    card "Pagamento" as PAY
+    card "Usuarios" as USER
+  }
+
+  rectangle "Dados" as DATA {
+    database "PostgreSQL" as PG
+    database "Redis" as REDIS
+    database "MongoDB" as MONGO
+  }
+}
+
+REACT --> KONG
+KONG --> CAT
+KONG --> CART
+KONG --> PAY
+KONG --> USER
+
+CAT --> PG
+CART --> REDIS
+PAY --> PG
+USER --> MONGO
+
+@enduml

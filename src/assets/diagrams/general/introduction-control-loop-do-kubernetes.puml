@@ -1,0 +1,26 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Control Loop do Kubernetes
+
+rectangle "Control Loop" {
+  card "Estado Desejado\n(YAML)" as DESIRED
+  card "Estado Atual\n(Cluster)" as ACTUAL
+  card "Controller" as CTRL
+}
+
+DESIRED --> CTRL : 1. Observa
+ACTUAL --> CTRL : 2. Compara
+CTRL --> ACTUAL : 3. Reconcilia
+
+note bottom of CTRL
+  O Controller continuamente:
+  1. Observa o estado desejado
+  2. Compara com estado atual
+  3. Faz alteracoes para reconciliar
+end note
+
+@enduml

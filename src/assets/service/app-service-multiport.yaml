@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-service
+spec:
+  selector:
+    app: myapp
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8080
+  - name: https
+    port: 443
+    targetPort: 8443
+  - name: metrics
+    port: 9090
+    targetPort: 9090
+---
+# Os endpoints terão múltiplas portas
+# kubectl get ep app-service
+# NAME          ENDPOINTS
+# app-service   10.244.1.5:8080,10.244.1.5:8443,10.244.1.5:9090,...

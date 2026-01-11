@@ -1,0 +1,11 @@
+# Pod privileged - apenas no level privileged
+apiVersion: v1
+kind: Pod
+metadata:
+  name: privileged-pod
+spec:
+  containers:
+  - name: app
+    image: nginx
+    securityContext:
+      privileged: true  # ❌ Bloqueado em baseline/restricted

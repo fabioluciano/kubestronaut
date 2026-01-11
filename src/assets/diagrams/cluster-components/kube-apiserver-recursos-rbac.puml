@@ -1,0 +1,31 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Recursos RBAC
+
+package "Namespace-scoped" {
+    rectangle "Role" as role {
+        [rules:\n- apiGroups\n- resources\n- verbs]
+    }
+    rectangle "RoleBinding" as rb {
+        [subjects:\n- User/Group/SA\nroleRef:\n- Role]
+    }
+}
+
+package "Cluster-scoped" {
+    rectangle "ClusterRole" as cr {
+        [rules:\n- apiGroups\n- resources\n- verbs\n- nonResourceURLs]
+    }
+    rectangle "ClusterRoleBinding" as crb {
+        [subjects:\n- User/Group/SA\nroleRef:\n- ClusterRole]
+    }
+}
+
+role <-- rb : referencia
+cr <-- crb : referencia
+cr <-- rb : pode referenciar\n(permissoes limitadas\nao namespace)
+
+@enduml

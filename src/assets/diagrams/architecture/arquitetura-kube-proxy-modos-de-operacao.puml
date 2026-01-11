@@ -1,0 +1,36 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title KUBE-PROXY - MODOS DE OPERACAO
+
+rectangle "iptables mode (padrao)" as ipt {
+  note as n1
+    - Usa regras iptables
+    - Random load balancing
+    - Mais simples
+    - Menos overhead
+  end note
+}
+
+rectangle "IPVS mode" as ipvs {
+  note as n2
+    - Usa IPVS do kernel
+    - Mais algoritmos de LB
+    - Melhor performance
+    - Mais escalavel
+  end note
+}
+
+rectangle "userspace mode (legado)" as user {
+  note as n3
+    - Proxy em user space
+    - Round-robin LB
+    - Mais lento
+    - Evitar
+  end note
+}
+
+@enduml

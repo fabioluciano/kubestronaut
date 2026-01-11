@@ -1,0 +1,37 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title ACCESS MODES
+
+rectangle "ReadWriteOnce (RWO)" {
+  node "Node 1" as n1 {
+    card "Pod A (R/W)" as p1
+  }
+  node "Node 2" as n2 {
+    card "Pod B (X)" as p2
+  }
+  note bottom: Um Node pode montar R/W
+}
+
+rectangle "ReadOnlyMany (ROX)" {
+  node "Node 3" as n3 {
+    card "Pod C (RO)" as p3
+  }
+  node "Node 4" as n4 {
+    card "Pod D (RO)" as p4
+  }
+  note bottom: Varios Nodes podem montar RO
+}
+
+rectangle "ReadWriteMany (RWX)" {
+  node "Node 5" as n5 {
+    card "Pod E (R/W)" as p5
+  }
+  node "Node 6" as n6 {
+    card "Pod F (R/W)" as p6
+  }
+  note bottom: Varios Nodes podem montar R/W
+}
+
+@enduml

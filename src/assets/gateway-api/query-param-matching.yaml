@@ -1,0 +1,6 @@
+rules:
+  - matches:
+      - queryParams:
+          - name: version
+            value: "2"
+            type: Exact

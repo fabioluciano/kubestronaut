@@ -1,0 +1,29 @@
+@startuml
+skinparam monochrome true
+
+title SOFTWARE SUPPLY CHAIN
+
+rectangle "Código" as code
+rectangle "Build" as build
+rectangle "Image" as image
+rectangle "Registry" as registry
+rectangle "Deploy" as deploy
+rectangle "Runtime" as runtime
+
+code -> build : SAST\nLint
+build -> image : SBOM\nBuild
+image -> registry : Scan\nCVE
+registry -> deploy : Sign/Verify\nAdmission\nOPA
+deploy -> runtime : Policy\nPSA
+runtime -> runtime : Monitor\nRuntime Security
+
+note bottom of image
+  **Ferramentas:**
+  • Trivy - Scan de vulnerabilidades
+  • Syft - Gerar SBOM
+  • Grype - Scan de SBOM
+  • Cosign - Assinatura de imagens
+  • Kube-linter - Lint de manifests
+  • Kubesec - Security scan de manifests
+end note
+@enduml

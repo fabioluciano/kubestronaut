@@ -1,0 +1,29 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title MULTI-STAGE BUILD
+
+rectangle "Stage 1: Build" as s1 {
+  card "Compilador" as c1
+  card "Dependencias dev" as d1
+  card "Codigo fonte" as src
+  card "Binario" as bin
+}
+
+rectangle "Stage 2: Runtime" as s2 {
+  card "Imagem minima" as min
+  card "Binario" as bin2
+}
+
+s1 -[hidden]down-> s2
+bin --> bin2 : COPY --from
+
+note bottom of s2
+  Imagem final contem
+  apenas o necessario
+end note
+
+@enduml

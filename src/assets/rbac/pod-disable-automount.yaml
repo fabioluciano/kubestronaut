@@ -1,0 +1,18 @@
+# Desabilitar no Pod
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-app
+spec:
+  serviceAccountName: my-app-sa
+  automountServiceAccountToken: false  # Não monta token
+  containers:
+  - name: app
+    image: nginx
+---
+# Desabilitar na ServiceAccount (afeta todos os Pods)
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: my-app-sa
+automountServiceAccountToken: false

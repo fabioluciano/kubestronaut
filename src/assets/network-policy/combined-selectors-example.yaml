@@ -1,0 +1,21 @@
+# ATENÇÃO: Diferença crítica!
+
+# Dois seletores SEPARADOS (OU lógico)
+ingress:
+  - from:
+      - podSelector:           # Qualquer Pod com app=frontend
+          matchLabels:
+            app: frontend
+      - namespaceSelector:     # OU qualquer Pod de namespace production
+          matchLabels:
+            env: production
+
+# Dois seletores COMBINADOS (E lógico)
+ingress:
+  - from:
+      - podSelector:           # Pods com app=frontend
+          matchLabels:         # E que estão em namespace production
+            app: frontend
+        namespaceSelector:
+          matchLabels:
+            env: production

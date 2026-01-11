@@ -1,0 +1,25 @@
+# Estado desejado declarado em YAML
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minha-aplicacao
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: minha-aplicacao
+  template:
+    metadata:
+      labels:
+        app: minha-aplicacao
+    spec:
+      containers:
+      - name: app
+        image: minha-imagem:v1.0
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+          limits:
+            memory: "128Mi"
+            cpu: "500m"

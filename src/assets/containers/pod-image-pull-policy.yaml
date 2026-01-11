@@ -1,0 +1,8 @@
+spec:
+  containers:
+  - name: app
+    image: myapp:1.0
+    # Always: Sempre faz pull (default para :latest)
+    # IfNotPresent: Só faz pull se não existir (default para tags)
+    # Never: Nunca faz pull (usa local)
+    imagePullPolicy: Always

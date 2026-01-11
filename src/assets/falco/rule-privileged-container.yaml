@@ -1,0 +1,12 @@
+- rule: Launch Privileged Container
+  desc: Detect privileged container started
+  condition: >
+    spawned_process and 
+    container and 
+    container.privileged=true
+  output: >
+    Privileged container started 
+    (user=%user.name container=%container.name 
+    image=%container.image.repository)
+  priority: CRITICAL
+  tags: [container, cis, mitre_privilege_escalation]

@@ -1,0 +1,89 @@
+# Pod completo usando gVisor
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sandboxed-app
+  namespace: untrusted-workloads
+  labels:
+    app: sandboxed-app
+    runtime: gvisor
+  annotations:
+    description: "Aplicacao executando em sandbox gVisor"
+spec:
+  # RuntimeClass para usar gVisor
+  runtimeClassName: gvisor
+
+  # Configuracoes de seguranca adicionais
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 10000
+    runAsGroup: 10000
+    fsGroup: 10000
+    seccompProfile:
+      type: RuntimeDefault
+
+  # Nao montar token de service account
+  automountServiceAccountToken: false
+
+  containers:
+  - name: app
+    image: nginx:1.25-alpine
+    imagePullPolicy: Always
+
+    securityContext:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      capabilities:
+        drop:
+          - ALL
+
+    ports:
+    - containerPort: 8080
+      protocol: TCP
+
+    resources:
+      requests:
+        cpu: 100m
+        memory: 64Mi
+      limits:
+        cpu: 500m
+        memory: 256Mi
+
+    # Volumes para filesystem read-only
+    volumeMounts:
+    - name: tmp
+      mountPath: /tmp
+    - name: var-cache
+      mountPath: /var/cache/nginx
+    - name: var-run
+      mountPath: /var/run
+
+    livenessProbe:
+      httpGet:
+        path: /healthz
+        port: 8080
+      initialDelaySeconds: 10
+      periodSeconds: 10
+
+    readinessProbe:
+      httpGet:
+        path: /ready
+        port: 8080
+      initialDelaySeconds: 5
+      periodSeconds: 5
+
+  volumes:
+  - name: tmp
+    emptyDir:
+      medium: Memory
+      sizeLimit: 100Mi
+  - name: var-cache
+    emptyDir: {}
+  - name: var-run
+    emptyDir: {}
+
+  # DNS policy
+  dnsPolicy: ClusterFirst
+
+  # Restart policy
+  restartPolicy: Always

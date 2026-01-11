@@ -1,0 +1,35 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title POD LIFECYCLE
+
+[*] --> Pending
+Pending --> Running
+Pending --> Unschedulable
+Running --> Succeeded : exit 0
+Running --> Failed : exit != 0
+Succeeded --> [*]
+Failed --> [*]
+
+note right of Pending
+  Aceito, mas containers
+  não criados
+end note
+
+note right of Running
+  Pelo menos um
+  container rodando
+end note
+
+note right of Succeeded
+  Todos containers terminaram
+  com sucesso (exit 0)
+end note
+
+note right of Failed
+  Pelo menos um
+  container falhou
+end note
+
+@enduml

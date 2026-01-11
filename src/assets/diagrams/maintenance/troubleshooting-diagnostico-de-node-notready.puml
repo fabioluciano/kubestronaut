@@ -1,0 +1,38 @@
+@startuml
+
+skinparam backgroundColor white
+
+title Diagnostico de Node NotReady
+
+start
+:kubectl get nodes;
+:Node STATUS = NotReady;
+
+:kubectl describe node <node>;
+:Verificar Conditions;
+
+if (MemoryPressure = True?) then (sim)
+  :Verificar memoria;
+  :free -h;
+else (nao)
+  if (DiskPressure = True?) then (sim)
+    :Verificar disco;
+    :df -h;
+  else (nao)
+    if (PIDPressure = True?) then (sim)
+      :Verificar PIDs;
+      :ps aux | wc -l;
+    else (nao)
+      if (NetworkUnavailable = True?) then (sim)
+        :Verificar CNI;
+      else (nao)
+        :Verificar kubelet;
+        :systemctl status kubelet;
+      endif
+    endif
+  endif
+endif
+
+stop
+
+@enduml

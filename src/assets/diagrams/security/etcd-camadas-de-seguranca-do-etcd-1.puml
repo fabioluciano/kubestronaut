@@ -1,0 +1,36 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Camadas de Seguranca do etcd
+
+rectangle "Seguranca do etcd" {
+    rectangle "1. TLS para Comunicacao" as tls #lightblue {
+        card "Client TLS" as ctls
+        card "Peer TLS" as ptls
+    }
+
+    rectangle "2. Criptografia em Repouso" as enc #lightgreen {
+        card "aescbc" as aescbc
+        card "aesgcm" as aesgcm
+        card "kms" as kms
+    }
+
+    rectangle "3. Controle de Acesso" as access #lightyellow {
+        card "RBAC do etcd" as rbac
+        card "Certificados cliente" as certs
+    }
+
+    rectangle "4. Backup Seguro" as backup #pink {
+        card "Snapshots criptografados" as snap
+        card "Armazenamento seguro" as store
+    }
+}
+
+tls -down-> enc
+enc -down-> access
+access -down-> backup
+
+@enduml

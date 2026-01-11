@@ -1,0 +1,34 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title RBAC
+
+rectangle "WHO (Subject)" {
+  card "User" as u
+  card "Group" as g
+  card "ServiceAccount" as sa
+}
+
+rectangle "WHAT (Rules)" {
+  card "Role" as r
+  card "ClusterRole" as cr
+}
+
+rectangle "BINDING" {
+  card "RoleBinding" as rb
+  card "ClusterRoleBinding" as crb
+}
+
+u --> rb
+g --> rb
+sa --> rb
+r --> rb
+cr --> crb
+
+note bottom
+  Role/RoleBinding = Namespace scope
+  ClusterRole/ClusterRoleBinding = Cluster scope
+end note
+
+@enduml

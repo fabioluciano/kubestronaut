@@ -1,0 +1,20 @@
+# Pod criado:
+apiVersion: v1
+kind: Pod
+metadata:
+  name: no-resources
+  namespace: development
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+    # Sem resources definidos
+
+# Resultado (após LimitRange aplicar):
+# resources:
+#   requests:
+#     cpu: "100m"      (defaultRequest)
+#     memory: "128Mi"  (defaultRequest)
+#   limits:
+#     cpu: "500m"      (default)
+#     memory: "512Mi"  (default)

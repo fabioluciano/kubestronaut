@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: NOME
+spec:
+  selector:
+    matchLabels:
+      app: LABEL
+  template:
+    metadata:
+      labels:
+        app: LABEL
+    spec:
+      # Para rodar em todos os Nodes incluindo control plane:
+      tolerations:
+      - operator: Exists
+      containers:
+      - name: CONTAINER
+        image: IMAGE

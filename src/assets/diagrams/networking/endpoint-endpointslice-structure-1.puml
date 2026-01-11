@@ -1,0 +1,50 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Monospaced
+
+title ENDPOINTSLICE STRUCTURE
+
+object "EndpointSlice" as es {
+  max 100 endpoints por slice
+}
+
+object "addressType" as at {
+  IPv4 | IPv6 | FQDN
+}
+
+object "ports[]" as ports {
+  name: http
+  port: 8080
+  protocol: TCP
+}
+
+object "endpoints[]" as endpoints {
+  addresses: ["10.244.1.5"]
+}
+
+object "conditions" as cond {
+  ready: true/false
+  serving: true/false
+  terminating: true/false
+}
+
+object "metadata" as meta {
+  hostname: pod-name
+  nodeName: worker-1
+  zone: us-east-1a
+}
+
+object "targetRef" as tref {
+  kind: Pod
+  name: web-abc123
+}
+
+es --> at
+es --> ports
+es --> endpoints
+endpoints --> cond
+endpoints --> meta
+endpoints --> tref
+
+@enduml

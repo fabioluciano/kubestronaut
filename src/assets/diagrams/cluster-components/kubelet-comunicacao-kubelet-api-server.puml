@@ -1,0 +1,34 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Comunicacao kubelet - API Server
+
+participant "kube-apiserver" as api
+participant "kubelet" as kubelet
+
+note over api,kubelet: kubelet -> API Server
+
+kubelet -> api : Registra node
+kubelet -> api : Watch pods para este node
+kubelet -> api : Atualiza status do node
+kubelet -> api : Atualiza status dos pods
+
+note over api,kubelet: API Server -> kubelet
+
+api -> kubelet : exec into pod
+api -> kubelet : port-forward
+api -> kubelet : logs
+api -> kubelet : attach
+
+note right of api
+  API Server usa
+  certificados para
+  autenticar no kubelet
+  --kubelet-client-certificate
+  --kubelet-client-key
+end note
+
+@enduml

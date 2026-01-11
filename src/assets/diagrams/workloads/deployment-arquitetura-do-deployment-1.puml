@@ -1,0 +1,49 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Arquitetura do Deployment
+
+package "Deployment Controller" {
+    [Deployment] as DEP
+    [ReplicaSet v1] as RS1
+    [ReplicaSet v2] as RS2
+
+    package "Pods v1 (antiga)" {
+        [Pod 1a] as P1A
+    }
+
+    package "Pods v2 (nova)" {
+        [Pod 2a] as P2A
+        [Pod 2b] as P2B
+        [Pod 2c] as P2C
+    }
+}
+
+DEP --> RS1 : gerencia\n(scale down)
+DEP --> RS2 : gerencia\n(scale up)
+RS1 --> P1A : controla
+RS2 --> P2A : controla
+RS2 --> P2B : controla
+RS2 --> P2C : controla
+
+note right of DEP
+    Deployment controla:
+    - Estrategia de update
+    - Numero de revisoes
+    - Rollback
+end note
+
+note bottom of RS1
+    ReplicaSet antigo:
+    replicas: 1 (scaling down)
+end note
+
+note bottom of RS2
+    ReplicaSet novo:
+    replicas: 3 (scaling up)
+end note
+
+@enduml

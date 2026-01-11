@@ -1,0 +1,23 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+
+title FLUXO DE BACKUP DO ETCD
+
+start
+:Configurar ETCDCTL_API=3;
+:Identificar certificados;
+:Executar snapshot save;
+:Verificar integridade do snapshot;
+:Armazenar em local seguro;
+stop
+
+note right
+  Backup REQUER:
+  - Certificados TLS
+  - Acesso ao endpoint
+  - Permissoes de escrita
+    no destino
+end note
+
+@enduml

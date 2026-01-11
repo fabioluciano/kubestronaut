@@ -1,0 +1,15 @@
+metadata:
+  annotations:
+    # Informações descritivas
+    description: "Frontend web server para aplicação principal"
+    
+    # Controle de versão
+    kubernetes.io/change-cause: "Image update to nginx:1.25"
+    
+    # Informações de CI/CD
+    ci.jenkins.io/build-number: "42"
+    git-commit: "abc123def456"
+    
+    # Configurações de ferramentas
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9090"

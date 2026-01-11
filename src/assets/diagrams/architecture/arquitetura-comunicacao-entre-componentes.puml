@@ -1,0 +1,33 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title COMUNICACAO ENTRE COMPONENTES
+
+rectangle "Control Plane" {
+  component "API Server\n(6443)" as api
+  database "etcd\n(2379/2380)" as etcd
+  component "Scheduler\n(10259)" as sched
+  component "Controller Manager\n(10257)" as cm
+}
+
+rectangle "Worker Node" {
+  component "kubelet\n(10250)" as kubelet
+  component "kube-proxy\n(10256)" as proxy
+}
+
+api <--> etcd : gRPC/TLS
+api <--> sched : HTTPS
+api <--> cm : HTTPS
+api <--> kubelet : HTTPS
+api <--> proxy : HTTPS
+
+note right of api
+  Todas conexoes sao
+  TLS mutuamente autenticadas
+  (exceto metrics/healthz)
+end note
+
+@enduml

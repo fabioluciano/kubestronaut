@@ -1,0 +1,7 @@
+# CIS 1.2.1 - Ensure --anonymous-auth is set to false
+# Verificar em /etc/kubernetes/manifests/kube-apiserver.yaml
+spec:
+  containers:
+  - command:
+    - kube-apiserver
+    - --anonymous-auth=false  # Recomendado

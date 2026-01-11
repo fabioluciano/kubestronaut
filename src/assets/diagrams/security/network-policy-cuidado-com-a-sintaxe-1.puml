@@ -1,0 +1,21 @@
+@startuml
+skinparam monochrome true
+
+title ⚠️ CUIDADO COM A SINTAXE
+
+rectangle "OU lógico (dois itens)" {
+  note as N1
+    from:
+      - podSelector: {...}
+      - namespaceSelector: {...}
+  end note
+}
+
+rectangle "E lógico (um item)" {
+  note as N2
+    from:
+      - podSelector: {...}
+        namespaceSelector: {...}
+  end note
+}
+@enduml

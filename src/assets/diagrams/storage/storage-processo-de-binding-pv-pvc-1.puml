@@ -1,0 +1,26 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title PROCESSO DE BINDING PV-PVC
+
+rectangle "PVC Criado" as pvc {
+  card "accessModes: RWO" as am1
+  card "storage: 5Gi" as s1
+  card "storageClassName: manual" as sc1
+}
+
+rectangle "PV Disponivel" as pv {
+  card "accessModes: RWO" as am2
+  card "capacity: 10Gi" as s2
+  card "storageClassName: manual" as sc2
+}
+
+pvc --> pv : Match!\n1. accessModes compativeis\n2. capacity >= request\n3. storageClassName igual
+
+note bottom of pv
+  PVC pode usar ate 10Gi
+  mesmo solicitando 5Gi
+end note
+
+@enduml

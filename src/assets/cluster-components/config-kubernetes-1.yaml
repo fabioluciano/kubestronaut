@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: Config
+current-context: kubernetes-admin@kubernetes
+
+clusters:
+- name: kubernetes
+  cluster:
+    server: https://192.168.1.10:6443
+    certificate-authority-data: LS0tLS1...
+
+- name: development
+  cluster:
+    server: https://dev.example.com:6443
+    certificate-authority-data: LS0tLS1...
+
+users:
+- name: kubernetes-admin
+  user:
+    client-certificate-data: LS0tLS1...
+    client-key-data: LS0tLS1...
+
+- name: developer
+  user:
+    token: eyJhbGciOiJSUzI1NiIsImtpZCI6...
+
+contexts:
+- name: kubernetes-admin@kubernetes
+  context:
+    cluster: kubernetes
+    user: kubernetes-admin
+    namespace: default
+
+- name: dev-context
+  context:
+    cluster: development
+    user: developer
+    namespace: development

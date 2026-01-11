@@ -1,0 +1,33 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title TRÊS PILARES DA OBSERVABILIDADE
+
+rectangle "MÉTRICAS" {
+  card "Números agregados" as m
+  note bottom of m
+    Prometheus
+    Grafana
+  end note
+}
+
+rectangle "LOGS" {
+  card "Eventos discretos" as l
+  note bottom of l
+    Fluentd
+    Loki
+    Elasticsearch
+  end note
+}
+
+rectangle "TRACES" {
+  card "Requests end-to-end" as t
+  note bottom of t
+    Jaeger
+    Zipkin
+    Tempo
+  end note
+}
+
+@enduml

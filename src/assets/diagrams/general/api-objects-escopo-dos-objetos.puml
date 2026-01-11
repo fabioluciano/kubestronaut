@@ -1,0 +1,30 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title ESCOPO DOS OBJETOS
+
+rectangle "NAMESPACE-SCOPED (isolados por namespace)" #lightblue {
+  card "Pods" as p1
+  card "Deployments, ReplicaSets, StatefulSets, DaemonSets" as p2
+  card "Services, Endpoints" as p3
+  card "ConfigMaps, Secrets" as p4
+  card "PersistentVolumeClaims" as p5
+  card "Jobs, CronJobs" as p6
+  card "Roles, RoleBindings" as p7
+  card "ServiceAccounts" as p8
+  card "NetworkPolicies" as p9
+  card "Ingresses" as p10
+}
+
+rectangle "CLUSTER-SCOPED (globais no cluster)" #lightyellow {
+  card "Nodes" as c1
+  card "Namespaces" as c2
+  card "PersistentVolumes" as c3
+  card "StorageClasses" as c4
+  card "ClusterRoles, ClusterRoleBindings" as c5
+  card "CustomResourceDefinitions (CRDs)" as c6
+  card "PriorityClasses" as c7
+}
+
+@enduml

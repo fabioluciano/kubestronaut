@@ -1,0 +1,18 @@
+# Este Pod será REJEITADO se max.cpu = 2
+apiVersion: v1
+kind: Pod
+metadata:
+  name: too-much-cpu
+  namespace: development
+spec:
+  containers:
+  - name: heavy
+    image: nginx
+    resources:
+      limits:
+        cpu: "4"       # Excede max de 2
+        memory: "1Gi"
+
+# Erro:
+# Error from server (Forbidden): pods "too-much-cpu" is forbidden: 
+# maximum cpu usage per Container is 2, but limit is 4

@@ -1,0 +1,32 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Alta Disponibilidade no Kubernetes
+
+rectangle "Cluster Kubernetes" {
+  rectangle "Node 1" as N1 {
+    card "Pod A" as P1A
+    card "Pod B" as P1B
+  }
+
+  rectangle "Node 2" as N2 {
+    card "Pod A" as P2A
+    card "Pod C" as P2C
+  }
+
+  rectangle "Node 3" as N3 {
+    card "Pod B" as P3B
+    card "Pod C" as P3C
+  }
+}
+
+note bottom of N1
+  Se um node falhar,
+  os pods sao redistribuidos
+  automaticamente
+end note
+
+@enduml

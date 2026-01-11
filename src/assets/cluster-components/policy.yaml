@@ -1,0 +1,50 @@
+# /etc/kubernetes/audit/policy.yaml
+apiVersion: audit.k8s.io/v1
+kind: Policy
+# Eventos gerados em cada estagio da requisicao
+# RequestReceived, ResponseStarted, ResponseComplete, Panic
+omitStages:
+  - "RequestReceived"
+
+rules:
+  # Regra 1: Nao logar health checks e metricas
+  - level: None
+    nonResourceURLs:
+    - "/healthz*"
+    - "/livez*"
+    - "/readyz*"
+    - "/metrics"
+
+  # Regra 2: Nao logar leitura de ConfigMaps e Secrets do sistema
+  - level: None
+    resources:
+    - group: ""
+      resources: ["configmaps", "secrets"]
+    namespaces: ["kube-system"]
+    verbs: ["get", "list", "watch"]
+
+  # Regra 3: Log apenas metadata para secrets (oculta dados sensiveis)
+  - level: Metadata
+    resources:
+    - group: ""
+      resources: ["secrets"]
+    omitStages:
+      - "RequestReceived"
+
+  # Regra 4: Log completo para operacoes de escrita em pods
+  - level: RequestResponse
+    resources:
+    - group: ""
+      resources: ["pods"]
+    verbs: ["create", "update", "patch", "delete"]
+
+  # Regra 5: Log de request para operacoes privilegiadas
+  - level: Request
+    resources:
+    - group: ""
+      resources: ["pods/exec", "pods/attach", "pods/portforward"]
+
+  # Regra 6: Metadata para tudo mais
+  - level: Metadata
+    omitStages:
+      - "RequestReceived"

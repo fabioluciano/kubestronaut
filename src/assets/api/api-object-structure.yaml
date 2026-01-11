@@ -1,0 +1,17 @@
+# Campos obrigatórios em todo objeto
+apiVersion: v1           # API group/version
+kind: Pod                # Tipo do recurso
+metadata:                # Identificação do objeto
+  name: nginx            # Nome único no namespace
+  namespace: default     # Namespace (se namespaced)
+  labels:                # Key-value para seleção
+    app: nginx
+  annotations:           # Metadata adicional
+    description: "Web server"
+spec:                    # Estado desejado
+  containers:
+  - name: nginx
+    image: nginx:1.21
+status:                  # Estado atual (read-only, gerenciado pelo K8s)
+  phase: Running
+  podIP: 10.244.0.5

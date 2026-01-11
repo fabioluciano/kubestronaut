@@ -1,0 +1,17 @@
+apiVersion: certificates.k8s.io/v1
+kind: CertificateSigningRequest
+metadata:
+  name: john
+spec:
+  # CSR codificado em base64
+  request: LS0tLS1CRUdJTi... # cole o base64 aqui
+  
+  # Tipo de assinador
+  signerName: kubernetes.io/kube-apiserver-client
+  
+  # Para que o certificado será usado
+  usages:
+    - client auth
+  
+  # Opcional: expiração (padrão ~1 ano)
+  expirationSeconds: 86400  # 24 horas

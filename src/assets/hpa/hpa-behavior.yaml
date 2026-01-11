@@ -1,0 +1,40 @@
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: controlled-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: my-app
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 50
+  
+  behavior:
+    # Políticas de Scale Up
+    scaleUp:
+      stabilizationWindowSeconds: 0    # Escala imediatamente
+      policies:
+      - type: Percent
+        value: 100                      # Dobra pods por vez
+        periodSeconds: 15
+      - type: Pods
+        value: 4                        # Ou adiciona 4 pods
+        periodSeconds: 15
+      selectPolicy: Max                 # Usa o maior valor
+    
+    # Políticas de Scale Down
+    scaleDown:
+      stabilizationWindowSeconds: 300  # Espera 5min estável
+      policies:
+      - type: Percent
+        value: 10                       # Remove 10% por vez
+        periodSeconds: 60
+      selectPolicy: Min                 # Usa o menor valor

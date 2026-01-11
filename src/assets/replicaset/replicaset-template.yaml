@@ -1,0 +1,17 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: NOME
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: LABEL
+  template:
+    metadata:
+      labels:
+        app: LABEL  # DEVE corresponder ao selector
+    spec:
+      containers:
+      - name: CONTAINER
+        image: IMAGE

@@ -1,0 +1,36 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title KUBERNETES API - VISAO GERAL
+
+actor "Usuario" as user
+actor "kubectl" as kubectl
+actor "SDK/Client" as sdk
+
+rectangle "kube-apiserver" as api {
+  component "REST API" as rest
+  component "Authentication" as auth
+  component "Authorization" as authz
+  component "Admission Control" as adm
+}
+
+database "etcd" as etcd
+
+user --> kubectl : comandos
+kubectl --> rest : HTTP/JSON
+sdk --> rest : HTTP/JSON
+rest --> auth : 1. Autenticar
+auth --> authz : 2. Autorizar
+authz --> adm : 3. Validar
+adm --> etcd : 4. Persistir
+
+note bottom of api
+  Toda comunicacao passa pelo API Server
+  Nenhum componente acessa etcd diretamente
+  (exceto o proprio API Server)
+end note
+
+@enduml

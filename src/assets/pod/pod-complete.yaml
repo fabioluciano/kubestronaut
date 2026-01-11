@@ -1,0 +1,99 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-app
+  namespace: default
+  labels:
+    app: my-app
+    env: production
+  annotations:
+    description: "Main application pod"
+spec:
+  # Configurações do Pod
+  restartPolicy: Always           # Always, OnFailure, Never
+  terminationGracePeriodSeconds: 30
+  serviceAccountName: my-sa
+  automountServiceAccountToken: false
+  
+  # Security Context (nível Pod)
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 2000
+    seccompProfile:
+      type: RuntimeDefault
+  
+  # Scheduling
+  nodeName: node1                  # Fixar em node específico
+  nodeSelector:
+    disktype: ssd
+  
+  # Containers
+  containers:
+  - name: app
+    image: my-app:v1
+    imagePullPolicy: IfNotPresent  # Always, Never, IfNotPresent
+    
+    # Portas
+    ports:
+    - containerPort: 8080
+      name: http
+      protocol: TCP
+    
+    # Recursos
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "100m"
+      limits:
+        memory: "256Mi"
+        cpu: "200m"
+    
+    # Environment
+    env:
+    - name: ENV
+      value: "production"
+    - name: SECRET_KEY
+      valueFrom:
+        secretKeyRef:
+          name: my-secret
+          key: key
+    
+    # Probes
+    livenessProbe:
+      httpGet:
+        path: /healthz
+        port: 8080
+      initialDelaySeconds: 15
+      periodSeconds: 10
+    
+    readinessProbe:
+      httpGet:
+        path: /ready
+        port: 8080
+      initialDelaySeconds: 5
+      periodSeconds: 5
+    
+    # Security Context (nível Container)
+    securityContext:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      capabilities:
+        drop:
+          - ALL
+    
+    # Volume Mounts
+    volumeMounts:
+    - name: data
+      mountPath: /data
+    - name: cache
+      mountPath: /tmp
+  
+  # Volumes
+  volumes:
+  - name: data
+    persistentVolumeClaim:
+      claimName: my-pvc
+  - name: cache
+    emptyDir: {}

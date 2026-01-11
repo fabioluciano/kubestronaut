@@ -1,0 +1,17 @@
+@startuml
+
+skinparam backgroundColor white
+
+title Estados do Pod
+
+[*] --> Pending
+Pending --> Running : Scheduled + Containers Started
+Pending --> Failed : Cannot Schedule
+Running --> Succeeded : All Containers Exit 0
+Running --> Failed : Container Exit != 0
+Running --> CrashLoopBackOff : Repeated Failures
+CrashLoopBackOff --> Running : Container Restarts
+Failed --> [*]
+Succeeded --> [*]
+
+@enduml

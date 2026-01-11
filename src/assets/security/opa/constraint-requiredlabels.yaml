@@ -1,0 +1,16 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sRequiredLabels  # Tipo criado pelo ConstraintTemplate
+metadata:
+  name: require-team-label
+spec:
+  enforcementAction: deny  # deny, dryrun, warn
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+      - apiGroups: ["apps"]
+        kinds: ["Deployment", "ReplicaSet", "DaemonSet", "StatefulSet"]
+    namespaces: ["default", "production"]  # Namespaces a aplicar
+    excludedNamespaces: ["kube-system"]    # Namespaces a excluir
+  parameters:
+    labels: ["team", "environment"]  # Parâmetros definidos no Template

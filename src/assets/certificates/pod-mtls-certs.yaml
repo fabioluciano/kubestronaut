@@ -1,0 +1,24 @@
+# Pod com certificados montados
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-service
+spec:
+  containers:
+  - name: app
+    image: my-app
+    volumeMounts:
+    - name: certs
+      mountPath: /etc/certs
+      readOnly: true
+    env:
+    - name: TLS_CERT_FILE
+      value: /etc/certs/tls.crt
+    - name: TLS_KEY_FILE
+      value: /etc/certs/tls.key
+    - name: TLS_CA_FILE
+      value: /etc/certs/ca.crt
+  volumes:
+  - name: certs
+    secret:
+      secretName: my-service-tls

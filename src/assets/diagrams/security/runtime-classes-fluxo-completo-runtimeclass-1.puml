@@ -1,0 +1,48 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Fluxo Completo RuntimeClass
+
+actor Admin as admin
+actor "Desenvolvedor" as dev
+participant "API Server" as api
+participant "Scheduler" as sched
+participant "kubelet" as kubelet
+database "etcd" as etcd
+participant "containerd" as containerd
+participant "Runtime\n(runsc/kata)" as runtime
+entity "Pod" as pod
+== Configuracao (Admin) ==
+admin -> api : 1. kubectl apply RuntimeClass
+api -> etcd : 2. Armazena RuntimeClass
+etcd --> api : OK
+
+admin -> kubelet : 3. Configura containerd\ncom handlers
+
+== Deployment (Dev) ==
+dev -> api : 4. kubectl apply Pod\n(runtimeClassName: gvisor)
+api -> etcd : 5. Armazena Pod spec
+api -> sched : 6. Schedule Pod
+
+sched -> sched : 7. Considera:\n- overhead de recursos\n- nodeSelector\n- tolerations
+
+sched -> api : 8. Pod scheduled para node X
+
+== Execucao (kubelet) ==
+api -> kubelet : 9. Criar Pod
+kubelet -> api : 10. Busca RuntimeClass
+api --> kubelet : RuntimeClass (handler: runsc)
+
+kubelet -> containerd : 11. Criar container\ncom runtime_handler: runsc
+containerd -> runtime : 12. Inicia container\nno runtime especificado
+
+runtime -> pod : 13. Container em execucao
+pod --> runtime : OK
+runtime --> containerd : OK
+containerd --> kubelet : Container criado
+kubelet --> api : 14. Pod Running
+
+@enduml

@@ -1,0 +1,50 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Cadeia de Autorizacao do kube-apiserver
+
+start
+
+:Requisicao Autenticada\nUser: john\nVerb: create\nResource: pods\nNamespace: default;
+
+partition "Authorization Chain" {
+    if (Node Authorizer) then (Allow/Deny)
+        if (Decisao?) then (Allow)
+            :Requisicao Permitida;
+            stop
+        else (Deny/NoOpinion)
+        endif
+    endif
+
+    if (ABAC) then (Allow/Deny)
+        if (Decisao?) then (Allow)
+            :Requisicao Permitida;
+            stop
+        else (Deny/NoOpinion)
+        endif
+    endif
+
+    if (RBAC) then (Allow/Deny)
+        if (Decisao?) then (Allow)
+            :Requisicao Permitida;
+            stop
+        else (Deny/NoOpinion)
+        endif
+    endif
+
+    if (Webhook) then (Allow/Deny)
+        if (Decisao?) then (Allow)
+            :Requisicao Permitida;
+            stop
+        else (Deny/NoOpinion)
+        endif
+    endif
+}
+
+:Nenhum autorizador permitiu\n**403 Forbidden**;
+stop
+
+@enduml

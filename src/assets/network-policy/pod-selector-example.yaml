@@ -1,0 +1,12 @@
+spec:
+  # Pods que RECEBEM a política
+  podSelector:
+    matchLabels:
+      app: backend
+  
+  ingress:
+    - from:
+        # Pods PERMITIDOS a conectar (mesmo namespace)
+        - podSelector:
+            matchLabels:
+              app: frontend

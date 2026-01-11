@@ -1,0 +1,14 @@
+- rule: Detect crypto miners using the Stratum protocol
+  desc: Detect Stratum protocol used by crypto miners
+  condition: >
+    spawned_process and 
+    container and 
+    (proc.cmdline contains "stratum+tcp" or
+     proc.cmdline contains "stratum+ssl" or
+     proc.cmdline contains "xmrig")
+  output: >
+    Crypto mining detected 
+    (user=%user.name command=%proc.cmdline 
+    container=%container.name)
+  priority: CRITICAL
+  tags: [cryptomining, mitre_execution]

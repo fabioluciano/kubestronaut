@@ -1,0 +1,21 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title CRONJOB CONTROLLER
+
+rectangle "CronJob: db-backup\nschedule: '0 2 * * *' (todo dia às 2:00)" as cj
+
+rectangle "Timeline de Execução" {
+  card "02:00 → Job-1 ✓" as j1
+  card "02:00 → Job-2 ✓ (próximo dia)" as j2
+  card "02:00 → Job-3 (rodando)" as j3
+}
+
+note bottom
+  📌 CronJob cria Jobs automaticamente
+  📌 Jobs criam Pods
+  📌 Histórico mantido por successfulJobsHistoryLimit
+end note
+
+@enduml

@@ -1,0 +1,19 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title SETUP INICIAL DO EXAME
+
+note as N1
+  **# EXECUTAR PRIMEIRO!**
+  source <(kubectl completion bash)
+  alias k=kubectl
+  complete -o default -F __start_kubectl k
+  export do="--dry-run=client -o yaml"
+
+  **# Agora você pode usar:**
+  k get pods                    # ao invés de kubectl get pods
+  k run nginx --image=nginx $do  # gera YAML instantaneamente
+end note
+
+@enduml

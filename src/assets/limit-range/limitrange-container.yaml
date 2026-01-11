@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: container-limits
+  namespace: development
+spec:
+  limits:
+  - type: Container
+    default:          # Limits padrão (se não especificado)
+      cpu: "500m"
+      memory: "512Mi"
+    defaultRequest:   # Requests padrão (se não especificado)
+      cpu: "100m"
+      memory: "128Mi"
+    min:              # Mínimo permitido
+      cpu: "50m"
+      memory: "64Mi"
+    max:              # Máximo permitido
+      cpu: "2"
+      memory: "2Gi"

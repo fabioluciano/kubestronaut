@@ -1,0 +1,31 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title STATEFULSET CONTROLLER
+
+rectangle "StatefulSet: mysql\nreplicas: 3\nserviceName: mysql-headless" as sts
+
+rectangle "mysql-0\n(master)" as p0 {
+  database "PVC-0\n(data-0)" as pvc0
+}
+
+rectangle "mysql-1\n(replica)" as p1 {
+  database "PVC-1\n(data-1)" as pvc1
+}
+
+rectangle "mysql-2\n(replica)" as p2 {
+  database "PVC-2\n(data-2)" as pvc2
+}
+
+sts --> p0
+sts --> p1
+sts --> p2
+
+note bottom
+  📌 Pods criados em ordem: 0 → 1 → 2
+  📌 Pods deletados em ordem reversa: 2 → 1 → 0
+  📌 Cada Pod mantém seu PVC mesmo após restart
+end note
+
+@enduml

@@ -1,0 +1,36 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Arquitetura mTLS com Istio
+
+rectangle "Control Plane" as cp {
+  component "istiod" as istiod
+  component "CA (Citadel)" as citadel
+}
+
+rectangle "Pod A" <<namespace>> as podA {
+  component "App A" as appA
+  component "Envoy\nSidecar" as envoyA
+}
+
+rectangle "Pod B" <<namespace>> as podB {
+  component "App B" as appB
+  component "Envoy\nSidecar" as envoyB
+}
+
+citadel --> envoyA : certificados
+citadel --> envoyB : certificados
+
+appA --> envoyA : HTTP plano
+envoyA --> envoyB : mTLS
+envoyB --> appB : HTTP plano
+
+note bottom of envoyA
+  Sidecar intercepta
+  todo o trafego
+end note
+
+@enduml

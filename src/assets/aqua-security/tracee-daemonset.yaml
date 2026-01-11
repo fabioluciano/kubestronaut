@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: tracee
+  namespace: tracee-system
+spec:
+  selector:
+    matchLabels:
+      app: tracee
+  template:
+    metadata:
+      labels:
+        app: tracee
+    spec:
+      containers:
+      - name: tracee
+        image: aquasec/tracee:latest
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp/tracee
+        - name: os-release
+          mountPath: /etc/os-release-host
+          readOnly: true
+      volumes:
+      - name: tmp
+        hostPath:
+          path: /tmp/tracee
+      - name: os-release
+        hostPath:
+          path: /etc/os-release

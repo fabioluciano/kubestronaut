@@ -1,0 +1,30 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Monospaced
+
+title FERRAMENTAS AQUA SECURITY
+
+rectangle "TRIVY" {
+  card "Scanner de vulnerabilidades" as t1
+  card "Imagens, filesystems, repositórios Git" as t2
+  card "Licenças e secrets" as t3
+}
+
+rectangle "TRACEE" {
+  card "Runtime security com eBPF" as tr1
+  card "Detecção de comportamento anômalo" as tr2
+  card "Tracing de syscalls" as tr3
+}
+
+rectangle "KUBE-BENCH" {
+  card "Validação CIS Benchmark" as kb1
+  card "Verificação de configuração do cluster" as kb2
+}
+
+rectangle "KUBE-HUNTER" {
+  card "Penetration testing" as kh1
+  card "Descoberta de vulnerabilidades" as kh2
+}
+
+@enduml

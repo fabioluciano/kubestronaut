@@ -1,0 +1,44 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DICAS - API OBJECTS
+
+rectangle "1️⃣ CAMPOS OBRIGATÓRIOS" {
+  note as n1
+    apiVersion, kind, metadata.name, spec
+  end note
+}
+
+rectangle "2️⃣ DESCOBRIR apiVersion" {
+  note as n2
+    kubectl api-resources | grep <recurso>
+  end note
+}
+
+rectangle "3️⃣ DESCOBRIR spec" {
+  note as n3
+    kubectl explain <recurso>.spec
+  end note
+}
+
+rectangle "4️⃣ GERAR YAML" {
+  note as n4
+    kubectl create <recurso> ... --dry-run=client -o yaml
+  end note
+}
+
+rectangle "5️⃣ VALIDAR ANTES DE APLICAR" {
+  note as n5
+    kubectl apply -f file.yaml --dry-run=server
+  end note
+}
+
+rectangle "6️⃣ LABELS vs ANNOTATIONS" {
+  note as n6
+    Labels: para selecionar (app=nginx)
+    Annotations: para metadata (description="...")
+  end note
+}
+
+@enduml

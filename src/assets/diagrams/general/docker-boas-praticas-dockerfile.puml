@@ -1,0 +1,16 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title BOAS PRATICAS DOCKERFILE
+
+card "1. Imagem base\nminima" as bp1
+card "2. Multi-stage\nbuilds" as bp2
+card "3. Ordenar instrucoes\npor frequencia de mudanca" as bp3
+card "4. Combinar RUN\nem uma layer" as bp4
+card "5. Usuario\nnao-root" as bp5
+card "6. .dockerignore\nbem configurado" as bp6
+
+@enduml

@@ -1,0 +1,6 @@
+apiVersion: kubeadm.k8s.io/v1beta3
+kind: ClusterConfiguration
+kubernetesVersion: v1.29.0
+controlPlaneEndpoint: "LOAD_BALANCER_IP:6443"  # IP do LB
+networking:
+  podSubnet: "10.244.0.0/16"

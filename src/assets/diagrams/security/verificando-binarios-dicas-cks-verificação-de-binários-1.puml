@@ -1,0 +1,36 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Monospaced
+
+title DICAS CKS - VERIFICAÇÃO DE BINÁRIOS
+
+rectangle "1. Comando básico" {
+  note as n1
+    sha256sum <binario>
+  end note
+}
+
+rectangle "2. Verificar processo em execução" {
+  note as n2
+    sha256sum /proc/$(pgrep kubelet)/exe
+  end note
+}
+
+rectangle "3. URL dos checksums" {
+  note as n3
+    https://dl.k8s.io/release/<VERSION>/bin/linux/amd64/
+  end note
+}
+
+rectangle "4. Comando de verificação completo" {
+  note as n4
+    echo "$(cat file.sha256)  file" | sha256sum --check
+  end note
+}
+
+rectangle "5. Conceito: Supply Chain Security" {
+  card "Garante que binários não foram adulterados" as c1
+}
+
+@enduml

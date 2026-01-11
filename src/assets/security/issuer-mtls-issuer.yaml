@@ -1,0 +1,54 @@
+# Issuer para gerar certificados
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: mtls-issuer
+spec:
+  selfSigned: {}
+---
+# CA Certificate
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: mtls-ca
+spec:
+  isCA: true
+  commonName: mtls-ca
+  secretName: mtls-ca-secret
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+  issuerRef:
+    name: mtls-issuer
+    kind: Issuer
+---
+# CA Issuer
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: mtls-ca-issuer
+spec:
+  ca:
+    secretName: mtls-ca-secret
+---
+# Server Certificate
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: server-cert
+spec:
+  secretName: server-tls-cert
+  duration: 2160h # 90 days
+  renewBefore: 360h # 15 days
+  commonName: my-service.default.svc.cluster.local
+  dnsNames:
+  - my-service
+  - my-service.default
+  - my-service.default.svc
+  - my-service.default.svc.cluster.local
+  usages:
+  - server auth
+  - client auth
+  issuerRef:
+    name: mtls-ca-issuer
+    kind: Issuer

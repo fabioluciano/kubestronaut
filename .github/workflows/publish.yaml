@@ -1,81 +1,89 @@
-name: Deploy static content to Pages
+name: Deploy to GitHub Pages
 
 on:
-  workflow_run:
-    workflows: ["semantic-release"]
-    types:
-      - completed
-    branches: ["main"]
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "book.toml"
   workflow_dispatch:
 
-# Define required permissions for GitHub Pages deployment
 permissions:
   contents: read
   pages: write
   id-token: write
 
-# Ensure only one deployment happens at a time
 concurrency:
-  group: "pages"
+  group: pages
   cancel-in-progress: false
 
 jobs:
+  build:
+    name: Build Book
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup mise
+        uses: jdx/mise-action@v2
+        with:
+          experimental: true
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/
+            ~/.cargo/git/
+          key: ${{ runner.os }}-cargo-mdbook
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Install dependencies
+        run: |
+          mise install
+          cargo install mdbook-plantuml --git https://github.com/sytsereitsma/mdbook-plantuml --tag v1.0.0-rc.1 || true
+
+      - name: Install PlantUML
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y default-jre graphviz
+          wget -q https://github.com/plantuml/plantuml/releases/download/v1.2024.8/plantuml-1.2024.8.jar -O /tmp/plantuml.jar
+          sudo mkdir -p /usr/share/plantuml
+          sudo mv /tmp/plantuml.jar /usr/share/plantuml/plantuml.jar
+          echo '#!/bin/bash' | sudo tee /usr/local/bin/plantuml
+          echo 'java -jar /usr/share/plantuml/plantuml.jar "$@"' | sudo tee -a /usr/local/bin/plantuml
+          sudo chmod +x /usr/local/bin/plantuml
+
+      - name: Setup mdbook-admonish
+        run: mdbook-admonish install
+
+      - name: Build book
+        run: mise exec -- mdbook build
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: book/
+
   deploy:
-    # Add condition to only run if semantic-release was successful
-    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    name: Deploy
+    runs-on: ubuntu-latest
+    needs: build
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # Fetch all history for proper versioning
-
-      - name: Configure GitHub Pages
-        uses: actions/configure-pages@v5
-
-      - name: Install Rust toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-
-      - name: Install mdBook plugins
-        uses: actions-rs/cargo@v1
-        with:
-          command: install
-          args: mdbook-admonish mdbook-plantuml mdbook-alerts
-
-      - name: Setup mdBook Admonish plugin
-        run: mdbook-admonish install
-
-      - name: Install mdBook
-        uses: peaceiris/actions-mdbook@v2
-        with:
-          mdbook-version: "latest"
-
-      - name: Install PlantUML dependencies
-        run: |
-          sudo apt-get update && sudo apt-get install -y plantuml
-
-      - name: Build mdBook documentation
-        run: mdbook build
-
-      - name: Upload build artifacts
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: "book"
-
       - name: Deploy to GitHub Pages
-        if: ${{ env.ACT != 'true' }}
         id: deployment
         uses: actions/deploy-pages@v4
-
-      - name: Local deployment simulation
-        if: ${{ env.ACT == 'true' }}
-        run: |
-          echo "Simulando deploy local..."
-          mkdir -p /tmp/deploy-preview
-          cp -r book/* /tmp/deploy-preview/
-          echo "Conteúdo copiado para /tmp/deploy-preview"

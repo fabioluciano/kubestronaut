@@ -1,0 +1,28 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title POLICY AS CODE
+
+rectangle "Define" {
+  card "Rego (OPA)" as rego
+  card "Kyverno YAML" as kyv
+}
+
+rectangle "Enforce" {
+  card "Admission Controller" as ac
+  card "CI/CD Pipeline" as ci
+}
+
+rectangle "Audit" {
+  card "Continuous Scanning" as scan
+  card "Compliance Reports" as rep
+}
+
+rego --> ac
+kyv --> ac
+ac --> scan
+ci --> scan
+scan --> rep
+
+@enduml

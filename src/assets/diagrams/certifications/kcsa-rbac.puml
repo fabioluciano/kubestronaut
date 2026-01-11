@@ -1,0 +1,25 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title RBAC
+
+rectangle "Subjects (WHO)" {
+  card "User" as u
+  card "Group" as g
+  card "ServiceAccount" as sa
+}
+
+rectangle "Verbs (WHAT)" {
+  card "get, list, watch" as read
+  card "create, update, patch" as write
+  card "delete" as del
+}
+
+rectangle "Resources (ON WHAT)" {
+  card "pods, deployments" as res
+  card "secrets, configmaps" as conf
+  card "nodes, namespaces" as cluster
+}
+
+@enduml

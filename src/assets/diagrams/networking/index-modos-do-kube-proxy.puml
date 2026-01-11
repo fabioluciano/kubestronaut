@@ -1,0 +1,31 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title MODOS DO KUBE-PROXY
+
+rectangle "iptables (default)" {
+  note as n1
+    Usa regras iptables para NAT
+    Random selection de backends
+    Não requer kernel modules extras
+  end note
+}
+
+rectangle "ipvs" {
+  note as n2
+    Usa IPVS (IP Virtual Server)
+    Melhor performance para muitos Services
+    Múltiplos algoritmos de balanceamento
+    Requer: ip_vs, ip_vs_rr, ip_vs_wrr, ip_vs_sh
+  end note
+}
+
+rectangle "userspace (legacy)" {
+  note as n3
+    Proxy em userspace
+    Lento, não usar
+  end note
+}
+
+@enduml

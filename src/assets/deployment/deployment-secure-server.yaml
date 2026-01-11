@@ -1,0 +1,54 @@
+# Deployment com mTLS manual
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: secure-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: secure-server
+  template:
+    metadata:
+      labels:
+        app: secure-server
+    spec:
+      containers:
+      - name: server
+        image: nginx:alpine
+        ports:
+        - containerPort: 443
+        volumeMounts:
+        - name: certs
+          mountPath: /etc/nginx/certs
+          readOnly: true
+        - name: nginx-config
+          mountPath: /etc/nginx/conf.d
+      volumes:
+      - name: certs
+        secret:
+          secretName: server-tls
+      - name: nginx-config
+        configMap:
+          name: nginx-mtls-config
+---
+# ConfigMap com configuracao nginx para mTLS
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-mtls-config
+data:
+  default.conf: |
+    server {
+        listen 443 ssl;
+
+        ssl_certificate /etc/nginx/certs/tls.crt;
+        ssl_certificate_key /etc/nginx/certs/tls.key;
+        ssl_client_certificate /etc/nginx/certs/ca.crt;
+        ssl_verify_client on;
+
+        location / {
+            root /usr/share/nginx/html;
+            index index.html;
+        }
+    }

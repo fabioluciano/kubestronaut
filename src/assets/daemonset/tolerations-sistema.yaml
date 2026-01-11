@@ -1,0 +1,34 @@
+# Para rodar em qualquer Node (incluindo control plane)
+tolerations:
+# Control Plane (novos clusters)
+- key: node-role.kubernetes.io/control-plane
+  operator: Exists
+  effect: NoSchedule
+# Master (clusters antigos)
+- key: node-role.kubernetes.io/master
+  operator: Exists
+  effect: NoSchedule
+# Nodes not-ready
+- key: node.kubernetes.io/not-ready
+  operator: Exists
+  effect: NoSchedule
+# Nodes unreachable
+- key: node.kubernetes.io/unreachable
+  operator: Exists
+  effect: NoSchedule
+# Disk pressure
+- key: node.kubernetes.io/disk-pressure
+  operator: Exists
+  effect: NoSchedule
+# Memory pressure
+- key: node.kubernetes.io/memory-pressure
+  operator: Exists
+  effect: NoSchedule
+# PID pressure
+- key: node.kubernetes.io/pid-pressure
+  operator: Exists
+  effect: NoSchedule
+# Network unavailable
+- key: node.kubernetes.io/network-unavailable
+  operator: Exists
+  effect: NoSchedule

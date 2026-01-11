@@ -1,0 +1,38 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Canary Deployment
+
+rectangle "Stable (v1)" as STABLE {
+    [Pod v1] as SP1
+    [Pod v1] as SP2
+    [Pod v1] as SP3
+    [Pod v1] as SP4
+    [Pod v1] as SP5
+    [Pod v1] as SP6
+    [Pod v1] as SP7
+    [Pod v1] as SP8
+    [Pod v1] as SP9
+}
+
+rectangle "Canary (v2)" as CANARY {
+    [Pod v2] as CP1
+}
+
+entity "Service" as SVC
+actor Usuario
+
+Usuario --> SVC
+SVC --> STABLE : 90% trafego
+SVC --> CANARY : 10% trafego
+
+note bottom of CANARY
+    Mesma label "app: myapp"
+    Service balanceia entre
+    todos os pods (9:1)
+end note
+
+@enduml

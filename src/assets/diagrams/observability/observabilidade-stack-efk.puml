@@ -1,0 +1,18 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title STACK EFK
+
+rectangle "Pods\nstdout" as pods
+rectangle "Fluentd\n(DaemonSet)" as fluentd
+rectangle "Elasticsearch\n(Index)" as elastic
+rectangle "Kibana\n(UI)" as kibana
+
+pods --> fluentd : Coleta
+fluentd --> elastic : Processa
+elastic --> kibana : Armazena
+
+note bottom of kibana : Visualiza
+
+@enduml

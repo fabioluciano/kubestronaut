@@ -1,0 +1,37 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Leader Election - kube-controller-manager
+
+participant "Controller Manager 1" as cm1
+participant "Controller Manager 2" as cm2
+participant "Controller Manager 3" as cm3
+database "Lease Object\n(kube-system)" as lease
+
+cm1 -> lease : Tenta adquirir lease
+lease --> cm1 : Lease adquirido (holder: cm1)
+note right of cm1: CM1 e o Leader
+
+cm2 -> lease : Tenta adquirir lease
+lease --> cm2 : Lease ocupado (holder: cm1)
+note right of cm2: CM2 em standby
+
+cm3 -> lease : Tenta adquirir lease
+lease --> cm3 : Lease ocupado (holder: cm1)
+note right of cm3: CM3 em standby
+
+loop A cada renew-deadline
+    cm1 -> lease : Renova lease
+    lease --> cm1 : OK
+end
+
+note over cm1: CM1 falha
+
+cm2 -> lease : Tenta adquirir (lease expirado)
+lease --> cm2 : Lease adquirido (holder: cm2)
+note right of cm2: CM2 vira Leader
+
+@enduml

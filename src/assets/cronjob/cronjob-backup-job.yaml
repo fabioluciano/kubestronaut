@@ -1,0 +1,16 @@
+# CronJob
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: backup-job
+spec:
+  schedule: "0 2 * * *"  # Todo dia às 2h
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - name: backup
+            image: busybox
+            command: ["/bin/sh", "-c", "echo backup done"]

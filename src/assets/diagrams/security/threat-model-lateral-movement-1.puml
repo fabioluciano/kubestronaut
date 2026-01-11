@@ -1,0 +1,29 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title LATERAL MOVEMENT
+
+rectangle "Namespace A" {
+  card "Compromised\nPod A" as poda
+}
+
+rectangle "Namespace B" {
+  card "Database\nPod" as podb
+}
+
+rectangle "Namespace C" {
+  card "Secret\nStore" as podc
+}
+
+poda --> podb : "Sem Network Policy"
+podb --> podc : "Cross-namespace"
+
+note bottom
+  Mitigação:
+  • Default deny Network Policy
+  • Namespace isolation
+  • Service Mesh mTLS
+end note
+
+@enduml

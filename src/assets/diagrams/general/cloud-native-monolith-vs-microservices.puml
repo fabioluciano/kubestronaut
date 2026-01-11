@@ -1,0 +1,34 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title MONOLITH vs MICROSERVICES
+
+rectangle "MONOLITH" {
+  rectangle "UI + Business Logic + Data" as mono
+}
+
+rectangle "MICROSERVICES" {
+  rectangle "Service A" as sa
+  rectangle "Service B" as sb
+  rectangle "Service C" as sc
+
+  sa <--> sb
+  sb <--> sc
+}
+
+note bottom of mono
+  • Deploy único
+  • Escala vertical
+  • Uma tecnologia
+  • Falha = tudo falha
+end note
+
+note bottom of sc
+  • Deploy independente
+  • Escala horizontal
+  • Polyglot
+  • Falha isolada
+end note
+
+@enduml

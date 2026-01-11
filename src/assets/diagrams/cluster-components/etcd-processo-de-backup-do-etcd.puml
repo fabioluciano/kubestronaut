@@ -1,0 +1,25 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Processo de Backup do etcd
+
+actor Admin
+participant "etcdctl" as ctl
+participant "etcd" as etcd
+database "Snapshot\n(.db file)" as snap
+entity "Storage\nExterno" as storage
+
+Admin -> ctl : etcdctl snapshot save
+ctl -> etcd : Solicita snapshot
+etcd -> etcd : Cria snapshot\nconsistente
+etcd -> snap : Grava arquivo .db
+ctl --> Admin : Snapshot criado
+
+Admin -> snap : Copia para storage
+snap -> storage : backup.db
+Admin -> storage : Verifica integridade
+
+@enduml

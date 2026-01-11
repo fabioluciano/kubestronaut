@@ -1,0 +1,29 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Ciclo de Vida do Rollout
+
+[*] --> Progressing : kubectl apply
+
+state Progressing {
+    [*] --> CreatingRS : Cria novo ReplicaSet
+    CreatingRS --> ScalingUp : Scale up novos Pods
+    ScalingUp --> ScalingDown : Scale down antigos
+    ScalingDown --> [*] : Concluido
+}
+
+Progressing --> Complete : Sucesso
+Progressing --> Failed : Timeout/Erro
+Progressing --> Paused : kubectl rollout pause
+
+Paused --> Progressing : kubectl rollout resume
+
+Failed --> Progressing : kubectl rollout undo
+Complete --> Progressing : Nova alteracao
+
+Complete --> [*]
+
+@enduml

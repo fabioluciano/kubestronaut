@@ -1,0 +1,5 @@
+# Aumentar timeout ou mudar failurePolicy
+webhooks:
+- name: my-webhook.example.com
+  timeoutSeconds: 30       # Aumentar timeout
+  failurePolicy: Ignore    # Permitir se webhook falhar (menos seguro)

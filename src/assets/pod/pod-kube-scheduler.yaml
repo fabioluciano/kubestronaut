@@ -1,0 +1,55 @@
+# /etc/kubernetes/manifests/kube-scheduler.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kube-scheduler
+  namespace: kube-system
+  labels:
+    component: kube-scheduler
+    tier: control-plane
+spec:
+  hostNetwork: true
+  priorityClassName: system-node-critical
+  containers:
+  - name: kube-scheduler
+    image: registry.k8s.io/kube-scheduler:v1.29.0
+    command:
+    - kube-scheduler
+    - --kubeconfig=/etc/kubernetes/scheduler.conf
+    - --authentication-kubeconfig=/etc/kubernetes/scheduler.conf
+    - --authorization-kubeconfig=/etc/kubernetes/scheduler.conf
+    - --bind-address=127.0.0.1
+    - --secure-port=10259
+    - --leader-elect=true
+    - --leader-elect-lease-duration=15s
+    - --leader-elect-renew-deadline=10s
+    - --leader-elect-retry-period=2s
+    livenessProbe:
+      httpGet:
+        host: 127.0.0.1
+        path: /healthz
+        port: 10259
+        scheme: HTTPS
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      timeoutSeconds: 15
+      failureThreshold: 8
+    startupProbe:
+      httpGet:
+        host: 127.0.0.1
+        path: /healthz
+        port: 10259
+        scheme: HTTPS
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      timeoutSeconds: 15
+      failureThreshold: 24
+    volumeMounts:
+    - name: kubeconfig
+      mountPath: /etc/kubernetes/scheduler.conf
+      readOnly: true
+  volumes:
+  - name: kubeconfig
+    hostPath:
+      path: /etc/kubernetes/scheduler.conf
+      type: FileOrCreate

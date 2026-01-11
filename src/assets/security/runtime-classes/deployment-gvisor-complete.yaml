@@ -1,0 +1,187 @@
+# Deployment completo usando gVisor
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sandboxed-deployment
+  namespace: untrusted-workloads
+  labels:
+    app: sandboxed-app
+    runtime: gvisor
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: sandboxed-app
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: sandboxed-app
+        runtime: gvisor
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+    spec:
+      # RuntimeClass para gVisor
+      runtimeClassName: gvisor
+
+      # Security context do Pod
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10000
+        runAsGroup: 10000
+        fsGroup: 10000
+        seccompProfile:
+          type: RuntimeDefault
+
+      # Nao montar token SA
+      automountServiceAccountToken: false
+
+      # Anti-affinity para distribuir pods
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app: sandboxed-app
+              topologyKey: kubernetes.io/hostname
+
+      containers:
+      - name: app
+        image: nginx:1.25-alpine
+        imagePullPolicy: Always
+
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+
+        ports:
+        - name: http
+          containerPort: 8080
+          protocol: TCP
+
+        resources:
+          requests:
+            cpu: 100m
+            memory: 64Mi
+          limits:
+            cpu: 500m
+            memory: 256Mi
+
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: cache
+          mountPath: /var/cache/nginx
+        - name: run
+          mountPath: /var/run
+        - name: config
+          mountPath: /etc/nginx/conf.d
+          readOnly: true
+
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+
+        startupProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          failureThreshold: 30
+          periodSeconds: 10
+
+      volumes:
+      - name: tmp
+        emptyDir:
+          medium: Memory
+          sizeLimit: 100Mi
+      - name: cache
+        emptyDir: {}
+      - name: run
+        emptyDir: {}
+      - name: config
+        configMap:
+          name: nginx-config
+          optional: true
+
+      terminationGracePeriodSeconds: 30
+
+---
+# Service para o Deployment
+apiVersion: v1
+kind: Service
+metadata:
+  name: sandboxed-app
+  namespace: untrusted-workloads
+spec:
+  selector:
+    app: sandboxed-app
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8080
+  type: ClusterIP
+---
+# NetworkPolicy para o Deployment
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: sandboxed-app-policy
+  namespace: untrusted-workloads
+spec:
+  podSelector:
+    matchLabels:
+      app: sandboxed-app
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: trusted-namespace
+    ports:
+    - protocol: TCP
+      port: 8080
+  egress:
+  # Permitir DNS
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: kube-system
+    ports:
+    - protocol: UDP
+      port: 53

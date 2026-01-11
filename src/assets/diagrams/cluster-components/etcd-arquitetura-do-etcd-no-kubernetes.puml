@@ -1,0 +1,39 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Arquitetura do etcd no Kubernetes
+
+package "Control Plane Node 1" {
+    [kube-apiserver] as api1
+    database "etcd\n(Leader)" as etcd1
+}
+
+package "Control Plane Node 2" {
+    [kube-apiserver ] as api2
+    database "etcd\n(Follower)" as etcd2
+}
+
+package "Control Plane Node 3" {
+    [kube-apiserver  ] as api3
+    database "etcd\n(Follower)" as etcd3
+}
+
+api1 --> etcd1 : gRPC
+api2 --> etcd1 : gRPC (writes)
+api2 --> etcd2 : gRPC (reads)
+api3 --> etcd1 : gRPC (writes)
+api3 --> etcd3 : gRPC (reads)
+
+etcd1 <--> etcd2 : Raft Consensus
+etcd2 <--> etcd3 : Raft Consensus
+etcd1 <--> etcd3 : Raft Consensus
+
+note bottom of etcd1
+  Todas as escritas
+  vao para o Leader
+end note
+
+@enduml

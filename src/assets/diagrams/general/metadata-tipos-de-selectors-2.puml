@@ -1,0 +1,38 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title TIPOS DE SELECTORS
+
+rectangle "EQUALITY-BASED" #lightblue {
+  note as eq
+    Operadores: =, ==, !=
+
+    Exemplos:
+    app = nginx
+    env != production
+    tier == frontend
+  end note
+}
+
+rectangle "SET-BASED" #lightgreen {
+  note as set
+    Operadores: in, notin, exists, !
+
+    Exemplos:
+    env in (prod, staging)
+    tier notin (frontend)
+    release
+    !deprecated
+  end note
+}
+
+note bottom
+  Services e ReplicationControllers:
+  APENAS equality-based (matchLabels)
+
+  Deployments, ReplicaSets, Jobs, DaemonSets:
+  AMBOS (matchLabels + matchExpressions)
+end note
+
+@enduml

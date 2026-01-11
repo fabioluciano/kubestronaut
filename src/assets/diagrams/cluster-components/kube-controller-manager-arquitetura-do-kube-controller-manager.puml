@@ -1,0 +1,43 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Arquitetura do kube-controller-manager
+
+package "kube-controller-manager" {
+    [Node Controller] as node
+    [Replication Controller] as repl
+    [Endpoints Controller] as ep
+    [ServiceAccount Controller] as sa
+    [Namespace Controller] as ns
+    [Job Controller] as job
+    [Deployment Controller] as deploy
+    [StatefulSet Controller] as sts
+    [DaemonSet Controller] as ds
+    [... outros controllers] as other
+}
+
+package "kube-apiserver" {
+    [API Server] as api
+}
+
+database "etcd" as etcd
+
+node --> api : Watch nodes
+repl --> api : Watch ReplicaSets
+ep --> api : Watch Services/Pods
+sa --> api : Watch ServiceAccounts
+ns --> api : Watch Namespaces
+deploy --> api : Watch Deployments
+job --> api : Watch Jobs
+
+api --> etcd
+
+note bottom of "kube-controller-manager"
+  Todos os controllers rodam
+  em um unico processo binario
+end note
+
+@enduml

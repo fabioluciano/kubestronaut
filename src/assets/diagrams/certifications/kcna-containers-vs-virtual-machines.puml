@@ -1,0 +1,45 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title CONTAINERS vs VIRTUAL MACHINES
+
+rectangle "VM" {
+  card "App + Libs" as vm_app
+  card "Guest OS" as vm_os
+  card "Hypervisor" as vm_hyp
+  card "Host OS" as vm_host
+  card "Hardware" as vm_hw
+  
+  vm_app -[hidden]down- vm_os
+  vm_os -[hidden]down- vm_hyp
+  vm_hyp -[hidden]down- vm_host
+  vm_host -[hidden]down- vm_hw
+}
+
+rectangle "Container" {
+  card "App + Libs" as c_app
+  card "Container Runtime" as c_rt
+  card "Host OS" as c_host
+  card "Hardware" as c_hw
+  
+  c_app -[hidden]down- c_rt
+  c_rt -[hidden]down- c_host
+  c_host -[hidden]down- c_hw
+}
+
+note bottom of VM
+  • Mais pesado
+  • Isolamento total
+  • GB de tamanho
+  • Minutos para iniciar
+end note
+
+note bottom of Container
+  • Mais leve
+  • Compartilha kernel
+  • MB de tamanho
+  • Segundos para iniciar
+end note
+
+@enduml

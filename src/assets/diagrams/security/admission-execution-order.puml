@@ -1,0 +1,23 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title ORDEM DE EXECUÇÃO
+
+rectangle "1. MUTATING ADMISSION CONTROLLERS\n(executados em ordem, modificam o objeto)" as mut
+rectangle "2. OBJECT SCHEMA VALIDATION\n(valida estrutura do objeto modificado)" as schema
+rectangle "3. VALIDATING ADMISSION CONTROLLERS\n(executados em paralelo, podem rejeitar)" as val
+rectangle "4. PERSIST TO ETCD" as etcd
+
+mut --> schema
+schema --> val
+val --> etcd
+
+note bottom of val
+  Se QUALQUER validating rejeitar,
+  a requisição é negada
+end note
+
+@enduml

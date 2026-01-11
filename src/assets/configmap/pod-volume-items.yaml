@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-app
+spec:
+  containers:
+  - name: app
+    image: nginx
+    volumeMounts:
+    - name: config-volume
+      mountPath: /etc/app
+  volumes:
+  - name: config-volume
+    configMap:
+      name: app-config
+      items:
+      - key: config.yaml
+        path: application.yaml  # Renomeia o arquivo
+      - key: DB_HOST
+        path: db/host.txt
+        mode: 0644  # Permissões do arquivo

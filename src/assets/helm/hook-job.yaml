@@ -1,0 +1,21 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{ .Release.Name }}-db-migrate"
+  annotations:
+    # Tipo de hook
+    "helm.sh/hook": pre-install,pre-upgrade
+    
+    # Ordem de execução (menor = primeiro)
+    "helm.sh/hook-weight": "-5"
+    
+    # Política de deleção
+    "helm.sh/hook-delete-policy": hook-succeeded,before-hook-creation
+spec:
+  template:
+    spec:
+      containers:
+        - name: migrate
+          image: myapp:{{ .Values.image.tag }}
+          command: ["./migrate.sh"]
+      restartPolicy: Never

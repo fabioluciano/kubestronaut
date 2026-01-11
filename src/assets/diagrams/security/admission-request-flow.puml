@@ -1,0 +1,29 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title FLUXO DE REQUISIÇÃO
+
+rectangle "Kubectl\nRequest" as kubectl
+rectangle "API\nServer" as api
+rectangle "Autenticação" as auth
+rectangle "Autorização\n(RBAC)" as rbac
+rectangle "etcd\n(persistência)" as etcd
+
+rectangle "Admission Controllers" as admission {
+  note as steps
+    1. Mutating Admission (modifica objetos)
+    2. Schema Validation (valida estrutura)
+    3. Validating Admission (aceita/rejeita)
+  end note
+}
+
+kubectl --> api
+api --> auth
+auth --> rbac
+rbac --> admission
+admission --> etcd
+
+@enduml

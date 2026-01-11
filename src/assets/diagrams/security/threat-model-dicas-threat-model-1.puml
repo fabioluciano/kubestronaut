@@ -1,0 +1,13 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DICAS - THREAT MODEL
+
+card "1. Conheça STRIDE\nCada letra e exemplo em K8s" as d1
+card "2. Attack surfaces\nAPI Server, etcd, kubelet, pods" as d2
+card "3. Container escape\nPrivileged, capabilities, hostPID" as d3
+card "4. Lateral movement\nNetwork Policy é a mitigação" as d4
+card "5. Supply chain\nImage scanning, signing, SBOM" as d5
+
+@enduml

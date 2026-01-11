@@ -1,0 +1,46 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title TROUBLESHOOTING - NAMESPACES
+
+rectangle "Problema: Pod nao cria" #lightcoral {
+  note as p1
+    Causas:
+    1. ResourceQuota excedida
+    2. LimitRange violado
+    3. Namespace em Terminating
+
+    Solucao:
+    kubectl describe ns <namespace>
+    kubectl get resourcequota -n <ns>
+    kubectl describe pod -n <ns>
+  end note
+}
+
+rectangle "Problema: Service nao encontrado" #lightyellow {
+  note as p2
+    Causas:
+    1. Service em namespace diferente
+    2. DNS incorreto
+
+    Solucao:
+    Usar FQDN: service.namespace.svc
+    kubectl get svc -A | grep <service>
+  end note
+}
+
+rectangle "Problema: Namespace nao deleta" #lightgreen {
+  note as p3
+    Causas:
+    1. Finalizers pendentes
+    2. Recursos com finalizers
+
+    Solucao:
+    kubectl get ns <ns> -o yaml
+    Verificar finalizers
+    kubectl patch ns <ns> -p '{"metadata":{"finalizers":[]}}'
+  end note
+}
+
+@enduml

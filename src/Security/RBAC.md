@@ -9,6 +9,18 @@ color: var(--mk-color-red)
 	- `rules.verbs`: Operações authorizadas pela role
 	- `rules.resourceNames`: autoriza recursos específicos
 
+
+
+### Role Developer
+
+```yaml
+{{#include ../assets/rbac/role-developer.yaml}}
+```
+### Role Pod Reader
+
+```yaml
+{{#include ../assets/rbac/role-pod-reader.yaml}}
+```
 ## RoleBinding
 
 - Anexa uma Role a um elemento `user`, `serviceaccount` `group`
@@ -16,10 +28,41 @@ color: var(--mk-color-red)
 	- `rolebinding.subject`: O usuario que se deseja associar
 	- `rolebinding.roleRef`: A role que se deseja associar
 
+
+### RoleBinding Read Pods
+
+```yaml
+{{#include ../assets/rbac/rolebinding-read-pods.yaml}}
+```
 ## ClusterRole
 - Para recursos que não são específicos de um namespace
 - Você pode configurar, por exemplo, que um usuário possui uma clusterrole associada com pods. ele terá acesso a TODOS os pods em TODOS os namespaces
 - Não fazem parte de NENHUM namespace
+
+
+### ClusterRole Viewer
+
+```yaml
+{{#include ../assets/rbac/clusterrole-viewer.yaml}}
+```
+
+### ClusterRole Secret Reader
+
+```yaml
+{{#include ../assets/rbac/clusterrole-secret-reader.yaml}}
+```
+
+### Role Specific Pod Reader
+
+```yaml
+{{#include ../assets/rbac/role-specific-pod-reader.yaml}}
+```
+
+### ServiceAccount com RBAC Completo
+
+```yaml
+{{#include ../assets/rbac/serviceaccount-rbac-complete.yaml}}
+```
 
 ## ClusterRoleBinding
 
@@ -29,6 +72,12 @@ color: var(--mk-color-red)
 filePath: "@/Attachments/Kubernetes/rbac/rbac-reader-test.yaml"
 ```
 
+
+### ClusterRoleBinding Admin
+
+```yaml
+{{#include ../assets/rbac/clusterrolebinding-admin.yaml}}
+```
 ## Comandos úteis
 
 ```shell title:"Recupera a lista de todos os recursos que não são especificos de um namespace". Logo, são ClusterRole

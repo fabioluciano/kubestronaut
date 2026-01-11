@@ -1,0 +1,27 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title MIRROR PODS
+
+rectangle "Node" {
+  rectangle "Static\nPod" as staticpod
+  card "Kubelet" as kubelet
+}
+
+rectangle "API Server" {
+  rectangle "Mirror Pod\n(etcd-node1)" as mirror
+  card "kubectl get pods" as kubectl
+}
+
+staticpod -right-> mirror : cria mirror\n(read-only)
+mirror -left-> staticpod : não controla
+
+note bottom
+  IMPORTANTE:
+  • kubectl delete NÃO remove static pod (apenas mirror)
+  • Para remover: deletar arquivo do diretório de manifests
+  • Mirror tem annotation: kubernetes.io/config.mirror
+end note
+
+@enduml

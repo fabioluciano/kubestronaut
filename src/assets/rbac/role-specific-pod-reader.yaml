@@ -1,0 +1,9 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: specific-pod-reader
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  resourceNames: ["my-pod", "my-other-pod"]  # Apenas estes pods
+  verbs: ["get", "watch"]

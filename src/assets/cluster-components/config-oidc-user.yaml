@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Config
+users:
+- name: oidc-user
+  user:
+    auth-provider:
+      name: oidc
+      config:
+        idp-issuer-url: https://accounts.google.com
+        client-id: kubernetes
+        client-secret: <client-secret>
+        refresh-token: <refresh-token>
+        id-token: <id-token>

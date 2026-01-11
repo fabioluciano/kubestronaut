@@ -1,0 +1,2 @@
+# Canary: ajustar replicas
+# v1: 9 replicas, v2: 1 replica = 10% canary

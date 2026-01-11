@@ -1,0 +1,44 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Escolhendo o Runtime Correto
+
+start
+
+:Avaliar workload;
+
+if (Workload confiavel?\n(codigo interno auditado)) then (sim)
+  :Usar **runc** (padrao);
+  note right: Menor overhead\nMaior performance
+else (nao)
+  if (Precisa de isolamento\nde hardware maximo?) then (sim)
+    if (Node tem VT-x/AMD-V?) then (sim)
+      :Usar **Kata Containers**;
+      note right: Isolamento de VM\nKernel dedicado
+    else (nao)
+      :Usar **gVisor**;
+      note right: Alternativa sem\nvirtualizacao
+    endif
+  else (nao)
+    if (Performance e critica?) then (sim)
+      :Usar **gVisor**;
+      note right: Bom balanco\nseguranca/performance
+    else (nao)
+      if (Startup rapido necessario?) then (sim)
+        :Usar **gVisor** ou\n**Firecracker**;
+      else (nao)
+        :Usar **Kata Containers**;
+      endif
+    endif
+  endif
+endif
+
+:Criar RuntimeClass;
+:Aplicar ao Pod;
+
+stop
+
+@enduml

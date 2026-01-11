@@ -1,0 +1,19 @@
+@startuml
+skinparam monochrome true
+
+map "CONTEÚDO DO SBOM" as sbom {
+  Componentes => Componentes de software
+  Dependências => Diretas e transitivas
+  Versões => Versões específicas
+  Licenças => Licenças de uso
+  Hashes => Checksums de verificação
+  CVEs => Vulnerabilidades conhecidas
+  Supplier => Autor/Fornecedor
+}
+
+note bottom of sbom
+  **Formatos:**
+  • SPDX (Software Package Data Exchange) - Linux Foundation
+  • CycloneDX - OWASP
+end note
+@enduml

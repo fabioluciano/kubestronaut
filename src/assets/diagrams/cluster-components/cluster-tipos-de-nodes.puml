@@ -1,0 +1,27 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title TIPOS DE NODES
+
+rectangle "Control Plane Node\n(Master)" as master #lightblue {
+  card "Executa componentes\ndo Control Plane" as m1
+  card "Geralmente sem workloads\n(taint: NoSchedule)" as m2
+  card "Pode ser HA (3+)" as m3
+}
+
+rectangle "Worker Node" as worker #lightyellow {
+  card "Executa pods\nde aplicacoes" as w1
+  card "Gerenciado pelo\nControl Plane" as w2
+  card "Escalavel horizontalmente" as w3
+}
+
+note bottom
+  Em clusters pequenos,
+  control plane pode
+  executar workloads tambem
+end note
+
+@enduml

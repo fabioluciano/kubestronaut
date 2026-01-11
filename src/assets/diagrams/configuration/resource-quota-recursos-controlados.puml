@@ -1,0 +1,27 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title RECURSOS CONTROLADOS
+
+rectangle "COMPUTE RESOURCES" {
+  card "requests.cpu" as rc
+  card "requests.memory" as rm
+  card "limits.cpu" as lc
+  card "limits.memory" as lm
+}
+
+rectangle "STORAGE RESOURCES" {
+  card "requests.storage" as rs
+  card "persistentvolumeclaims" as pvc
+  card "<storage-class>.storageclass.storage.k8s.io/requests.storage" as sc
+}
+
+rectangle "OBJECT COUNTS" {
+  card "pods, services, secrets, configmaps" as obj1
+  card "replicationcontrollers, deployments.apps" as obj2
+  card "resourcequotas, services.loadbalancers" as obj3
+  card "count/<resource>.<group>" as obj4
+}
+
+@enduml

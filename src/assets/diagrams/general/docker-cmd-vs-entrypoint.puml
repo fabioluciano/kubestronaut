@@ -1,0 +1,25 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title CMD vs ENTRYPOINT
+
+rectangle "CMD" as cmd {
+  note as n1
+    - Pode ser sobrescrito
+    - docker run image <novo-cmd>
+    - Usado sozinho ou com ENTRYPOINT
+  end note
+}
+
+rectangle "ENTRYPOINT" as ep {
+  note as n2
+    - Sempre executado
+    - Argumentos adicionais ao final
+    - docker run image <args>
+  end note
+}
+
+@enduml

@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: ssd-agent
+spec:
+  selector:
+    matchLabels:
+      app: ssd-agent
+  template:
+    metadata:
+      labels:
+        app: ssd-agent
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: disk-type
+                operator: In
+                values:
+                - ssd
+                - nvme
+      containers:
+      - name: agent
+        image: disk-monitor

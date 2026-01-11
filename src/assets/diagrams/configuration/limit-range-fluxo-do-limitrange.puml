@@ -1,0 +1,30 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title FLUXO DO LIMITRANGE
+
+start
+
+:1. Pod criado sem resources definidos;
+
+:2. Admission Controller intercepta;
+
+:3. Aplica valores do LimitRange;
+note right
+  Se sem requests → aplica defaultRequest
+  Se sem limits → aplica default
+end note
+
+:4. Valida;
+note right
+  requests >= min
+  limits <= max
+  Se fora do range → rejeita criação
+end note
+
+:5. Pod criado com valores aplicados;
+
+stop
+
+@enduml

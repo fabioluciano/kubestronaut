@@ -1,0 +1,26 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title ANATOMIA DE UMA CONTAINER IMAGE
+
+rectangle "Container Image" {
+  rectangle "Layer 4: App config" as l4 #lightgreen
+  rectangle "Layer 3: App binaries" as l3 #lightblue
+  rectangle "Layer 2: Dependencies" as l2 #lightyellow
+  rectangle "Layer 1: Base image" as l1 #lightgray
+}
+
+note right of l4 : Read-Write (em runtime)
+note right of l3 : Read-Only
+note right of l2 : Read-Only
+note right of l1 : Read-Only
+
+note bottom
+  Layers sao empilhadas usando
+  Union Filesystem (overlay2)
+end note
+
+@enduml

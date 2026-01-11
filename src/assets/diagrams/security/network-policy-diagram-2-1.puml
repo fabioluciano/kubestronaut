@@ -1,0 +1,14 @@
+@startuml
+skinparam monochrome true
+
+map "CNI COMPATÍVEIS" as cni {
+  Compatíveis => Calico, Cilium, Weave Net, Antrea, Romana
+  NÃO suportam => Flannel (padrão em alguns clusters)
+}
+
+note bottom of cni
+  ⚠️ **ATENÇÃO**
+  NetworkPolicy sem CNI compatível:
+  O recurso é criado mas NÃO é aplicado!
+end note
+@enduml

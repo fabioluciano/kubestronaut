@@ -1,0 +1,30 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title LINUX NAMESPACES
+
+rectangle "Host" {
+  rectangle "Namespace PID" as pid {
+    card "Processos isolados" as p1
+  }
+  rectangle "Namespace NET" as net {
+    card "Network stack proprio" as n1
+  }
+  rectangle "Namespace MNT" as mnt {
+    card "Filesystem isolado" as m1
+  }
+  rectangle "Namespace UTS" as uts {
+    card "Hostname proprio" as u1
+  }
+  rectangle "Namespace IPC" as ipc {
+    card "IPC isolado" as i1
+  }
+  rectangle "Namespace USER" as user {
+    card "UIDs/GIDs mapeados" as us1
+  }
+}
+
+@enduml

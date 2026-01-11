@@ -1,0 +1,46 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title TOPOLOGIAS DE ETCD
+
+rectangle "Stacked etcd (mais comum)" as stacked {
+  rectangle "Node 1" as n1 {
+    card "API + etcd" as a1
+  }
+  rectangle "Node 2" as n2 {
+    card "API + etcd" as a2
+  }
+  rectangle "Node 3" as n3 {
+    card "API + etcd" as a3
+  }
+}
+
+rectangle "External etcd (mais robusto)" as external {
+  rectangle "API Nodes" as api {
+    card "API 1" as ap1
+    card "API 2" as ap2
+    card "API 3" as ap3
+  }
+  rectangle "etcd Cluster" as etc {
+    card "etcd 1" as e1
+    card "etcd 2" as e2
+    card "etcd 3" as e3
+  }
+}
+
+note bottom of stacked
+  Mais simples de gerenciar
+  Menos nodes necessarios
+  Se node falha, perde API + etcd
+end note
+
+note bottom of external
+  etcd isolado
+  Escalabilidade independente
+  Mais resiliente
+end note
+
+@enduml

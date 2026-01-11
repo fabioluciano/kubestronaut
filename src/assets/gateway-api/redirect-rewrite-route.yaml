@@ -1,0 +1,44 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: redirect-route
+spec:
+  parentRefs:
+    - name: main-gateway
+  hostnames:
+    - "old.example.com"
+  rules:
+    # Redirect HTTP → HTTPS
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            hostname: new.example.com
+            statusCode: 301
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: rewrite-route
+spec:
+  parentRefs:
+    - name: main-gateway
+  rules:
+    # Rewrite /old-api/* → /api/*
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /old-api
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /api
+      backendRefs:
+        - name: api-service
+          port: 8080

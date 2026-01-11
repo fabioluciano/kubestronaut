@@ -1,0 +1,2 @@
+# Falco pode consumir eventos de audit
+- --audit-webhook-config-file=/etc/kubernetes/audit/falco-webhook.yaml

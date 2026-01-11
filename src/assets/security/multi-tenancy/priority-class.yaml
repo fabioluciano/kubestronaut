@@ -1,0 +1,19 @@
+# Alta prioridade para produção
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: high-priority
+value: 1000000
+globalDefault: false
+description: "Para workloads críticos de produção"
+preemptionPolicy: PreemptLowerPriority
+---
+# Baixa prioridade para desenvolvimento
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: low-priority
+value: 1000
+globalDefault: false
+description: "Para workloads de desenvolvimento"
+preemptionPolicy: Never

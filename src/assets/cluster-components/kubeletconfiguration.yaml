@@ -1,0 +1,46 @@
+# /var/lib/kubelet/config.yaml
+apiVersion: kubelet.config.k8s.io/v1beta1
+kind: KubeletConfiguration
+# Autenticacao
+authentication:
+  anonymous:
+    enabled: false
+  webhook:
+    cacheTTL: 2m0s
+    enabled: true
+  x509:
+    clientCAFile: /etc/kubernetes/pki/ca.crt
+# Autorizacao
+authorization:
+  mode: Webhook
+  webhook:
+    cacheAuthorizedTTL: 5m0s
+    cacheUnauthorizedTTL: 30s
+# Rede
+clusterDNS:
+  - 10.96.0.10
+clusterDomain: cluster.local
+# Recursos
+cgroupDriver: systemd
+containerRuntimeEndpoint: unix:///run/containerd/containerd.sock
+# Portas
+port: 10250
+readOnlyPort: 0  # Desabilitado (seguranca)
+healthzPort: 10248
+healthzBindAddress: 127.0.0.1
+# Eviction
+evictionHard:
+  memory.available: 100Mi
+  nodefs.available: 10%
+  nodefs.inodesFree: 5%
+  imagefs.available: 15%
+evictionPressureTransitionPeriod: 5m0s
+# Static Pods
+staticPodPath: /etc/kubernetes/manifests
+# TLS
+tlsCertFile: /var/lib/kubelet/pki/kubelet.crt
+tlsPrivateKeyFile: /var/lib/kubelet/pki/kubelet.key
+# Outros
+maxPods: 110
+podPidsLimit: -1
+serializeImagePulls: false

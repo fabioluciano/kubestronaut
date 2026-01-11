@@ -1,0 +1,35 @@
+@startuml
+skinparam monochrome true
+
+title CAMADAS DE SEGURANÇA KUBERNETES
+
+rectangle "INFRAESTRUTURA (Host Security)" as infra {
+  note as n1
+    • SSH keys (não password)
+    • Desabilitar root login
+    • Firewall/Security groups
+    • Atualizações de segurança
+  end note
+}
+
+rectangle "KUBERNETES (Cluster Security)" as k8s {
+  note as n2
+    • Authentication (quem você é)
+    • Authorization (o que você pode fazer)
+    • Admission Control (validação/mutação)
+    • TLS entre componentes
+  end note
+}
+
+rectangle "WORKLOAD (Pod Security)" as workload {
+  note as n3
+    • Pod Security Admission
+    • NetworkPolicy
+    • Seccomp/AppArmor
+    • RuntimeClass
+  end note
+}
+
+infra --> k8s
+k8s --> workload
+@enduml

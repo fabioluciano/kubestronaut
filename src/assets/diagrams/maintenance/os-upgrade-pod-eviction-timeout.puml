@@ -1,0 +1,19 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Monospaced
+
+title POD EVICTION TIMEOUT
+
+start
+:Node fica NotReady;
+:Aguarda pod-eviction-timeout\n(default: 5 minutos);
+:Pods são marcados para eviction;
+fork
+  :Pods de ReplicaSet/Deployment:\nRecriados em outro node;
+fork again
+  :Pods standalone:\n**PERDIDOS!**;
+end fork
+stop
+
+@enduml

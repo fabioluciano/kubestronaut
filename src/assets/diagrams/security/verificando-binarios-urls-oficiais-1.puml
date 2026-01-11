@@ -1,0 +1,24 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Monospaced
+
+title URLs OFICIAIS
+
+note as base
+  **Base URL:** https://dl.k8s.io/release/<VERSION>/bin/
+end note
+
+rectangle "kubectl" {
+  card "Linux: /linux/amd64/kubectl" as k1
+  card "macOS: /darwin/amd64/kubectl" as k2
+  card "Windows: /windows/amd64/kubectl.exe" as k3
+}
+
+rectangle "Checksums" {
+  card ".sha256 para SHA256" as c1
+  card ".sha512 para SHA512" as c2
+  card ".sig para assinatura GPG" as c3
+}
+
+@enduml

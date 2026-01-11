@@ -1,0 +1,28 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Raft Consensus - Eleicao de Leader
+
+participant "Node 1\n(Follower)" as n1
+participant "Node 2\n(Candidate)" as n2
+participant "Node 3\n(Follower)" as n3
+
+note over n1,n3: Leader atual falha
+
+n2 -> n2 : Timeout expirado\nInicia eleicao
+n2 -> n2 : Incrementa term\nVota em si mesmo
+n2 -> n1 : RequestVote (term=2)
+n2 -> n3 : RequestVote (term=2)
+n1 --> n2 : VoteGranted
+n3 --> n2 : VoteGranted
+n2 -> n2 : Maioria alcancada\nTorna-se Leader
+
+note over n2: Novo Leader (term=2)
+
+n2 -> n1 : Heartbeat
+n2 -> n3 : Heartbeat
+
+@enduml

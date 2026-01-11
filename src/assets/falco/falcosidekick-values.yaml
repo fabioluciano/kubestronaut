@@ -1,0 +1,14 @@
+# values.yaml para Helm
+falcosidekick:
+  enabled: true
+  config:
+    slack:
+      webhookurl: "https://hooks.slack.com/services/XXX"
+      minimumpriority: "warning"
+    
+    alertmanager:
+      hostport: "http://alertmanager:9093"
+    
+    elasticsearch:
+      hostport: "http://elasticsearch:9200"
+      index: "falco"

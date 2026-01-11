@@ -1,0 +1,33 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title RESUMO: STORAGE NO KUBERNETES
+
+rectangle "VOLUMES EFEMEROS" #LightBlue {
+  card "emptyDir\n- Vida do Pod\n- Cache/temp" as ed
+  card "configMap/secret\n- Configuracao\n- Read-only" as cs
+}
+
+rectangle "VOLUMES PERSISTENTES" #LightGreen {
+  card "PersistentVolume (PV)\n- Recurso do cluster\n- Criado por admin ou dinamico" as pv
+  card "PersistentVolumeClaim (PVC)\n- Solicitacao de usuario\n- Namespace-scoped" as pvc
+}
+
+rectangle "PROVISIONAMENTO" #LightYellow {
+  card "Estatico\n- Admin cria PV\n- PVC faz bind" as static
+  card "Dinamico\n- StorageClass\n- PV criado automaticamente" as dynamic
+}
+
+rectangle "ACCESS MODES" #LightPink {
+  card "RWO - ReadWriteOnce\nUm node R/W" as rwo
+  card "ROX - ReadOnlyMany\nVarios nodes RO" as rox
+  card "RWX - ReadWriteMany\nVarios nodes R/W" as rwx
+}
+
+rectangle "RECLAIM POLICIES" #LightGray {
+  card "Retain - Preserva dados" as retain
+  card "Delete - Remove tudo" as delete
+}
+
+@enduml

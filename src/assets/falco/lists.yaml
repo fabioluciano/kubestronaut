@@ -1,0 +1,8 @@
+- list: shell_binaries
+  items: [bash, sh, zsh, ksh, csh, tcsh]
+
+- list: sensitive_files
+  items: [/etc/shadow, /etc/passwd, /etc/sudoers]
+
+- list: package_managers
+  items: [apt, apt-get, yum, dnf, rpm, dpkg]

@@ -1,0 +1,14 @@
+- rule: Read sensitive file in container
+  desc: Detect reading of sensitive files
+  condition: >
+    open_read and 
+    container and 
+    (fd.name startswith /etc/shadow or
+     fd.name startswith /etc/passwd or
+     fd.name contains /serviceaccount/token)
+  output: >
+    Sensitive file read in container 
+    (user=%user.name file=%fd.name 
+    container=%container.name image=%container.image.repository)
+  priority: WARNING
+  tags: [filesystem, sensitive_data]

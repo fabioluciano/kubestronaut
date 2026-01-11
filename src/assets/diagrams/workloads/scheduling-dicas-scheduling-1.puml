@@ -1,0 +1,26 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DICAS - SCHEDULING
+
+rectangle "CKA" {
+  card "kubectl taint nodes <node> key=value:effect" as c1
+  card "kubectl label nodes <node> key=value" as c2
+  card "Combinar taints + affinity para dedicar nodes" as c3
+}
+
+rectangle "CKAD" {
+  card "nodeSelector é mais simples que affinity" as k1
+  card "podAntiAffinity para HA (um pod por node)" as k2
+}
+
+rectangle "IMPORTANTE" {
+  card "Toleration permite ir, mas NÃO garante" as i1
+  card "Affinity garante ir, mas NÃO impede outros" as i2
+  card "Para dedicar: use AMBOS" as i3
+  card "required = obrigatório, Pod fica Pending se não atender" as i4
+  card "preferred = tenta, mas agenda em qualquer lugar se precisar" as i5
+}
+
+@enduml

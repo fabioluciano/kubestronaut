@@ -1,0 +1,15 @@
+# 4. Usar no Pod
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-secure
+spec:
+  securityContext:
+    appArmorProfile:
+      type: Localhost
+      localhostProfile: nginx-restricted
+  containers:
+  - name: nginx
+    image: nginx:alpine
+    ports:
+    - containerPort: 80

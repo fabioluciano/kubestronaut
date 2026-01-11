@@ -1,0 +1,25 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title RESPONSABILIDADE COMPARTILHADA
+
+rectangle "Cloud Provider" {
+  card "Infraestrutura física" as p1
+  card "Rede do datacenter" as p2
+  card "Hypervisor" as p3
+}
+
+rectangle "Cliente" {
+  card "Workloads" as c1
+  card "Dados" as c2
+  card "Configuração" as c3
+  card "IAM" as c4
+}
+
+note bottom
+  Provider: Segurança DA cloud
+  Cliente: Segurança NA cloud
+end note
+
+@enduml

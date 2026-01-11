@@ -1,0 +1,9 @@
+# CIS 4.2.1 - Ensure --anonymous-auth is false
+# Verificar em /var/lib/kubelet/config.yaml
+authentication:
+  anonymous:
+    enabled: false
+  webhook:
+    enabled: true
+authorization:
+  mode: Webhook

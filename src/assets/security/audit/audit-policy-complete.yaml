@@ -1,0 +1,56 @@
+apiVersion: audit.k8s.io/v1
+kind: Policy
+
+# Não logar eventos de watch, get e list em endpoints
+# (muito volume, pouco valor)
+rules:
+  # Regra 1: Excluir health checks e métricas
+  - level: None
+    nonResourceURLs:
+      - /healthz*
+      - /livez*
+      - /readyz*
+      - /metrics
+
+  # Regra 2: Excluir eventos de system accounts para recursos comuns
+  - level: None
+    users:
+      - system:kube-scheduler
+      - system:kube-proxy
+      - system:apiserver
+      - system:kube-controller-manager
+    verbs: ["get", "list", "watch"]
+
+  # Regra 3: Secrets - apenas metadata (não logar conteúdo!)
+  - level: Metadata
+    resources:
+      - group: ""
+        resources: ["secrets"]
+
+  # Regra 4: ConfigMaps - apenas metadata
+  - level: Metadata
+    resources:
+      - group: ""
+        resources: ["configmaps"]
+
+  # Regra 5: Log detalhado para deletes em produção
+  - level: RequestResponse
+    namespaces: ["production"]
+    verbs: ["delete"]
+    resources:
+      - group: ""
+        resources: ["pods", "deployments", "services"]
+
+  # Regra 6: Log requests para pods
+  - level: Request
+    resources:
+      - group: ""
+        resources: ["pods"]
+      - group: "apps"
+        resources: ["deployments", "replicasets", "statefulsets"]
+    verbs: ["create", "update", "patch", "delete"]
+
+  # Regra 7: Default - metadata para tudo mais
+  - level: Metadata
+    omitStages:
+      - RequestReceived

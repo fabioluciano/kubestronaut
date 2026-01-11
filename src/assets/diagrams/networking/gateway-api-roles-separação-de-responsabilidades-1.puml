@@ -1,0 +1,30 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title ROLES - SEPARAÇÃO DE RESPONSABILIDADES
+
+rectangle "Infrastructure Provider" {
+  note as n1
+    Implementa e mantém o GatewayClass controller
+    Ex: NGINX, Istio, Contour, Traefik
+  end note
+}
+
+rectangle "Cluster Operator / Platform Admin" {
+  note as n2
+    Cria GatewayClass
+    Cria Gateway (define listeners, TLS)
+    Define quais namespaces podem usar o Gateway
+  end note
+}
+
+rectangle "Application Developer" {
+  note as n3
+    Cria Routes (HTTPRoute, TCPRoute, etc)
+    Define regras de roteamento para seus Services
+    Não precisa entender infraestrutura
+  end note
+}
+
+@enduml

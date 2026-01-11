@@ -1,0 +1,39 @@
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title HIERARQUIA DE CONTAINER RUNTIMES
+
+rectangle "Orquestrador" {
+  card "Kubernetes" as k8s
+}
+
+rectangle "High-Level Runtime (CRI)" {
+  card "containerd" as cd
+  card "CRI-O" as crio
+}
+
+rectangle "Low-Level Runtime (OCI)" {
+  card "runc" as runc
+  card "crun" as crun
+  card "gVisor (runsc)" as gvisor
+  card "Kata Containers" as kata
+}
+
+rectangle "Linux Kernel" {
+  card "namespaces + cgroups" as kernel
+}
+
+k8s --> cd : CRI
+k8s --> crio : CRI
+cd --> runc : OCI
+cd --> gvisor : OCI
+crio --> runc : OCI
+runc --> kernel
+crun --> kernel
+gvisor --> kernel
+kata --> kernel
+
+@enduml

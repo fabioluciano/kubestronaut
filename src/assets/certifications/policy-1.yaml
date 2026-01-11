@@ -1,0 +1,15 @@
+# Exemplo: Audit Policy
+apiVersion: audit.k8s.io/v1
+kind: Policy
+rules:
+  # Log all requests to secrets at Metadata level
+  - level: Metadata
+    resources:
+    - group: ""
+      resources: ["secrets"]
+  # Log pod changes at RequestResponse level
+  - level: RequestResponse
+    resources:
+    - group: ""
+      resources: ["pods"]
+    verbs: ["create", "update", "patch", "delete"]

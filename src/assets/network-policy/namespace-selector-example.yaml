@@ -1,0 +1,6 @@
+ingress:
+  - from:
+      # Permite Pods de namespaces com label env=production
+      - namespaceSelector:
+          matchLabels:
+            env: production
