@@ -7,7 +7,38 @@
 ServiceAccount fornece uma identidade para processos rodando em Pods. Permite que aplicações se autentiquem com a API do Kubernetes e outros serviços.
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/service-account-tipos-de-contas-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title TIPOS DE CONTAS
+
+rectangle "USER ACCOUNT" as user {
+  note as userinfo
+    Para humanos
+    Global no cluster
+    Gerenciado externo
+    (OIDC, certificado)
+  end note
+}
+
+rectangle "SERVICE ACCOUNT" as sa {
+  note as sainfo
+    Para processos/Pods
+    Namespace-scoped
+    Gerenciado pelo K8s
+    (objeto na API)
+  end note
+}
+
+note bottom
+  **Autenticação:**
+  User: Certificado X.509, OIDC, Webhook
+  SA: Token JWT montado no Pod
+end note
+
+@enduml
 ```
 
 ### ServiceAccount Padrão
@@ -27,7 +58,23 @@ kubectl describe sa default
 ### Como ServiceAccount é Usada
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/service-account-fluxo-de-autenticação-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title FLUXO DE AUTENTICAÇÃO
+
+rectangle "1. Pod criado com\nserviceAccountName" as step1
+rectangle "2. Kubelet monta token em:\n/var/run/secrets/kubernetes.io/serviceaccount/\n• token (JWT token)\n• ca.crt (CA do cluster)\n• namespace (nome)" as step2
+rectangle "3. Aplicação usa token\npara autenticar na API\nAuthorization: Bearer <token>" as step3
+rectangle "4. API Server valida\ntoken e verifica RBAC" as step4
+
+step1 --> step2
+step2 --> step3
+step3 --> step4
+
+@enduml
 ```
 
 ---
@@ -66,7 +113,32 @@ kubectl create serviceaccount my-app-sa --dry-run=client -o yaml
 ### Mudanças a partir do Kubernetes 1.24
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/service-account-tokens-pré-vs-pós-124-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title TOKENS PRÉ vs PÓS 1.24
+
+map "ANTES (< 1.24)" as antes {
+  Token => Criado automaticamente como Secret
+  Expiração => Sem expiração (inseguro)
+  Cleanup => Secret permanecia mesmo se SA deletada
+}
+
+map "DEPOIS (>= 1.24)" as depois {
+  Token => NÃO criados automaticamente
+  Expiração => Tokens projetados com expiração (bound tokens)
+  Segurança => Mais seguro por padrão
+}
+
+note bottom of depois
+  **Opções para obter token:**
+  1. kubectl create token (temporário)
+  2. Criar Secret manual (permanente, não recomendado)
+  3. TokenRequest API (programático)
+end note
+
+@enduml
 ```
 
 ### Criar Token Temporário
@@ -279,7 +351,40 @@ kubectl get sa <sa> -o jsonpath='{.automountServiceAccountToken}'
 ## Dicas para os Exames
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/service-account-dicas-ckacks-serviceaccount-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DICAS CKA/CKS - SERVICEACCOUNT
+
+map "COMANDOS" as comandos {
+  Criar SA => kubectl create sa NAME
+  Usar em Pod => spec.serviceAccountName: sa-name
+  Desabilitar automount => spec.automountServiceAccountToken: false
+  Criar token => kubectl create token SA-NAME --duration=1h
+}
+
+map "VERIFICAR PERMISSÕES" as permissoes {
+  Comando => kubectl auth can-i VERB RESOURCE
+  Flag => --as=system:serviceaccount:NAMESPACE:SA-NAME
+}
+
+note as N1
+  **Path do token no Pod:**
+  /var/run/secrets/kubernetes.io/serviceaccount/
+  ├── token
+  ├── ca.crt
+  └── namespace
+end note
+
+note as N2
+  **Não esquecer:**
+  • SA precisa de Role/ClusterRole + Binding para ter acesso
+  • automountServiceAccountToken: false para pods que não
+    precisam acessar a API (mais seguro)
+end note
+
+@enduml
 ```
 
 ---

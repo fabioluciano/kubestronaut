@@ -9,13 +9,91 @@
 O Kubernetes fornece um sistema de storage abstrato que permite separar a configuracao de storage das aplicacoes. Isso permite que desenvolvedores solicitem storage sem conhecer os detalhes da infraestrutura subjacente.
 
 ```plantuml,format=png
-../assets/diagrams/storage/storage-arquitetura-de-storage-no-kubernetes-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title ARQUITETURA DE STORAGE NO KUBERNETES
+
+rectangle "Cluster Kubernetes" {
+  rectangle "Pod" {
+    card "Container" as c1
+    card "volumeMounts" as vm
+  }
+
+  rectangle "Volume" as vol {
+    card "emptyDir" as ed
+    card "hostPath" as hp
+    card "configMap" as cm
+    card "secret" as sec
+    card "PVC" as pvc_vol
+  }
+
+  rectangle "PersistentVolumeClaim (PVC)" as pvc {
+    card "Solicitacao de storage" as req
+    card "accessModes" as am
+    card "resources.requests.storage" as rs
+  }
+
+  rectangle "PersistentVolume (PV)" as pv {
+    card "Storage provisionado" as sp
+    card "capacity" as cap
+    card "reclaimPolicy" as rp
+  }
+
+  rectangle "StorageClass" as sc {
+    card "provisioner" as prov
+    card "parameters" as params
+    card "reclaimPolicy" as scrp
+  }
+}
+
+rectangle "Backend de Storage" as backend {
+  card "AWS EBS" as ebs
+  card "GCE PD" as gcepd
+  card "Azure Disk" as azure
+  card "NFS" as nfs
+  card "Local" as local
+}
+
+c1 --> vm
+vm --> vol
+pvc_vol --> pvc
+pvc --> pv : bind
+pv --> backend
+sc --> pv : provisiona
+
+@enduml
 ```
 
 ### Hierarquia de Storage
 
 ```plantuml,format=png
-../assets/diagrams/storage/storage-hierarquia-de-storage-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title HIERARQUIA DE STORAGE
+
+rectangle "1. VOLUMES EFEMEROS" {
+  card "emptyDir - Vida do Pod" as ed
+  card "configMap - Dados de config" as cm
+  card "secret - Dados sensiveis" as sec
+  card "downwardAPI - Metadados" as da
+}
+
+rectangle "2. VOLUMES PERSISTENTES" {
+  card "hostPath - Diretorio do Node" as hp
+  card "PersistentVolumeClaim - Storage abstrato" as pvc
+  card "CSI - Interface padrao" as csi
+}
+
+rectangle "3. PROVISIONAMENTO" {
+  card "Estatico - Admin cria PV" as static
+  card "Dinamico - StorageClass cria PV" as dynamic
+}
+
+@enduml
 ```
 
 ---
@@ -100,7 +178,35 @@ Montam ConfigMaps e Secrets como arquivos no Pod.
 PersistentVolume e um recurso de storage no cluster que foi provisionado por um administrador ou dinamicamente usando StorageClasses.
 
 ```plantuml,format=png
-../assets/diagrams/storage/storage-ciclo-de-vida-do-pv-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title CICLO DE VIDA DO PV
+
+[*] --> Available : PV criado
+Available --> Bound : PVC faz bind
+Bound --> Released : PVC deletado
+Released --> Available : Recycle
+Released --> [*] : Delete
+Released --> Failed : Erro no reclaim
+
+note right of Available
+  PV livre, disponivel
+  para bind
+end note
+
+note right of Bound
+  PV ligado a um PVC
+  Em uso
+end note
+
+note right of Released
+  PVC deletado
+  Dados ainda existem
+end note
+
+@enduml
 ```
 
 ### Estrutura do PV
@@ -135,7 +241,32 @@ PVC e uma solicitacao de storage por um usuario. Similar a um Pod que consome re
 ### Binding PV-PVC
 
 ```plantuml,format=png
-../assets/diagrams/storage/storage-processo-de-binding-pv-pvc-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title PROCESSO DE BINDING PV-PVC
+
+rectangle "PVC Criado" as pvc {
+  card "accessModes: RWO" as am1
+  card "storage: 5Gi" as s1
+  card "storageClassName: manual" as sc1
+}
+
+rectangle "PV Disponivel" as pv {
+  card "accessModes: RWO" as am2
+  card "capacity: 10Gi" as s2
+  card "storageClassName: manual" as sc2
+}
+
+pvc --> pv : Match!\n1. accessModes compativeis\n2. capacity >= request\n3. storageClassName igual
+
+note bottom of pv
+  PVC pode usar ate 10Gi
+  mesmo solicitando 5Gi
+end note
+
+@enduml
 ```
 
 **Criterios de Binding:**
@@ -159,7 +290,43 @@ PVC e uma solicitacao de storage por um usuario. Similar a um Pod que consome re
 | `ReadWriteOncePod` | RWOP | Leitura/escrita por um unico Pod (K8s 1.22+) |
 
 ```plantuml,format=png
-../assets/diagrams/storage/storage-access-modes-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title ACCESS MODES
+
+rectangle "ReadWriteOnce (RWO)" {
+  node "Node 1" as n1 {
+    card "Pod A (R/W)" as p1
+  }
+  node "Node 2" as n2 {
+    card "Pod B (X)" as p2
+  }
+  note bottom: Um Node pode montar R/W
+}
+
+rectangle "ReadOnlyMany (ROX)" {
+  node "Node 3" as n3 {
+    card "Pod C (RO)" as p3
+  }
+  node "Node 4" as n4 {
+    card "Pod D (RO)" as p4
+  }
+  note bottom: Varios Nodes podem montar RO
+}
+
+rectangle "ReadWriteMany (RWX)" {
+  node "Node 5" as n5 {
+    card "Pod E (R/W)" as p5
+  }
+  node "Node 6" as n6 {
+    card "Pod F (R/W)" as p6
+  }
+  note bottom: Varios Nodes podem montar R/W
+}
+
+@enduml
 ```
 
 ### Suporte por Backend
@@ -189,7 +356,33 @@ O que acontece com o PV quando o PVC e deletado:
 | `Recycle` | Limpa dados (`rm -rf /volume/*`) - **Deprecado** | Legado |
 
 ```plantuml,format=png
-../assets/diagrams/storage/storage-reclaim-policies-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title RECLAIM POLICIES
+
+rectangle "RETAIN" {
+  card "1. PVC deletado" as r1
+  card "2. PV vai para Released" as r2
+  card "3. Dados preservados" as r3
+  card "4. Admin limpa manualmente" as r4
+  card "5. Admin recria PV ou deleta" as r5
+  r1 --> r2
+  r2 --> r3
+  r3 --> r4
+  r4 --> r5
+}
+
+rectangle "DELETE" {
+  card "1. PVC deletado" as d1
+  card "2. PV deletado automaticamente" as d2
+  card "3. Storage backend deletado" as d3
+  d1 --> d2
+  d2 --> d3
+}
+
+@enduml
 ```
 
 ---
@@ -224,7 +417,41 @@ StorageClass permite provisionamento dinamico de PVs. Define o "tipo" de storage
 ### Volume Binding Modes
 
 ```plantuml,format=png
-../assets/diagrams/storage/storage-volume-binding-modes-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title VOLUME BINDING MODES
+
+rectangle "Immediate (Padrao)" {
+  card "1. PVC criado" as i1
+  card "2. PV provisionado imediatamente" as i2
+  card "3. Pode criar em zona diferente do Pod!" as i3
+  i1 --> i2
+  i2 --> i3
+}
+
+rectangle "WaitForFirstConsumer" {
+  card "1. PVC criado" as w1
+  card "2. Aguarda Pod ser scheduled" as w2
+  card "3. PV criado na mesma zona do Pod" as w3
+  w1 --> w2
+  w2 --> w3
+}
+
+note bottom of i3
+  Problema: Pod pode nao
+  conseguir usar o PV
+  se estiver em outra zona
+end note
+
+note bottom of w3
+  Recomendado para
+  volumes locais e
+  storage zonal
+end note
+
+@enduml
 ```
 
 ### StorageClass Default
@@ -294,7 +521,43 @@ Para filesystems, pode ser necessario restartar o Pod para que a expansao seja a
 CSI e a interface padrao para expor sistemas de storage para containers. Permite que vendors criem plugins de storage sem modificar o codigo do Kubernetes.
 
 ```plantuml,format=png
-../assets/diagrams/storage/storage-arquitetura-csi-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title ARQUITETURA CSI
+
+rectangle "Kubernetes" {
+  rectangle "Control Plane" {
+    card "kube-controller-manager" as kcm
+    card "external-provisioner" as ep
+    card "external-attacher" as ea
+  }
+
+  rectangle "Node" {
+    card "kubelet" as kl
+    card "CSI Node Driver" as cnd
+  }
+}
+
+rectangle "CSI Driver" {
+  card "Controller Plugin" as cp
+  card "Node Plugin" as np
+}
+
+rectangle "Storage Backend" as sb {
+  card "AWS EBS" as ebs
+  card "Ceph" as ceph
+  card "NetApp" as netapp
+}
+
+ep --> cp : CreateVolume
+ea --> cp : ControllerPublish
+kl --> np : NodeStage/NodePublish
+cp --> sb
+np --> sb
+
+@enduml
 ```
 
 ### Componentes CSI
@@ -676,7 +939,39 @@ kubectl run nginx --image=nginx --dry-run=client -o yaml > pod.yaml
 ## Resumo Visual
 
 ```plantuml,format=png
-../assets/diagrams/storage/storage-resumo-storage-no-kubernetes-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title RESUMO: STORAGE NO KUBERNETES
+
+rectangle "VOLUMES EFEMEROS" #LightBlue {
+  card "emptyDir\n- Vida do Pod\n- Cache/temp" as ed
+  card "configMap/secret\n- Configuracao\n- Read-only" as cs
+}
+
+rectangle "VOLUMES PERSISTENTES" #LightGreen {
+  card "PersistentVolume (PV)\n- Recurso do cluster\n- Criado por admin ou dinamico" as pv
+  card "PersistentVolumeClaim (PVC)\n- Solicitacao de usuario\n- Namespace-scoped" as pvc
+}
+
+rectangle "PROVISIONAMENTO" #LightYellow {
+  card "Estatico\n- Admin cria PV\n- PVC faz bind" as static
+  card "Dinamico\n- StorageClass\n- PV criado automaticamente" as dynamic
+}
+
+rectangle "ACCESS MODES" #LightPink {
+  card "RWO - ReadWriteOnce\nUm node R/W" as rwo
+  card "ROX - ReadOnlyMany\nVarios nodes RO" as rox
+  card "RWX - ReadWriteMany\nVarios nodes R/W" as rwx
+}
+
+rectangle "RECLAIM POLICIES" #LightGray {
+  card "Retain - Preserva dados" as retain
+  card "Delete - Remove tudo" as delete
+}
+
+@enduml
 ```
 
 ---

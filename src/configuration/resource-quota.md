@@ -11,7 +11,35 @@ CKA (10%), CKAD (10%)
 ResourceQuota define limites agregados de recursos computacionais e objetos que podem existir em um namespace. Permite controlar o consumo total de recursos por namespace.
 
 ```plantuml,format=png
-!include ../assets/diagrams/configuration/resource-quota-resourcequota-overview.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title RESOURCEQUOTA OVERVIEW
+
+rectangle "ResourceQuota: team-quota\nNamespace: development" {
+  rectangle "Limites de Compute" {
+    card "requests.cpu: 4" as rc
+    card "requests.memory: 8Gi" as rm
+    card "limits.cpu: 8" as lc
+    card "limits.memory: 16Gi" as lm
+  }
+  
+  rectangle "Limites de Objetos" {
+    card "pods: 20" as p
+    card "services: 10" as s
+    card "secrets: 20" as sec
+    card "configmaps: 20" as cm
+    card "persistentvolumeclaims: 10" as pvc
+  }
+}
+
+note bottom
+  📌 Quota é namespace-scoped
+  📌 Pods SEM requests/limits serão rejeitados se quota definir
+end note
+
+@enduml
 ```
 
 ### ResourceQuota vs LimitRange
@@ -26,7 +54,33 @@ ResourceQuota define limites agregados de recursos computacionais e objetos que 
 ### Tipos de Recursos Controlados
 
 ```plantuml,format=png
-!include ../assets/diagrams/configuration/resource-quota-recursos-controlados.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title RECURSOS CONTROLADOS
+
+rectangle "COMPUTE RESOURCES" {
+  card "requests.cpu" as rc
+  card "requests.memory" as rm
+  card "limits.cpu" as lc
+  card "limits.memory" as lm
+}
+
+rectangle "STORAGE RESOURCES" {
+  card "requests.storage" as rs
+  card "persistentvolumeclaims" as pvc
+  card "<storage-class>.storageclass.storage.k8s.io/requests.storage" as sc
+}
+
+rectangle "OBJECT COUNTS" {
+  card "pods, services, secrets, configmaps" as obj1
+  card "replicationcontrollers, deployments.apps" as obj2
+  card "resourcequotas, services.loadbalancers" as obj3
+  card "count/<resource>.<group>" as obj4
+}
+
+@enduml
 ```
 
 ---
@@ -298,5 +352,20 @@ kubectl create quota team-a-quota --hard=pods=20,services=10 -n team-a
 ### ResourceQuota com LimitRange (Importante!)
 
 ```plantuml,format=png
-!include ../assets/diagrams/configuration/resource-quota-diagram-3.puml
+@startsalt
+{+
+  <b>RESOURCEQUOTA + LIMITRANGE</b>
+  ---
+  <b>PROBLEMA:</b>
+  ResourceQuota com compute resources (requests.cpu, etc)
+  REQUER que Pods definam requests/limits
+  .
+  Pod sem resources → REJEITADO
+  .
+  <b>SOLUÇÃO:</b>
+  Usar LimitRange para definir valores padrão
+  Pod sem resources → valores padrão aplicados → ACEITO
+}
+@endsalt
+
 ```

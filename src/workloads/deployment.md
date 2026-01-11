@@ -20,7 +20,55 @@ O Deployment e responsavel por:
 ### Arquitetura do Deployment
 
 ```plantuml,format=png
-!include ../assets/diagrams/workloads/deployment-arquitetura-do-deployment-1.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Arquitetura do Deployment
+
+package "Deployment Controller" {
+    [Deployment] as DEP
+    [ReplicaSet v1] as RS1
+    [ReplicaSet v2] as RS2
+
+    package "Pods v1 (antiga)" {
+        [Pod 1a] as P1A
+    }
+
+    package "Pods v2 (nova)" {
+        [Pod 2a] as P2A
+        [Pod 2b] as P2B
+        [Pod 2c] as P2C
+    }
+}
+
+DEP --> RS1 : gerencia\n(scale down)
+DEP --> RS2 : gerencia\n(scale up)
+RS1 --> P1A : controla
+RS2 --> P2A : controla
+RS2 --> P2B : controla
+RS2 --> P2C : controla
+
+note right of DEP
+    Deployment controla:
+    - Estrategia de update
+    - Numero de revisoes
+    - Rollback
+end note
+
+note bottom of RS1
+    ReplicaSet antigo:
+    replicas: 1 (scaling down)
+end note
+
+note bottom of RS2
+    ReplicaSet novo:
+    replicas: 3 (scaling up)
+end note
+
+@enduml
 ```
 
 ## Estrutura Basica
@@ -48,7 +96,59 @@ O Kubernetes suporta duas estrategias de atualizacao: **RollingUpdate** (padrao)
 ### Diagrama Comparativo
 
 ```plantuml,format=png
-!include ../assets/diagrams/workloads/deployment-comparacao-recreate-vs-rollingupdate-1.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Comparacao: Recreate vs RollingUpdate
+
+rectangle "Recreate Strategy" {
+    rectangle "Estado Inicial" as R1 {
+        [Pod v1] as RP1
+        [Pod v1] as RP2
+        [Pod v1] as RP3
+    }
+
+    rectangle "Durante Update" as R2 {
+        note "Todos Pods\nterminados\n(DOWNTIME)" as RN
+    }
+
+    rectangle "Estado Final" as R3 {
+        [Pod v2] as RP4
+        [Pod v2] as RP5
+        [Pod v2] as RP6
+    }
+
+    R1 --> R2 : Termina todos
+    R2 --> R3 : Cria novos
+}
+
+rectangle "RollingUpdate Strategy" {
+    rectangle "Fase 1" as RU1 {
+        [Pod v1] as RUP1
+        [Pod v1] as RUP2
+        [Pod v2] as RUP3
+    }
+
+    rectangle "Fase 2" as RU2 {
+        [Pod v1] as RUP4
+        [Pod v2] as RUP5
+        [Pod v2] as RUP6
+    }
+
+    rectangle "Fase 3" as RU3 {
+        [Pod v2] as RUP7
+        [Pod v2] as RUP8
+        [Pod v2] as RUP9
+    }
+
+    RU1 --> RU2 : Gradual
+    RU2 --> RU3 : Sem downtime
+}
+
+@enduml
 ```
 
 ### Estrategia Recreate
@@ -91,7 +191,35 @@ Para updates mais rapidos, aumente `maxSurge`. Para updates mais seguros (menos 
 ### Ciclo de Vida de um Rollout
 
 ```plantuml,format=png
-!include ../assets/diagrams/workloads/deployment-ciclo-de-vida-do-rollout-1.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Ciclo de Vida do Rollout
+
+[*] --> Progressing : kubectl apply
+
+state Progressing {
+    [*] --> CreatingRS : Cria novo ReplicaSet
+    CreatingRS --> ScalingUp : Scale up novos Pods
+    ScalingUp --> ScalingDown : Scale down antigos
+    ScalingDown --> [*] : Concluido
+}
+
+Progressing --> Complete : Sucesso
+Progressing --> Failed : Timeout/Erro
+Progressing --> Paused : kubectl rollout pause
+
+Paused --> Progressing : kubectl rollout resume
+
+Failed --> Progressing : kubectl rollout undo
+Complete --> Progressing : Nova alteracao
+
+Complete --> [*]
+
+@enduml
 ```
 
 ### Comandos de Rollout
@@ -199,7 +327,35 @@ kubectl rollout resume deployment/my-app
 ```
 
 ```plantuml,format=png
-!include ../assets/diagrams/workloads/deployment-fluxo-de-pauseresume-1.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Fluxo de Pause/Resume
+
+start
+
+:Deployment rodando normalmente;
+
+:kubectl rollout pause;
+note right: Alteracoes nao\ntrigger rollout
+
+partition "Multiplas Alteracoes" {
+    :set image;
+    :set resources;
+    :set env;
+}
+
+:kubectl rollout resume;
+note right: Um unico rollout\ncom todas alteracoes
+
+:Rollout executado;
+
+stop
+
+@enduml
 ```
 
 ## Patterns de Deployment Avancados
@@ -209,7 +365,39 @@ kubectl rollout resume deployment/my-app
 O padrao Blue/Green mantem duas versoes completas da aplicacao. O switch e instantaneo, alterando para qual versao o Service aponta.
 
 ```plantuml,format=png
-!include ../assets/diagrams/workloads/deployment-bluegreen-deployment-1.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Blue/Green Deployment
+
+rectangle "Blue (v1 - Atual)" as BLUE {
+    [Pod v1] as BP1
+    [Pod v1] as BP2
+    [Pod v1] as BP3
+}
+
+rectangle "Green (v2 - Nova)" as GREEN {
+    [Pod v2] as GP1
+    [Pod v2] as GP2
+    [Pod v2] as GP3
+}
+
+entity "Service" as SVC
+actor Usuario
+
+Usuario --> SVC
+SVC --> BLUE : selector: version=blue
+
+note bottom of GREEN
+    Pronto para receber trafego.
+    Basta mudar o selector do
+    Service para version=green
+end note
+
+@enduml
 ```
 
 #### Implementacao via Service
@@ -249,7 +437,44 @@ kubectl edit svc myapp-service
 O padrao Canary envia uma pequena porcentagem do trafego para a nova versao para validacao antes do rollout completo.
 
 ```plantuml,format=png
-!include ../assets/diagrams/workloads/deployment-canary-deployment-1.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Canary Deployment
+
+rectangle "Stable (v1)" as STABLE {
+    [Pod v1] as SP1
+    [Pod v1] as SP2
+    [Pod v1] as SP3
+    [Pod v1] as SP4
+    [Pod v1] as SP5
+    [Pod v1] as SP6
+    [Pod v1] as SP7
+    [Pod v1] as SP8
+    [Pod v1] as SP9
+}
+
+rectangle "Canary (v2)" as CANARY {
+    [Pod v2] as CP1
+}
+
+entity "Service" as SVC
+actor Usuario
+
+Usuario --> SVC
+SVC --> STABLE : 90% trafego
+SVC --> CANARY : 10% trafego
+
+note bottom of CANARY
+    Mesma label "app: myapp"
+    Service balanceia entre
+    todos os pods (9:1)
+end note
+
+@enduml
 ```
 
 #### Implementacao via Service (Proporcao de Replicas)

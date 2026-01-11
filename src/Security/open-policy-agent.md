@@ -7,7 +7,28 @@
 OPA (Open Policy Agent) é um motor de políticas open-source de propósito geral. No contexto Kubernetes, usa-se o **Gatekeeper**, que integra OPA ao admission controller.
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/open-policy-agent-fluxo-opa-gatekeeper-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title FLUXO OPA GATEKEEPER
+
+rectangle "1. kubectl apply -f pod.yaml" as kubectl
+rectangle "2. API Server" as api
+
+rectangle "3. Admission Controller" as admission {
+  rectangle "OPA Gatekeeper" as gatekeeper {
+    rectangle "ConstraintTemplate\n+ Constraint\n(Rego Policy)" as policy
+  }
+}
+
+rectangle "4. ✓ ALLOW  ou  ✗ DENY" as result
+
+kubectl -down-> api
+api -down-> admission
+admission -down-> result
+
+@enduml
 ```
 
 ### Componentes Principais
@@ -62,7 +83,33 @@ kubectl get crd | grep gatekeeper
 ### Sintaxe Básica
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/open-policy-agent-rego-básico-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title REGO BÁSICO
+
+note as N1
+  **package** kubernetes.admission
+  
+  # Regra de violação - retorna mensagem se condição for true
+  **violation**[{"msg": msg}] {
+      # Condições
+      input.review.kind.kind == "Pod"
+      container := input.review.object.spec.containers[_]
+      not container.resources.limits.cpu
+      msg := "Container deve ter CPU limit definido"
+  }
+end note
+
+map "Estrutura do input" as input {
+  input.review.kind => tipo do recurso
+  input.review.object => objeto sendo criado/modificado
+  input.review.oldObject => objeto anterior (updates)
+  input.parameters => parâmetros do Constraint
+}
+
+@enduml
 ```
 
 ### Operadores Rego
@@ -125,7 +172,29 @@ re_match("pattern", string)
 ### Enforcement Actions
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/open-policy-agent-enforcement-actions-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title ENFORCEMENT ACTIONS
+
+map "deny" as deny {
+  Ação => Bloqueia o recurso se violar a política
+  Uso => Produção
+}
+
+map "dryrun" as dryrun {
+  Ação => Não bloqueia, apenas registra violação
+  Auditoria => Encontra violações em recursos existentes
+  Uso => Testar políticas
+}
+
+map "warn" as warn {
+  Ação => Permite mas mostra warning ao usuário
+  Uso => Fase de transição
+}
+
+@enduml
 ```
 
 ---
@@ -233,7 +302,33 @@ kubectl get validatingwebhookconfigurations gatekeeper-validating-webhook-config
 ## Gatekeeper vs PSA vs Kyverno
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/open-policy-agent-comparação-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title COMPARAÇÃO
+
+map "OPA Gatekeeper" as opa {
+  ✓ => Linguagem Rego (flexível mas complexa)
+  ✓ => Políticas genéricas (qualquer recurso)
+  ✓ => Auditoria de recursos existentes
+  ✗ => Curva de aprendizado maior
+}
+
+map "Pod Security Admission (PSA)" as psa {
+  ✓ => Nativo do Kubernetes
+  ✓ => Simples de usar (privileged/baseline/restricted)
+  ✗ => Apenas para Pods
+  ✗ => Pouca flexibilidade
+}
+
+map "Kyverno" as kyverno {
+  ✓ => Políticas em YAML (familiar)
+  ✓ => Pode gerar e mutar recursos
+  ✓ => Mais fácil que Rego
+}
+
+@enduml
 ```
 
 ---
@@ -253,7 +348,37 @@ Kyverno é uma alternativa ao Gatekeeper que usa YAML nativo (sem Rego):
 ## Dicas para o Exame CKS
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/open-policy-agent-dicas-cks-opa-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DICAS CKS - OPA
+
+map "Conceitos chave" as conceitos {
+  ConstraintTemplate => define a política (Rego)
+  Constraint => aplica a política com parâmetros
+  violation => [{"msg": msg}] sintaxe para negar
+}
+
+map "Rego essencial" as rego {
+  input.review.object => recurso sendo admitido
+  input.parameters => parâmetros do Constraint
+  iteração => container := spec.containers[_]
+}
+
+map "Match seletores" as match {
+  match.kinds => tipos de recursos
+  match.namespaces => namespaces incluídos
+  match.excludedNamespaces => namespaces excluídos
+}
+
+map "Enforcement" as enforcement {
+  deny => bloqueia
+  dryrun => apenas audita
+  warn => permite com aviso
+}
+
+@enduml
 ```
 
 ---

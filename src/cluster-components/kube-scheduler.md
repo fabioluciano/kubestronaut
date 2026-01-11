@@ -12,13 +12,101 @@ O scheduler apenas **decide** onde o pod vai rodar. Quem **executa** o pod e o k
 ## Arquitetura e Funcionamento
 
 ```plantuml,format=png
-!include ../assets/diagrams/cluster-components/kube-scheduler-arquitetura-do-kube-scheduler.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Arquitetura do kube-scheduler
+
+package "kube-scheduler" {
+    [Scheduling Queue] as queue
+    [Scheduling Cycle] as cycle
+    package "Framework Plugins" {
+        [Filter Plugins] as filter
+        [Score Plugins] as score
+        [Reserve/Bind Plugins] as bind
+    }
+}
+
+package "kube-apiserver" {
+    [API Server] as api
+}
+
+database "etcd" as etcd
+
+[Unscheduled\nPods] as unscheduled
+
+unscheduled --> queue : Watch pods sem node
+queue --> cycle : Pod para scheduling
+cycle --> filter : Filtra nodes viaveis
+filter --> score : Ranqueia nodes
+score --> bind : Seleciona melhor node
+bind --> api : Bind pod ao node
+api --> etcd
+
+@enduml
 ```
 
 ## Ciclo de Scheduling
 
 ```plantuml,format=png
-!include ../assets/diagrams/cluster-components/kube-scheduler-ciclo-de-scheduling.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Ciclo de Scheduling
+
+start
+
+partition "Scheduling Queue" {
+    :Pod criado sem nodeName;
+    :Adiciona a fila de scheduling;
+    :Ordena por prioridade;
+}
+
+partition "Filtering (Predicates)" {
+    :Obtem lista de todos nodes;
+    :Executa filter plugins;
+    note right
+      - NodeSelector
+      - Taints/Tolerations
+      - Resources (CPU/Memory)
+      - NodeAffinity
+      - PodAffinity/AntiAffinity
+      - Volume requirements
+    end note
+    if (Nodes viaveis > 0?) then (sim)
+    else (nao)
+        :Pod fica Pending;
+        stop
+    endif
+}
+
+partition "Scoring (Priorities)" {
+    :Executa score plugins;
+    note right
+      - Resource balancing
+      - Spreading
+      - Node affinity weight
+      - Pod affinity weight
+    end note
+    :Soma scores de cada node;
+    :Seleciona node com maior score;
+}
+
+partition "Binding" {
+    :Reserve resources no node;
+    :Assume pod esta bound;
+    :Envia binding ao API Server\n(assincrono);
+}
+
+stop
+
+@enduml
 ```
 
 ## Filter Plugins (Predicates)
@@ -43,7 +131,35 @@ Os filter plugins eliminam nodes que nao podem executar o pod.
 ### Exemplo de Filtering
 
 ```plantuml,format=png
-!include ../assets/diagrams/cluster-components/kube-scheduler-filtering-exemplo.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Filtering - Exemplo
+
+rectangle "Pod Requirements" as pod {
+    card "CPU: 500m\nMemory: 256Mi\nTolerations: gpu=true" as req
+}
+
+rectangle "Nodes" as nodes {
+    card "Node A\nCPU: 2000m\nMemory: 4Gi\nTaint: gpu=true" as a
+    card "Node B\nCPU: 100m\nMemory: 128Mi\nNo Taints" as b
+    card "Node C\nCPU: 2000m\nMemory: 4Gi\nNo Taints" as c
+    card "Node D\nCPU: 1000m\nMemory: 1Gi\nTaint: gpu=true" as d
+}
+
+pod --> a : Passa (recursos OK, toleration OK)
+pod --> b : Falha (recursos insuficientes)
+pod --> c : Passa (recursos OK, sem taint)
+pod --> d : Passa (recursos OK, toleration OK)
+
+note bottom of nodes
+  Nodes viaveis: A, C, D
+end note
+
+@enduml
 ```
 
 ## Score Plugins (Priorities)
@@ -65,7 +181,45 @@ Os score plugins ranqueiam os nodes viaveis.
 ### Exemplo de Scoring
 
 ```plantuml,format=png
-!include ../assets/diagrams/cluster-components/kube-scheduler-scoring-exemplo.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Scoring - Exemplo
+
+rectangle "Nodes Viaveis" as nodes {
+    card "Node A\nResources: 70%\nImage: Yes\nAffinity Match" as a
+    card "Node C\nResources: 30%\nImage: No\nNo Affinity" as c
+    card "Node D\nResources: 50%\nImage: Yes\nAffinity Match" as d
+}
+
+card "Scores Finais" as scores {
+    note as n
+      Node A:
+        - Balance: 30
+        - Image: 20
+        - Affinity: 50
+        Total: 100
+
+      Node C:
+        - Balance: 70
+        - Image: 0
+        - Affinity: 0
+        Total: 70
+
+      Node D:
+        - Balance: 50
+        - Image: 20
+        - Affinity: 50
+        Total: 120 (WINNER)
+    end note
+}
+
+nodes --> scores
+
+@enduml
 ```
 
 ## Scheduler Profiles
@@ -121,7 +275,32 @@ A partir do Kubernetes 1.18, e possivel configurar multiplos profiles de schedul
 ### Fluxo de Preemption
 
 ```plantuml,format=png
-!include ../assets/diagrams/cluster-components/kube-scheduler-preemption-fluxo.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Preemption - Fluxo
+
+start
+
+:Pod alta prioridade nao consegue\nser scheduled (sem recursos);
+
+:Scheduler busca pods de menor\nprioridade para preemptar;
+
+if (Encontrou candidatos?) then (sim)
+    :Seleciona pod(s) para preemptar;
+    :Envia sinal de termination\n(graceful shutdown);
+    :Aguarda terminacao;
+    :Schedula pod de alta prioridade;
+else (nao)
+    :Pod permanece Pending;
+endif
+
+stop
+
+@enduml
 ```
 
 ## Custom Scheduler

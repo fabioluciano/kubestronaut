@@ -11,7 +11,27 @@ CKA (20%), CKAD (15%), KCNA (10%)
 Services são abstrações que definem uma política de acesso lógico para um conjunto de Pods. Eles permitem comunicação estável entre componentes, independente de mudanças nos IPs dos Pods.
 
 ```plantuml,format=png
-!include ../assets/diagrams/networking/service-service-abstraction.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title SERVICE ABSTRACTION
+
+rectangle "Client\n(Pod ou Externo)" as client
+
+rectangle "Service: web-svc\nClusterIP: 10.96.0.10\nPort: 80\nselector: app=web" as svc
+
+rectangle "Pod web-1\n10.244.1.5\napp=web" as pod1
+rectangle "Pod web-2\n10.244.2.3\napp=web" as pod2
+rectangle "Pod web-3\n10.244.3.8\napp=web" as pod3
+
+client -down-> svc
+svc -down-> pod1
+svc -down-> pod2
+svc -down-> pod3
+
+@enduml
 ```
 
 ### Tipos de Services
@@ -27,7 +47,28 @@ Services são abstrações que definem uma política de acesso lógico para um c
 ### Como Services Funcionam
 
 ```plantuml,format=png
-!include ../assets/diagrams/networking/service-fluxo-de-tráfego.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title FLUXO DE TRÁFEGO
+
+actor "Client" as client
+entity "kube-proxy\n(iptables)" as proxy
+entity "Pod" as pod
+client -> proxy : 1. Acessa Service
+proxy -> pod : 2-3. DNAT/LB
+pod -> client : 4. Responde
+
+note bottom of proxy
+  **Modos:**
+  • iptables mode: DNAT para Pod IP
+  • ipvs mode: Load balance para Pod IP
+  • userspace mode: Proxy (deprecated)
+end note
+
+@enduml
 ```
 
 ---
@@ -43,7 +84,26 @@ Cria um IP virtual acessível apenas dentro do cluster.
 ```
 
 ```plantuml,format=png
-!include ../assets/diagrams/networking/service-clusterip.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title ClusterIP
+
+rectangle "Pod interno" as pod
+rectangle "ClusterIP:80" as svc
+rectangle "Pods (targetPort:8080)" as targets
+
+pod -> svc
+svc -> targets
+
+note bottom
+  DNS: web-clusterip.default.svc.cluster.local
+  ⚠️ Não acessível de fora do cluster
+end note
+
+@enduml
 ```
 
 ### NodePort
@@ -55,7 +115,33 @@ Expõe o Service em uma porta de cada Node.
 ```
 
 ```plantuml,format=png
-!include ../assets/diagrams/networking/service-nodeport.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title NodePort
+
+actor "Externo" as ext
+entity "Node 1\n:30080" as n1
+entity "Node 2\n:30080" as n2
+entity "Node 3\n:30080" as n3
+entity "Service" as svc
+entity "Pods" as pods
+ext --> n1
+ext --> n2
+ext --> n3
+n1 --> svc
+n2 --> svc
+n3 --> svc
+svc --> pods
+
+note bottom
+  Externo → NodeIP:30080 → ClusterIP:80 → Pods:8080
+  📌 Qualquer Node responde na porta
+end note
+
+@enduml
 ```
 
 ### LoadBalancer
@@ -67,7 +153,36 @@ Provisiona um load balancer externo (requer cloud provider).
 ```
 
 ```plantuml,format=png
-!include ../assets/diagrams/networking/service-loadbalancer.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title LoadBalancer
+
+actor "Internet" as internet
+
+entity "Cloud Load Balancer\nExternal IP: 203.0.113.10" as lb
+entity "Node 1\n:30xxx" as n1
+entity "Node 2\n:30xxx" as n2
+entity "Node 3\n:30xxx" as n3
+entity "ClusterIP" as clusterip
+entity "Pods" as pods
+internet --> lb
+lb --> n1
+lb --> n2
+lb --> n3
+n1 --> clusterip
+n2 --> clusterip
+n3 --> clusterip
+clusterip --> pods
+
+note bottom
+  Internet → Cloud LB → NodePort → ClusterIP → Pods
+  📌 Cloud provider cria LB automaticamente
+end note
+
+@enduml
 ```
 
 
@@ -85,7 +200,28 @@ Cria um alias DNS para serviço externo.
 ```
 
 ```plantuml,format=png
-!include ../assets/diagrams/networking/service-externalname.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title ExternalName
+
+rectangle "Pod" as pod
+rectangle "external-db.default.svc" as svc
+rectangle "CNAME" as cname
+cloud "db.example.com" as external
+
+pod --> svc
+svc --> cname
+cname --> external
+
+note bottom
+  📌 Útil para migrar serviços externos para dentro do cluster
+  📌 Não cria endpoints, apenas DNS redirect
+end note
+
+@enduml
 ```
 
 ### Headless Service
@@ -97,7 +233,29 @@ Service sem ClusterIP - retorna IPs dos Pods diretamente.
 ```
 
 ```plantuml,format=png
-!include ../assets/diagrams/networking/service-headless-service.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Headless Service
+
+rectangle "DNS Query:\nweb-headless.default.svc.cluster.local" as dns
+
+rectangle "Retorna (múltiplos A records)" as response {
+  rectangle "10.244.1.5 (Pod 1)" as pod1
+  rectangle "10.244.2.3 (Pod 2)" as pod2
+  rectangle "10.244.3.8 (Pod 3)" as pod3
+}
+
+dns --> response
+
+note bottom
+  📌 Usado por StatefulSets para DNS individual por Pod
+  📌 Cliente decide para qual Pod conectar
+end note
+
+@enduml
 ```
 
 ---
@@ -223,7 +381,39 @@ kubectl cluster-info dump | grep cluster-cidr
 ### Formato DNS
 
 ```plantuml,format=png
-!include ../assets/diagrams/networking/service-dns-records.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title DNS RECORDS
+
+rectangle "ClusterIP/NodePort/LoadBalancer" as standard {
+  rectangle "<service>.<namespace>.svc.cluster.local" as stdDns
+  note right of stdDns
+    A record: ClusterIP
+    SRV record: _<port>._<protocol>.<service>...
+  end note
+}
+
+rectangle "Headless Service" as headless {
+  rectangle "<service>.<namespace>.svc.cluster.local" as headlessDns
+  note right of headlessDns
+    A records: IPs de todos os Pods
+    <pod-name>.<service>.<namespace>.svc.cluster.local
+    → A record: IP específico do Pod
+  end note
+}
+
+note bottom
+  **Exemplos:**
+  • web-service.default.svc.cluster.local
+  • web-service.default.svc
+  • web-service.default
+  • web-service (mesmo namespace)
+end note
+
+@enduml
 ```
 
 ### Variáveis de Ambiente

@@ -11,7 +11,33 @@ KCSA (10%), CKS (5%)
 Compliance é o conjunto de práticas para garantir que uma organização siga regulamentações, padrões e políticas de segurança aplicáveis.
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/compliance-compliance-no-kubernetes-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title COMPLIANCE NO KUBERNETES
+
+rectangle "Regulamentações" {
+  card "GDPR" as gdpr
+  card "HIPAA" as hipaa
+  card "PCI DSS" as pci
+  card "SOC 2" as soc
+}
+
+rectangle "Frameworks" {
+  card "CIS Benchmark" as cis
+  card "NIST" as nist
+  card "ISO 27001" as iso
+}
+
+rectangle "Kubernetes" {
+  card "Pod Security" as ps
+  card "RBAC" as rbac
+  card "Audit" as audit
+  card "Network Policy" as np
+}
+
+@enduml
 ```
 
 ### Por que Compliance é Importante?
@@ -30,7 +56,36 @@ Compliance é o conjunto de práticas para garantir que uma organização siga r
 O Center for Internet Security (CIS) publica benchmarks de configuração segura para diversas plataformas, incluindo Kubernetes.
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/compliance-cis-benchmark-seções-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title CIS BENCHMARK - SEÇÕES
+
+card "1. Control Plane Components" as s1
+card "2. etcd" as s2
+card "3. Control Plane Configuration" as s3
+card "4. Worker Nodes" as s4
+card "5. Policies" as s5
+
+note right of s1
+  kube-apiserver
+  kube-controller-manager
+  kube-scheduler
+end note
+
+note right of s4
+  kubelet
+  kube-proxy
+end note
+
+note right of s5
+  RBAC, PSP/PSA
+  Network Policies
+  Secrets
+end note
+
+@enduml
 ```
 
 ### Níveis do CIS Benchmark
@@ -89,7 +144,24 @@ kube-bench run --targets=policies
 ### Os Cinco Pilares
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/compliance-nist-cybersecurity-framework-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title NIST CYBERSECURITY FRAMEWORK
+
+card "1. IDENTIFY\nAssets, riscos, vulnerabilidades" as id
+card "2. PROTECT\nControles preventivos" as pr
+card "3. DETECT\nMonitoramento, detecção" as de
+card "4. RESPOND\nResposta a incidentes" as re
+card "5. RECOVER\nRecuperação" as rc
+
+id --> pr
+pr --> de
+de --> re
+re --> rc
+
+@enduml
 ```
 
 ### Mapeamento para Kubernetes
@@ -109,7 +181,19 @@ kube-bench run --targets=policies
 ### Trust Service Criteria
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/compliance-soc-2-trust-service-criteria-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title SOC 2 - TRUST SERVICE CRITERIA
+
+card "Security\nProteção contra acesso não autorizado" as sec
+card "Availability\nSistema disponível para uso" as avail
+card "Processing Integrity\nProcessamento correto" as proc
+card "Confidentiality\nProteção de dados confidenciais" as conf
+card "Privacy\nProteção de dados pessoais" as priv
+
+@enduml
 ```
 
 ### Controles K8s para SOC 2
@@ -131,7 +215,20 @@ kube-bench run --targets=policies
 Para ambientes que processam dados de cartão de crédito.
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/compliance-pci-dss-requisitos-chave-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title PCI DSS - REQUISITOS CHAVE
+
+card "1. Firewall\nNetwork segmentation" as r1
+card "2. No default passwords\nCredential management" as r2
+card "3. Protect stored data\nEncryption" as r3
+card "4. Encrypt transmission\nTLS" as r4
+card "5. Anti-malware\nImage scanning" as r5
+card "6. Secure development\nCI/CD security" as r6
+
+@enduml
 ```
 
 ### Implementação em Kubernetes
@@ -165,7 +262,19 @@ Para ambientes que processam dados de cartão de crédito.
 ### Requisitos para Dados Pessoais (EU)
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/compliance-gdpr-requisitos-chave-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title GDPR - REQUISITOS CHAVE
+
+card "Data Protection\nCriptografia, pseudonymization" as dp
+card "Access Control\nPrincípio do menor privilégio" as ac
+card "Audit Trail\nRastreabilidade de acessos" as at
+card "Data Portability\nBackup, export" as port
+card "Right to Erasure\nDeleção de dados" as del
+
+@enduml
 ```
 
 ### Implementação em Kubernetes
@@ -255,7 +364,34 @@ polaris audit --audit-path ./manifests/
 ### Policy as Code
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/compliance-policy-as-code-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title POLICY AS CODE
+
+rectangle "Define" {
+  card "Rego (OPA)" as rego
+  card "Kyverno YAML" as kyv
+}
+
+rectangle "Enforce" {
+  card "Admission Controller" as ac
+  card "CI/CD Pipeline" as ci
+}
+
+rectangle "Audit" {
+  card "Continuous Scanning" as scan
+  card "Compliance Reports" as rep
+}
+
+rego --> ac
+kyv --> ac
+ac --> scan
+ci --> scan
+scan --> rep
+
+@enduml
 ```
 
 ### OPA/Gatekeeper Policy
@@ -307,7 +443,19 @@ kubectl get ciskubebenchreports -A
 ## Dicas para o Exame
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/compliance-dicas-compliance-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DICAS - COMPLIANCE
+
+card "1. CIS Benchmark\nConheça as seções principais" as d1
+card "2. kube-bench\nSaiba executar e interpretar" as d2
+card "3. Audit logging\nNíveis: None, Metadata, Request, RequestResponse" as d3
+card "4. Frameworks\nNIST (5 pilares), SOC 2 (Trust Criteria)" as d4
+card "5. Tools\nkube-bench, kubescape, Polaris" as d5
+
+@enduml
 ```
 
 ### Conceitos-Chave

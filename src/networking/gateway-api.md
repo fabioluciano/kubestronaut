@@ -7,19 +7,102 @@
 Gateway API é a evolução do Ingress no Kubernetes. Oferece uma forma mais expressiva, extensível e orientada a roles para gerenciar tráfego de entrada (e futuramente saída) no cluster.
 
 ```plantuml,format=png
-!include ../assets/diagrams/networking/gateway-api-ingress-vs-gateway-api-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title INGRESS vs GATEWAY API
+
+rectangle "INGRESS (Legado)" {
+  card "✗ Apenas HTTP/HTTPS" as i1
+  card "✗ Configuração monolítica" as i2
+  card "✗ Extensibilidade via annotations" as i3
+  card "✗ Um recurso (Ingress) para tudo" as i4
+}
+
+rectangle "GATEWAY API (Moderno)" {
+  card "✓ HTTP, HTTPS, TCP, UDP, gRPC, TLS" as g1
+  card "✓ Separação de responsabilidades (roles)" as g2
+  card "✓ Extensível via CRDs nativos" as g3
+  card "✓ Múltiplos recursos especializados" as g4
+  card "✓ Portabilidade entre implementações" as g5
+}
+
+@enduml
 ```
 
 ### Arquitetura e Recursos
 
 ```plantuml,format=png
-!include ../assets/diagrams/networking/gateway-api-gateway-api-resources-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title GATEWAY API RESOURCES
+
+rectangle "GatewayClass (Cluster-scoped)" as gc {
+  note as n1
+    Define o "tipo" de Gateway (implementação)
+    Gerenciado pelo Cluster Admin
+  end note
+}
+
+rectangle "Gateway (Namespace-scoped)" as gw {
+  note as n2
+    Instância que escuta em portas/IPs
+    Gerenciado pelo Cluster Admin/Platform Team
+  end note
+}
+
+rectangle "HTTPRoute / TCPRoute / GRPCRoute / etc." as route {
+  note as n3
+    Define regras de roteamento
+    Gerenciado pelo App Developer
+  end note
+}
+
+rectangle "Service / Backend" as svc
+
+gc --> gw
+gw --> route
+route --> svc
+
+@enduml
 ```
 
 ### Separação de Responsabilidades
 
 ```plantuml,format=png
-!include ../assets/diagrams/networking/gateway-api-roles-separação-de-responsabilidades-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title ROLES - SEPARAÇÃO DE RESPONSABILIDADES
+
+rectangle "Infrastructure Provider" {
+  note as n1
+    Implementa e mantém o GatewayClass controller
+    Ex: NGINX, Istio, Contour, Traefik
+  end note
+}
+
+rectangle "Cluster Operator / Platform Admin" {
+  note as n2
+    Cria GatewayClass
+    Cria Gateway (define listeners, TLS)
+    Define quais namespaces podem usar o Gateway
+  end note
+}
+
+rectangle "Application Developer" {
+  note as n3
+    Cria Routes (HTTPRoute, TCPRoute, etc)
+    Define regras de roteamento para seus Services
+    Não precisa entender infraestrutura
+  end note
+}
+
+@enduml
 ```
 
 ---
@@ -232,7 +315,36 @@ kubectl label namespace app-ns gateway-access=true
 ## Dicas para os Exames
 
 ```plantuml,format=png
-!include ../assets/diagrams/networking/gateway-api-dicas-ckackad-gateway-api-1.puml
+@startuml
+skinparam monochrome true
+skinparam defaultFontName Monospaced
+
+title DICAS CKA/CKAD - GATEWAY API
+
+note as N1
+  **Hierarquia:**
+  GatewayClass → Gateway → HTTPRoute → Service
+
+  **GatewayClass:** Define implementação (nginx, istio, etc)
+  **Gateway:** Define listeners (portas, TLS)
+  **HTTPRoute:** Define regras de roteamento
+
+  **HTTPRoute.parentRefs:**
+    - name: gateway-name
+    - namespace: gateway-ns (se diferente)
+    - sectionName: listener-name (opcional)
+
+  **Path types:**
+    • Exact - match exato
+    • PathPrefix - prefixo (mais comum)
+
+  **Weight para canary:**
+  backendRefs:
+    - name: v1, weight: 90
+    - name: v2, weight: 10
+end note
+
+@enduml
 ```
 
 ---

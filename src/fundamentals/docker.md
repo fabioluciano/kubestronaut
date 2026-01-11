@@ -9,7 +9,40 @@
 Docker foi lancado em 2013 pela dotCloud (posteriormente Docker Inc.) e revolucionou a forma como aplicacoes sao empacotadas e distribuidas.
 
 ```plantuml,format=png
-../assets/diagrams/general/docker-evolucao-dos-containers.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title EVOLUCAO DOS CONTAINERS
+
+rectangle "2008" as y2008 {
+  card "LXC\n(Linux Containers)" as lxc
+}
+
+rectangle "2013" as y2013 {
+  card "Docker\nlancado" as docker
+}
+
+rectangle "2015" as y2015 {
+  card "OCI fundada\nKubernetes 1.0" as oci
+}
+
+rectangle "2017" as y2017 {
+  card "containerd\ndoado a CNCF" as cncf
+}
+
+rectangle "2020+" as y2020 {
+  card "Kubernetes remove\nDockershim" as k8s
+}
+
+lxc --> docker
+docker --> oci
+oci --> cncf
+cncf --> k8s
+
+@enduml
 ```
 
 ### Marcos Importantes
@@ -33,7 +66,38 @@ Docker foi lancado em 2013 pela dotCloud (posteriormente Docker Inc.) e revoluci
 ### Componentes Principais
 
 ```plantuml,format=png
-../assets/diagrams/general/docker-arquitetura-docker.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title ARQUITETURA DOCKER
+
+actor "Usuario" as user
+
+entity "Docker CLI" as cli
+entity "Docker Daemon\n(dockerd)" as daemon
+entity "containerd" as cd
+entity "runc" as runc
+database "Registry" as reg
+
+rectangle "Containers" {
+  card "Container 1" as c1
+  card "Container 2" as c2
+  card "Container 3" as c3
+}
+
+user --> cli : comandos
+cli --> daemon : REST API
+daemon --> cd : gRPC
+cd --> runc : OCI
+daemon <--> reg : pull/push
+runc --> c1
+runc --> c2
+runc --> c3
+
+@enduml
 ```
 
 ### Componentes Detalhados
@@ -49,7 +113,32 @@ Docker foi lancado em 2013 pela dotCloud (posteriormente Docker Inc.) e revoluci
 ### Fluxo de Execucao
 
 ```plantuml,format=png
-../assets/diagrams/general/docker-fluxo-docker-run-nginx.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title FLUXO: docker run nginx
+
+participant "docker CLI" as cli
+participant "dockerd" as daemon
+participant "containerd" as cd
+participant "runc" as runc
+database "Registry" as reg
+
+cli -> daemon : docker run nginx
+daemon -> reg : Imagem local?
+reg --> daemon : Nao encontrada
+daemon -> reg : Pull nginx:latest
+reg --> daemon : Layers da imagem
+daemon -> cd : Criar container
+cd -> runc : Criar processo
+runc --> cd : Container criado
+cd --> daemon : ID do container
+daemon --> cli : Container iniciado
+
+@enduml
 ```
 
 ---
@@ -59,11 +148,61 @@ Docker foi lancado em 2013 pela dotCloud (posteriormente Docker Inc.) e revoluci
 ### Por que Kubernetes Removeu Docker?
 
 ```plantuml,format=png
-../assets/diagrams/general/docker-kubernetes-docker-antes.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title KUBERNETES + DOCKER (ANTES)
+
+rectangle "Kubernetes" {
+  card "kubelet" as kl
+}
+
+rectangle "Dockershim" as shim
+rectangle "Docker Daemon" as dd
+rectangle "containerd" as cd
+rectangle "runc" as runc
+
+kl --> shim : CRI
+shim --> dd : Docker API
+dd --> cd
+cd --> runc : OCI
+
+note bottom of shim
+  Dockershim = camada extra
+  Overhead desnecessario
+end note
+
+@enduml
 ```
 
 ```plantuml,format=png
-../assets/diagrams/general/docker-kubernetes-containerd-agora.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title KUBERNETES + CONTAINERD (AGORA)
+
+rectangle "Kubernetes" {
+  card "kubelet" as kl
+}
+
+rectangle "containerd" as cd
+rectangle "runc" as runc
+
+kl --> cd : CRI (nativo)
+cd --> runc : OCI
+
+note bottom of cd
+  Comunicacao direta
+  Sem overhead
+end note
+
+@enduml
 ```
 
 ### Comparacao Docker vs containerd
@@ -152,7 +291,31 @@ CMD ["node", "src/index.js"]
 ### CMD vs ENTRYPOINT
 
 ```plantuml,format=png
-../assets/diagrams/general/docker-cmd-vs-entrypoint.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title CMD vs ENTRYPOINT
+
+rectangle "CMD" as cmd {
+  note as n1
+    - Pode ser sobrescrito
+    - docker run image <novo-cmd>
+    - Usado sozinho ou com ENTRYPOINT
+  end note
+}
+
+rectangle "ENTRYPOINT" as ep {
+  note as n2
+    - Sempre executado
+    - Argumentos adicionais ao final
+    - docker run image <args>
+  end note
+}
+
+@enduml
 ```
 
 ```dockerfile
@@ -184,7 +347,35 @@ ENTRYPOINT ["echo"]
 Multi-stage builds permitem usar multiplas instrucoes FROM para criar imagens menores e mais seguras.
 
 ```plantuml,format=png
-../assets/diagrams/general/docker-multi-stage-build.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title MULTI-STAGE BUILD
+
+rectangle "Stage 1: Build" as s1 {
+  card "Compilador" as c1
+  card "Dependencias dev" as d1
+  card "Codigo fonte" as src
+  card "Binario" as bin
+}
+
+rectangle "Stage 2: Runtime" as s2 {
+  card "Imagem minima" as min
+  card "Binario" as bin2
+}
+
+s1 -[hidden]down-> s2
+bin --> bin2 : COPY --from
+
+note bottom of s2
+  Imagem final contem
+  apenas o necessario
+end note
+
+@enduml
 ```
 
 ### Exemplo: Aplicacao Go
@@ -458,7 +649,22 @@ docker system df
 ### Otimizacao de Dockerfile
 
 ```plantuml,format=png
-../assets/diagrams/general/docker-boas-praticas-dockerfile.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title BOAS PRATICAS DOCKERFILE
+
+card "1. Imagem base\nminima" as bp1
+card "2. Multi-stage\nbuilds" as bp2
+card "3. Ordenar instrucoes\npor frequencia de mudanca" as bp3
+card "4. Combinar RUN\nem uma layer" as bp4
+card "5. Usuario\nnao-root" as bp5
+card "6. .dockerignore\nbem configurado" as bp6
+
+@enduml
 ```
 
 ### Exemplo de .dockerignore

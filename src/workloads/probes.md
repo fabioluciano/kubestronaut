@@ -21,7 +21,51 @@ Probes são mecanismos do Kubernetes para verificar a saúde de containers. Perm
 ### Fluxo de Decisão
 
 ```plantuml,format=png
-!include ../assets/diagrams/workloads/probes-fluxo-decisao.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Fluxo de Decisão das Probes
+
+start
+
+:Container Inicia;
+
+if (Startup Probe definida?) then (sim)
+    :Executar Startup Probe;
+    if (Sucesso?) then (sim)
+        :Continua;
+    else (não)
+        :Reinicia Container;
+        stop
+    endif
+else (não)
+endif
+
+fork
+    :Liveness Probe;
+    note right: Container vivo?
+    if (Falhou?) then (sim)
+        :Reinicia Container;
+    else (não)
+        :Continua rodando;
+    endif
+fork again
+    :Readiness Probe;
+    note right: Pronto para tráfego?
+    if (Falhou?) then (sim)
+        :Remove do Service;
+    else (não)
+        :Continua no Service;
+    endif
+end fork
+
+stop
+
+@enduml
+
 ```
 
 ---

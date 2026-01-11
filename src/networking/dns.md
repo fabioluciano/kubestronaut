@@ -7,13 +7,76 @@
 O Kubernetes executa um serviço DNS (CoreDNS) que automaticamente cria registros DNS para Services e, opcionalmente, para Pods. Isso permite descoberta de serviços por nome.
 
 ```plantuml,format=png
-!include ../assets/diagrams/networking/dns-resolução-dns-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title RESOLUÇÃO DNS
+
+rectangle "Pod A (namespace: frontend)" as pod
+
+rectangle "/etc/resolv.conf" as resolv {
+  note as n1
+    nameserver 10.96.0.10 (CoreDNS)
+    search frontend.svc.cluster.local
+           svc.cluster.local
+           cluster.local
+  end note
+}
+
+rectangle "CoreDNS (kube-system)" as dns
+note bottom of dns
+  Retorna: 10.100.50.25 (ClusterIP do Service)
+end note
+
+pod --> resolv : nslookup backend-svc
+resolv --> dns : Query: backend-svc.frontend.svc.cluster.local
+dns --> pod : 10.100.50.25
+
+@enduml
 ```
 
 ### Formato dos Nomes DNS
 
 ```plantuml,format=png
-!include ../assets/diagrams/networking/dns-formatos-dns-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title FORMATOS DNS
+
+rectangle "SERVICES" {
+  note as svc
+    <service>.<namespace>.svc.cluster.local
+    
+    Exemplos:
+    • backend.default.svc.cluster.local
+    • mysql.database.svc.cluster.local
+    • api.production.svc.cluster.local
+  end note
+}
+
+rectangle "PODS (quando habilitado)" {
+  note as pod
+    <pod-ip-com-dash>.<namespace>.pod.cluster.local
+    
+    Exemplo:
+    • Pod IP: 10.244.1.5
+    • DNS: 10-244-1-5.default.pod.cluster.local
+  end note
+}
+
+rectangle "HEADLESS SERVICE (StatefulSet)" {
+  note as sts
+    <pod-name>.<service>.<namespace>.svc.cluster.local
+    
+    Exemplo:
+    • mysql-0.mysql.database.svc.cluster.local
+    • mysql-1.mysql.database.svc.cluster.local
+  end note
+}
+
+@enduml
 ```
 
 ### Formas Abreviadas
@@ -293,7 +356,49 @@ nslookup <service>.<namespace>.svc.cluster.local
 ## Dicas para os Exames
 
 ```plantuml,format=png
-!include ../assets/diagrams/networking/dns-dicas-ckackad-dns-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DICAS CKA/CKAD - DNS
+
+rectangle "Formatos de DNS" {
+  note as dns_formats
+    • Service: <svc>.<ns>.svc.cluster.local
+    • Pod: <ip-dashes>.<ns>.pod.cluster.local
+    • StatefulSet: <pod-name>.<svc>.<ns>.svc.cluster.local
+  end note
+}
+
+rectangle "Formas curtas (mesmo namespace)" {
+  note as short_forms
+    • Service: apenas <svc-name>
+    • Cross-namespace: <svc>.<namespace>
+  end note
+}
+
+rectangle "CoreDNS" {
+  note as coredns
+    • Namespace: kube-system
+    • ConfigMap: coredns
+    • Service: kube-dns (10.96.0.10)
+  end note
+}
+
+rectangle "Debug" {
+  note as debug
+    kubectl run test --rm -it --image=busybox -- nslookup <svc>
+  end note
+}
+
+rectangle "Headless Service (StatefulSet)" {
+  note as headless
+    • clusterIP: None
+    • Cada Pod recebe DNS individual
+  end note
+}
+
+@enduml
 ```
 
 ---

@@ -11,7 +11,22 @@ Ingress é um recurso que gerencia acesso HTTP/HTTPS externo aos serviços do cl
 ```
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/ingress-flow.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Fluxo de Requisição Ingress
+
+Cliente -> HTTP : requisição
+HTTP -> Ingress : encaminha
+Ingress -> Rules : aplica regras
+Rules -> Service : roteia
+Service -> Pods : distribui
+
+@enduml
+
 ```
 
 ### Arquitetura

@@ -9,7 +9,49 @@
 Um cluster Kubernetes e um conjunto de maquinas (nodes) que executam aplicacoes containerizadas gerenciadas pelo Kubernetes. O cluster fornece abstracao sobre a infraestrutura, permitindo que voce trate multiplas maquinas como um unico sistema.
 
 ```plantuml,format=png
-../assets/diagrams/cluster-components/cluster-o-que-e-um-cluster-kubernetes.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title O QUE E UM CLUSTER KUBERNETES
+
+cloud "Cluster Kubernetes" as cluster {
+  rectangle "Control Plane" as cp {
+    component "Decisoes globais" as d1
+    component "Gerenciamento" as d2
+    component "API centralizada" as d3
+  }
+
+  rectangle "Worker Nodes" as workers {
+    rectangle "Node 1" as n1 {
+      card "Pods" as p1
+    }
+    rectangle "Node 2" as n2 {
+      card "Pods" as p2
+    }
+    rectangle "Node N" as nn {
+      card "Pods" as pn
+    }
+  }
+}
+
+actor "Usuario" as user
+actor "Aplicacoes" as apps
+
+user --> cluster : gerencia via kubectl
+cluster --> apps : executa
+
+note bottom of cluster
+  O cluster abstrai:
+  - Hardware individual
+  - Localizacao dos pods
+  - Falhas de nodes
+  - Escalonamento
+end note
+
+@enduml
 ```
 
 ### Beneficios de um Cluster
@@ -30,7 +72,54 @@ Um cluster Kubernetes e um conjunto de maquinas (nodes) que executam aplicacoes 
 ### Por Ambiente
 
 ```plantuml,format=png
-../assets/diagrams/cluster-components/cluster-tipos-de-clusters-por-ambiente.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title TIPOS DE CLUSTERS POR AMBIENTE
+
+rectangle "DESENVOLVIMENTO" as dev {
+  card "Minikube" as mini
+  card "Kind" as kind
+  card "k3d" as k3d
+  card "Docker Desktop" as docker
+
+  note as ndev
+    - Single node
+    - Local
+    - Rapido para testar
+  end note
+}
+
+rectangle "PRODUCAO ON-PREMISES" as onprem {
+  card "kubeadm" as kubeadm
+  card "Kubespray" as kubespray
+  card "RKE" as rke
+  card "OpenShift" as openshift
+
+  note as nonprem
+    - Multi-node
+    - Full control
+    - Mais complexo
+  end note
+}
+
+rectangle "PRODUCAO CLOUD (Managed)" as cloud {
+  card "EKS (AWS)" as eks
+  card "GKE (Google)" as gke
+  card "AKS (Azure)" as aks
+  card "DOKS (Digital Ocean)" as doks
+
+  note as ncloud
+    - Control plane gerenciado
+    - Menos overhead operacional
+    - Custo por uso
+  end note
+}
+
+@enduml
 ```
 
 ### Comparacao de Opcoes de Desenvolvimento
@@ -58,7 +147,52 @@ Um cluster Kubernetes e um conjunto de maquinas (nodes) que executam aplicacoes 
 ### Visao Geral
 
 ```plantuml,format=png
-../assets/diagrams/cluster-components/cluster-componentes-do-cluster.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title COMPONENTES DO CLUSTER
+
+rectangle "CONTROL PLANE" as cp #lightblue {
+  component "kube-apiserver" as api
+  component "etcd" as etcd
+  component "kube-scheduler" as sched
+  component "kube-controller-manager" as cm
+}
+
+rectangle "WORKER NODE 1" as w1 #lightyellow {
+  component "kubelet" as k1
+  component "kube-proxy" as kp1
+  component "Container Runtime" as cr1
+  rectangle "Pod A" as pa
+  rectangle "Pod B" as pb
+}
+
+rectangle "WORKER NODE 2" as w2 #lightyellow {
+  component "kubelet" as k2
+  component "kube-proxy" as kp2
+  component "Container Runtime" as cr2
+  rectangle "Pod C" as pc
+  rectangle "Pod D" as pd
+}
+
+rectangle "ADD-ONS" as addons #lightgreen {
+  component "CoreDNS" as dns
+  component "CNI Plugin" as cni
+  component "Ingress Controller" as ing
+  component "Metrics Server" as metrics
+}
+
+api <--> etcd
+api <--> sched
+api <--> cm
+api <--> k1
+api <--> k2
+api <--> addons
+
+@enduml
 ```
 
 ### Componentes Obrigatorios
@@ -92,13 +226,77 @@ Um cluster Kubernetes e um conjunto de maquinas (nodes) que executam aplicacoes 
 Um node e uma maquina (fisica ou virtual) que faz parte do cluster e executa pods.
 
 ```plantuml,format=png
-../assets/diagrams/cluster-components/cluster-anatomia-de-um-node.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title ANATOMIA DE UM NODE
+
+rectangle "Node (VM ou Fisica)" as node {
+  rectangle "Sistema Operacional" as os {
+    component "kubelet" as kubelet
+    component "kube-proxy" as proxy
+    component "Container Runtime\n(containerd)" as runtime
+
+    rectangle "Pod 1" as p1 {
+      card "Container A" as c1
+      card "Container B" as c2
+    }
+
+    rectangle "Pod 2" as p2 {
+      card "Container C" as c3
+    }
+  }
+
+  storage "Disco Local" as disk
+  card "CPU" as cpu
+  card "Memoria" as mem
+  card "Rede" as net
+}
+
+note right of node
+  Node Status:
+  - Ready
+  - NotReady
+  - SchedulingDisabled
+  - Unknown
+end note
+
+@enduml
 ```
 
 ### Tipos de Nodes
 
 ```plantuml,format=png
-../assets/diagrams/cluster-components/cluster-tipos-de-nodes.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title TIPOS DE NODES
+
+rectangle "Control Plane Node\n(Master)" as master #lightblue {
+  card "Executa componentes\ndo Control Plane" as m1
+  card "Geralmente sem workloads\n(taint: NoSchedule)" as m2
+  card "Pode ser HA (3+)" as m3
+}
+
+rectangle "Worker Node" as worker #lightyellow {
+  card "Executa pods\nde aplicacoes" as w1
+  card "Gerenciado pelo\nControl Plane" as w2
+  card "Escalavel horizontalmente" as w3
+}
+
+note bottom
+  Em clusters pequenos,
+  control plane pode
+  executar workloads tambem
+end note
+
+@enduml
 ```
 
 ### Comandos de Gerenciamento de Nodes
@@ -156,7 +354,46 @@ kubectl top node <node-name>
 Namespaces sao clusters virtuais dentro do cluster fisico, usados para isolamento logico.
 
 ```plantuml,format=png
-../assets/diagrams/cluster-components/cluster-namespaces-isolamento-logico.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title NAMESPACES - ISOLAMENTO LOGICO
+
+rectangle "Cluster Kubernetes" as cluster {
+  rectangle "Namespace: default" as def #lightyellow {
+    card "Pod A" as pa
+    card "Service A" as sa
+  }
+
+  rectangle "Namespace: production" as prod #lightgreen {
+    card "Pod B" as pb
+    card "Service B" as sb
+    card "ConfigMap" as cm
+  }
+
+  rectangle "Namespace: development" as dev #lightblue {
+    card "Pod C" as pc
+    card "Service C" as sc
+  }
+
+  rectangle "Namespace: kube-system" as sys #lightgray {
+    card "CoreDNS" as dns
+    card "kube-proxy" as proxy
+  }
+}
+
+note bottom of cluster
+  Cada namespace tem:
+  - Seus proprios recursos
+  - Quotas de recursos
+  - RBAC policies
+  - Network policies
+end note
+
+@enduml
 ```
 
 ### Namespaces Padrao
@@ -210,7 +447,49 @@ kubectl delete namespace dev
 ### Estrutura do kubeconfig
 
 ```plantuml,format=png
-../assets/diagrams/cluster-components/cluster-estrutura-do-kubeconfig.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title ESTRUTURA DO KUBECONFIG
+
+rectangle "kubeconfig" {
+  rectangle "clusters" as clusters {
+    card "cluster-prod" as c1
+    card "cluster-dev" as c2
+    card "cluster-local" as c3
+  }
+
+  rectangle "users" as users {
+    card "admin" as u1
+    card "developer" as u2
+    card "readonly" as u3
+  }
+
+  rectangle "contexts" as contexts {
+    card "prod-admin" as ctx1
+    card "dev-developer" as ctx2
+    card "local-admin" as ctx3
+  }
+}
+
+c1 --> ctx1
+u1 --> ctx1
+
+c2 --> ctx2
+u2 --> ctx2
+
+c3 --> ctx3
+u1 --> ctx3
+
+note bottom of contexts
+  Context = cluster + user + namespace
+  Um de cada vez pode ser current-context
+end note
+
+@enduml
 ```
 
 ### Exemplo de kubeconfig
@@ -291,7 +570,29 @@ kubectl run test-dns --image=busybox:1.28 --rm -it --restart=Never -- nslookup k
 ### Checklist de Saude do Cluster
 
 ```plantuml,format=png
-../assets/diagrams/cluster-components/cluster-checklist-de-saude-do-cluster.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title CHECKLIST DE SAUDE DO CLUSTER
+
+rectangle "VERIFICAR" {
+  card "1. Todos nodes Ready?\nkubectl get nodes" as v1
+
+  card "2. Pods do sistema rodando?\nkubectl get pods -n kube-system" as v2
+
+  card "3. DNS funcionando?\nnslookup kubernetes.default" as v3
+
+  card "4. API respondendo?\nkubectl cluster-info" as v4
+
+  card "5. Metricas disponiveis?\nkubectl top nodes\nkubectl top pods" as v5
+
+  card "6. Eventos com erros?\nkubectl get events -A" as v6
+}
+
+@enduml
 ```
 
 ### Script de Verificacao
@@ -331,7 +632,41 @@ kubectl top nodes 2>/dev/null || echo "Metrics server nao disponivel"
 ### Com kubeadm (CKA)
 
 ```plantuml,format=png
-../assets/diagrams/cluster-components/cluster-criacao-de-cluster-com-kubeadm.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title CRIACAO DE CLUSTER COM KUBEADM
+
+rectangle "1. Preparacao" as p1 {
+  card "Instalar container runtime" as p1a
+  card "Instalar kubeadm, kubelet, kubectl" as p1b
+  card "Desabilitar swap" as p1c
+  card "Configurar rede" as p1d
+}
+
+rectangle "2. Control Plane" as p2 {
+  card "kubeadm init" as p2a
+  card "Configurar kubeconfig" as p2b
+  card "Instalar CNI" as p2c
+}
+
+rectangle "3. Workers" as p3 {
+  card "kubeadm join" as p3a
+}
+
+rectangle "4. Validacao" as p4 {
+  card "kubectl get nodes" as p4a
+  card "Deploy teste" as p4b
+}
+
+p1 --> p2
+p2 --> p3
+p3 --> p4
+
+@enduml
 ```
 
 ```bash
@@ -416,13 +751,52 @@ minikube delete
 ### CKA - Cluster Management
 
 ```plantuml,format=png
-../assets/diagrams/cluster-components/cluster-dicas-cka-cluster.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title DICAS CKA - CLUSTER
+
+rectangle "SABER FAZER" {
+  card "1. Criar cluster com kubeadm" as d1
+  card "2. Adicionar worker nodes" as d2
+  card "3. Backup/restore etcd" as d3
+  card "4. Drain e cordon nodes" as d4
+  card "5. Troubleshooting de nodes" as d5
+}
+
+rectangle "COMANDOS RAPIDOS" {
+  card "kubectl get nodes -o wide" as c1
+  card "kubectl describe node <name>" as c2
+  card "kubectl drain <node> --ignore-daemonsets" as c3
+  card "kubectl cordon/uncordon <node>" as c4
+  card "journalctl -u kubelet" as c5
+}
+
+@enduml
 ```
 
 ### KCNA - Conceitos
 
 ```plantuml,format=png
-../assets/diagrams/cluster-components/cluster-kcna-conceitos-cluster.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title KCNA - CONCEITOS CLUSTER
+
+card "Cluster = Control Plane + Workers" as c1
+card "Control Plane: decisoes, API, estado" as c2
+card "Workers: executam pods" as c3
+card "Namespaces: isolamento logico" as c4
+card "Contexto: cluster + user + namespace" as c5
+card "kubeconfig: arquivo de configuracao" as c6
+
+@enduml
 ```
 
 ---
@@ -452,7 +826,36 @@ minikube delete
 ### Planejamento de Cluster
 
 ```plantuml,format=png
-../assets/diagrams/cluster-components/cluster-best-practices-cluster.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title BEST PRACTICES - CLUSTER
+
+rectangle "PLANEJAMENTO" {
+  card "Definir requisitos de HA" as p1
+  card "Escolher CNI apropriado" as p2
+  card "Planejar CIDR ranges" as p3
+  card "Considerar multi-tenancy" as p4
+}
+
+rectangle "SEGURANCA" {
+  card "RBAC desde o inicio" as s1
+  card "Network policies" as s2
+  card "Pod Security Admission" as s3
+  card "Secrets encryption" as s4
+}
+
+rectangle "OPERACOES" {
+  card "Backup etcd automatizado" as o1
+  card "Monitoramento proativo" as o2
+  card "Logging centralizado" as o3
+  card "Alertas configurados" as o4
+}
+
+@enduml
 ```
 
 ### Configuracao de Namespaces
@@ -477,7 +880,55 @@ minikube delete
 ### Arvore de Decisao
 
 ```plantuml,format=png
-../assets/diagrams/cluster-components/cluster-troubleshooting-arvore-de-decisao.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title TROUBLESHOOTING - ARVORE DE DECISAO
+
+start
+
+:Problema no cluster?;
+
+if (kubectl funciona?) then (nao)
+  :Verificar kubeconfig;
+  :Verificar API Server;
+  if (API Server up?) then (nao)
+    :Verificar manifests em\n/etc/kubernetes/manifests/;
+    :journalctl -u kubelet;
+    stop
+  else (sim)
+    :Verificar certificados;
+    :Verificar rede;
+  endif
+else (sim)
+endif
+
+if (Nodes Ready?) then (nao)
+  :kubectl describe node;
+  :Verificar kubelet;
+  :Verificar container runtime;
+  stop
+else (sim)
+endif
+
+if (Pods Running?) then (nao)
+  :kubectl describe pod;
+  :kubectl logs pod;
+  :Verificar eventos;
+  stop
+else (sim)
+endif
+
+:Verificar networking;
+:Verificar DNS;
+:Verificar Services;
+
+stop
+
+@enduml
 ```
 
 ### Problemas e Solucoes

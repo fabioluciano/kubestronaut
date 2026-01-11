@@ -7,7 +7,36 @@
 O kube-scheduler decide em qual Node cada Pod será executado, seguindo um processo de múltiplas etapas.
 
 ```plantuml,format=png
-!include ../assets/diagrams/workloads/scheduling-fluxo-do-scheduler-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title FLUXO DO SCHEDULER
+
+|Scheduler|
+start
+
+:1. QUEUE (Fila);
+note right: Pods ordenados por PriorityClass
+
+:2. FILTER (Filtrar);
+note right
+  Remove nodes que não atendem requisitos
+  Taints, resources, nodeSelector, affinity
+end note
+
+:3. SCORE (Pontuar);
+note right
+  Dá nota aos nodes restantes
+  Spread, resource balance, affinity weight
+end note
+
+:4. BIND (Vincular);
+note right: Associa Pod ao Node com maior score
+
+stop
+
+@enduml
 ```
 
 ### Mecanismos de Scheduling
@@ -91,7 +120,35 @@ kubectl get nodes --show-labels
 ### Tipos de Affinity
 
 ```plantuml,format=png
-!include ../assets/diagrams/workloads/scheduling-node-affinity-types-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title NODE AFFINITY TYPES
+
+rectangle "requiredDuringSchedulingIgnoredDuringExecution" {
+  note as n1
+    OBRIGATÓRIO: Pod só é scheduled se regra for satisfeita
+    Se nenhum node atende, Pod fica Pending
+  end note
+}
+
+rectangle "preferredDuringSchedulingIgnoredDuringExecution" {
+  note as n2
+    PREFERÊNCIA: Scheduler tenta, mas não é obrigatório
+    Se nenhum node atende, agenda em qualquer um
+    weight (1-100) define prioridade entre preferências
+  end note
+}
+
+rectangle "IgnoredDuringExecution" {
+  note as n3
+    Se labels mudarem após scheduling,
+    Pod NÃO é removido
+  end note
+}
+
+@enduml
 ```
 
 ### Required (Obrigatório)
@@ -126,7 +183,33 @@ kubectl get nodes --show-labels
 **Taints** repelem Pods de Nodes. **Tolerations** permitem que Pods ignorem Taints.
 
 ```plantuml,format=png
-!include ../assets/diagrams/workloads/scheduling-taints-e-tolerations-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title TAINTS E TOLERATIONS
+
+rectangle "TAINT (no Node)" as taint
+note right of taint
+  Não aceito pods sem
+  esta toleração
+end note
+
+rectangle "TOLERATION (no Pod)" as toleration
+note right of toleration
+  Eu tolero esse taint,
+  pode me colocar aqui
+end note
+
+rectangle "Node\ntaint: app=blue\nNoSchedule" as node1
+rectangle "Pod\ntoleration: app=blue" as pod1
+node1 <-- pod1 : ✓ Aceito
+
+rectangle "Node\ntaint: app=blue\nNoSchedule" as node2
+rectangle "Pod\n(sem toleration)" as pod2
+node2 <-[#red]- pod2 : ✗ Rejeitado
+
+@enduml
 ```
 
 ### Efeitos de Taint
@@ -205,7 +288,34 @@ kubectl describe node master | grep Taints
 ## Combinando Taints + Affinity
 
 ```plantuml,format=png
-!include ../assets/diagrams/workloads/scheduling-garantir-pod-em-node-específico-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title GARANTIR POD EM NODE ESPECÍFICO
+
+rectangle "PROBLEMA" {
+  card "Toleration permite ir para o node, mas não garante" as p1
+  card "nodeAffinity garante ir para o node, mas não impede outros" as p2
+}
+
+rectangle "SOLUÇÃO: Usar AMBOS!" {
+  rectangle "1. No NODE" {
+    card "Taint: dedicated=database:NoSchedule" as n1
+    card "Label: dedicated=database" as n2
+  }
+  
+  rectangle "2. No POD" {
+    card "Toleration: dedicated=database" as pod1
+    card "nodeAffinity: dedicated=database" as pod2
+  }
+}
+
+note bottom
+  Resultado: Pod VAI para o node E outros pods NÃO VÃO
+end note
+
+@enduml
 ```
 
 ```yaml
@@ -263,7 +373,32 @@ kubectl get events --field-selector reason=FailedScheduling
 ## Dicas para os Exames
 
 ```plantuml,format=png
-!include ../assets/diagrams/workloads/scheduling-dicas-scheduling-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DICAS - SCHEDULING
+
+rectangle "CKA" {
+  card "kubectl taint nodes <node> key=value:effect" as c1
+  card "kubectl label nodes <node> key=value" as c2
+  card "Combinar taints + affinity para dedicar nodes" as c3
+}
+
+rectangle "CKAD" {
+  card "nodeSelector é mais simples que affinity" as k1
+  card "podAntiAffinity para HA (um pod por node)" as k2
+}
+
+rectangle "IMPORTANTE" {
+  card "Toleration permite ir, mas NÃO garante" as i1
+  card "Affinity garante ir, mas NÃO impede outros" as i2
+  card "Para dedicar: use AMBOS" as i3
+  card "required = obrigatório, Pod fica Pending se não atender" as i4
+  card "preferred = tenta, mas agenda em qualquer lugar se precisar" as i5
+}
+
+@enduml
 ```
 
 ---

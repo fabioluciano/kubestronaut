@@ -7,13 +7,79 @@
 Pod Security Admission (PSA) é o mecanismo nativo do Kubernetes para aplicar padrões de segurança a Pods. Substituiu o deprecated PodSecurityPolicy (PSP) a partir do Kubernetes 1.25.
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/pod-security-admission-pod-security-admission-1.puml
+@startuml
+skinparam monochrome true
+
+title POD SECURITY ADMISSION
+
+actor User
+entity "kubectl apply -f pod.yaml" as kubectl
+entity "API Server" as api
+entity "Admission Controllers" as admission
+rectangle "Pod Security Admission" as psa {
+  note as ns
+    **Namespace: production**
+    Labels:
+      pod-security.kubernetes.io/enforce: restricted
+      pod-security.kubernetes.io/warn: restricted
+  end note
+}
+
+User -> kubectl
+kubectl -> api
+api -> admission
+admission -> psa
+
+psa --> [✓ ALLOW] : Pod não viola política
+psa --> [✗ DENY] : Pod viola política
+@enduml
 ```
 
 ### Pod Security Standards
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/pod-security-admission-security-levels-1.puml
+@startuml
+skinparam monochrome true
+
+title SECURITY LEVELS
+
+rectangle "PRIVILEGED" as priv {
+  note as n1
+    • Sem restrições
+    • Permite qualquer configuração
+    • Use apenas quando necessário (kube-system)
+  end note
+}
+
+rectangle "BASELINE" as base {
+  note as n2
+    • Previne escalação de privilégios conhecida
+    • Permite a maioria das cargas de trabalho
+    • Bloqueia: privileged, hostPID, hostNetwork...
+  end note
+}
+
+rectangle "RESTRICTED" as rest {
+  note as n3
+    • Hardening máximo
+    • Segue melhores práticas
+    • Requer: runAsNonRoot, drop ALL capabilities...
+  end note
+}
+
+priv -[hidden]down-> base : Menos Restritivo
+base -[hidden]down-> rest : Mais Restritivo
+
+note left of priv
+  **Menos Restritivo**
+  ↑
+end note
+
+note left of rest
+  ↓
+  **Mais Restritivo**
+end note
+@enduml
 ```
 
 ### Modos de Operação
@@ -81,7 +147,30 @@ Sem restrições - permite qualquer configuração.
 Bloqueia escalação de privilégios conhecida.
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/pod-security-admission-diagram-3-1.puml
+@startuml
+skinparam monochrome true
+
+map "BASELINE - RESTRIÇÕES" as baseline {
+}
+
+note bottom of baseline
+  **❌ BLOQUEADO:**
+  • spec.hostNetwork: true
+  • spec.hostPID: true
+  • spec.hostIPC: true
+  • spec.containers[*].securityContext.privileged: true
+  • spec.containers[*].securityContext.capabilities.add:
+    - NET_RAW (exceto se explicitamente permitido)
+  • spec.containers[*].securityContext.procMount != Default
+  • spec.volumes[*].hostPath
+  • spec.containers[*].ports[*].hostPort
+
+  **✅ PERMITIDO:**
+  • runAsRoot (container pode rodar como root)
+  • Capabilities padrão mantidas
+  • Volumes normais (emptyDir, PVC, etc)
+end note
+@enduml
 ```
 
 ### Restricted
@@ -89,7 +178,26 @@ Bloqueia escalação de privilégios conhecida.
 Hardening máximo seguindo melhores práticas.
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/pod-security-admission-diagram-4-1.puml
+@startuml
+skinparam monochrome true
+
+map "RESTRICTED - RESTRIÇÕES" as restricted {
+}
+
+note bottom of restricted
+  **❌ Tudo do Baseline, MAIS:**
+
+  **OBRIGATÓRIO:**
+  • runAsNonRoot: true
+  • allowPrivilegeEscalation: false
+  • seccompProfile.type: RuntimeDefault OU Localhost
+  • capabilities.drop: ["ALL"]
+
+  **BLOQUEADO:**
+  • runAsUser: 0 (root)
+  • Qualquer capability (exceto NET_BIND_SERVICE)
+end note
+@enduml
 ```
 
 ### Pod Compliant com Restricted
@@ -231,7 +339,32 @@ kubectl get events --field-selector reason=FailedCreate -A
 ## PSA vs PodSecurityPolicy vs OPA
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/pod-security-admission-diagram-5-1.puml
+@startuml
+skinparam monochrome true
+
+map "COMPARAÇÃO" as comp {
+}
+
+note bottom of comp
+  **Pod Security Admission (PSA):**
+  ✅ Nativo do Kubernetes (1.25+)
+  ✅ Simples (3 níveis predefinidos)
+  ✅ Configurado via labels no namespace
+  ❌ Pouca flexibilidade/customização
+  ❌ Apenas para Pods
+
+  **PodSecurityPolicy (PSP): DEPRECATED**
+  ❌ Removido no Kubernetes 1.25
+  ❌ Complexo de configurar
+
+  **OPA Gatekeeper / Kyverno:**
+  ✅ Altamente customizável
+  ✅ Qualquer recurso Kubernetes
+  ✅ Políticas granulares
+  ❌ Mais complexo de implementar
+  ❌ Componente adicional no cluster
+end note
+@enduml
 ```
 
 ---
@@ -239,7 +372,38 @@ kubectl get events --field-selector reason=FailedCreate -A
 ## Dicas para o Exame CKS
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/pod-security-admission-diagram-6-1.puml
+@startuml
+skinparam monochrome true
+
+map "DICAS CKS - PSA" as dicas {
+}
+
+note bottom of dicas
+  **Labels (não annotations!):**
+  pod-security.kubernetes.io/enforce: <level>
+  pod-security.kubernetes.io/warn: <level>
+  pod-security.kubernetes.io/audit: <level>
+
+  **Levels:**
+  • privileged - sem restrições
+  • baseline - bloqueia escalação
+  • restricted - hardening máximo
+
+  **Modes:**
+  • enforce - bloqueia
+  • warn - avisa
+  • audit - registra
+
+  **Restricted requer:**
+  • runAsNonRoot: true
+  • allowPrivilegeEscalation: false
+  • capabilities.drop: ["ALL"]
+  • seccompProfile.type: RuntimeDefault
+
+  **Comando rápido:**
+  kubectl label ns NAME pod-security.kubernetes.io/enforce=X
+end note
+@enduml
 ```
 
 ---

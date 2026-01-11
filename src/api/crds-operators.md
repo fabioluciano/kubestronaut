@@ -81,13 +81,79 @@ Operators são aplicações que usam CRDs e controllers para automatizar operaç
 ### Operator Pattern
 
 ```plantuml,format=png
-!include ../assets/diagrams/api/crds-operator-pattern.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Operator Pattern
+
+package "Kubernetes API" {
+    [Custom Resource] as CR
+    note right of CR
+        apiVersion: example.com/v1
+        kind: Database
+        spec:
+          engine: postgres
+          size: 10Gi
+    end note
+}
+
+package "Controller (Operator)" {
+    [Reconcile Loop] as LOOP
+    note right of LOOP
+        - Observe
+        - Analyze
+        - Act
+    end note
+}
+
+package "Managed Resources" {
+    [Deployment] as DEP
+    [Service] as SVC
+    [ConfigMap] as CM
+    [PVC] as PVC
+}
+
+CR --> LOOP : watch
+LOOP --> DEP : create/update
+LOOP --> SVC : create/update
+LOOP --> CM : create/update
+LOOP --> PVC : create/update
+
+@enduml
+
 ```
 
 ### Reconciliation Loop
 
 ```plantuml,format=png
-!include ../assets/diagrams/api/crds-reconciliation-loop.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Reconciliation Loop
+
+start
+
+:Observe;
+note right: Ler estado atual do cluster
+
+:Analyze;
+note right: Comparar com estado desejado (CR)
+
+:Act;
+note right: Criar/Atualizar/Deletar recursos
+
+:Repetir;
+
+stop
+
+@enduml
+
 ```
 
 ---

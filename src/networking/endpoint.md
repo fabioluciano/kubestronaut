@@ -11,7 +11,31 @@ CKA (10%), CKAD (5%)
 Endpoints são objetos que armazenam os endereços IP e portas dos Pods que correspondem a um Service. Eles são criados automaticamente quando um Service é criado com um selector.
 
 ```plantuml,format=png
-!include ../assets/diagrams/networking/endpoint-fluxo-service-endpoints-1.puml
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Monospaced
+
+title FLUXO SERVICE → ENDPOINTS
+
+rectangle "Service" as svc {
+  label "selector:\napp: web" as sel
+}
+
+rectangle "Endpoints" as ep {
+  label "10.244.1.5" as ip1
+  label "10.244.2.3" as ip2
+  label "10.244.3.8" as ip3
+}
+
+svc -down-> ep : cria automaticamente
+
+note right of ep
+  IPs dos Pods
+  com app=web
+end note
+
+@enduml
 ```
 
 ### Endpoints vs EndpointSlices
@@ -28,7 +52,22 @@ Endpoints são objetos que armazenam os endereços IP e portas dos Pods que corr
 ### Como o Controller Funciona
 
 ```plantuml,format=png
-!include ../assets/diagrams/networking/endpoint-endpoint-controller-workflow-1.puml
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Monospaced
+
+title ENDPOINT CONTROLLER WORKFLOW
+
+start
+:1. Watch Services\nMonitora criação/atualização de Services;
+:2. Identificar Pods\nEncontra Pods que match com selector;
+:3. Verificar Ready\nInclui apenas Pods com status Ready;
+:4. Atualizar Endpoints\nCria/atualiza objeto Endpoints;
+:5. Propagar para kube-proxy\nkube-proxy atualiza iptables/ipvs;
+stop
+
+@enduml
 ```
 
 ---
@@ -146,7 +185,56 @@ Para apontar para DNS externo:
 ### Estrutura do EndpointSlice
 
 ```plantuml,format=png
-!include ../assets/diagrams/networking/endpoint-endpointslice-structure-1.puml
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Monospaced
+
+title ENDPOINTSLICE STRUCTURE
+
+object "EndpointSlice" as es {
+  max 100 endpoints por slice
+}
+
+object "addressType" as at {
+  IPv4 | IPv6 | FQDN
+}
+
+object "ports[]" as ports {
+  name: http
+  port: 8080
+  protocol: TCP
+}
+
+object "endpoints[]" as endpoints {
+  addresses: ["10.244.1.5"]
+}
+
+object "conditions" as cond {
+  ready: true/false
+  serving: true/false
+  terminating: true/false
+}
+
+object "metadata" as meta {
+  hostname: pod-name
+  nodeName: worker-1
+  zone: us-east-1a
+}
+
+object "targetRef" as tref {
+  kind: Pod
+  name: web-abc123
+}
+
+es --> at
+es --> ports
+es --> endpoints
+endpoints --> cond
+endpoints --> meta
+endpoints --> tref
+
+@enduml
 ```
 
 ### Condições dos Endpoints

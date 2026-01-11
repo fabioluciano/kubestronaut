@@ -8,13 +8,84 @@ O **kube-controller-manager** e o componente que executa os controllers do Kuber
 ## Arquitetura e Funcionamento
 
 ```plantuml,format=png
-!include ../assets/diagrams/cluster-components/kube-controller-manager-arquitetura-do-kube-controller-manager.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Arquitetura do kube-controller-manager
+
+package "kube-controller-manager" {
+    [Node Controller] as node
+    [Replication Controller] as repl
+    [Endpoints Controller] as ep
+    [ServiceAccount Controller] as sa
+    [Namespace Controller] as ns
+    [Job Controller] as job
+    [Deployment Controller] as deploy
+    [StatefulSet Controller] as sts
+    [DaemonSet Controller] as ds
+    [... outros controllers] as other
+}
+
+package "kube-apiserver" {
+    [API Server] as api
+}
+
+database "etcd" as etcd
+
+node --> api : Watch nodes
+repl --> api : Watch ReplicaSets
+ep --> api : Watch Services/Pods
+sa --> api : Watch ServiceAccounts
+ns --> api : Watch Namespaces
+deploy --> api : Watch Deployments
+job --> api : Watch Jobs
+
+api --> etcd
+
+note bottom of "kube-controller-manager"
+  Todos os controllers rodam
+  em um unico processo binario
+end note
+
+@enduml
 ```
 
 ## Control Loop Pattern
 
 ```plantuml,format=png
-!include ../assets/diagrams/cluster-components/kube-controller-manager-control-loop-padrao-de-reconciliacao.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Control Loop - Padrao de Reconciliacao
+
+start
+
+repeat
+
+:Observa estado atual\n(via API Server);
+
+:Compara com estado desejado;
+
+if (Estado atual == Estado desejado?) then (sim)
+  :Nenhuma acao necessaria;
+else (nao)
+  :Calcula diferencas;
+  :Executa acoes para\nreconciliar estado;
+  :Atualiza status\n(via API Server);
+endif
+
+:Aguarda proximo evento\nou timeout;
+
+repeat while (Loop infinito) is (sim)
+
+@enduml
+
 ```
 
 ## Controllers Principais
@@ -24,7 +95,32 @@ O **kube-controller-manager** e o componente que executa os controllers do Kuber
 Responsavel por monitorar e responder quando nodes ficam indisponiveis.
 
 ```plantuml,format=png
-!include ../assets/diagrams/cluster-components/kube-controller-manager-node-controller-fluxo-de-monitoramento.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Node Controller - Fluxo de Monitoramento
+
+participant "Node Controller" as nc
+participant "API Server" as api
+participant "Node" as node
+
+nc -> api : Watch nodes
+api -> nc : Node status update
+
+alt Node Healthy
+    nc -> nc : Atualiza node-monitor-grace-period
+else Node Not Ready (40s)
+    nc -> api : Marca node como NotReady
+    nc -> nc : Inicia pod-eviction-timeout (5m)
+else Pod Eviction Timeout
+    nc -> api : Evict pods do node
+    note right: Pods sao reagendados\nem outros nodes
+end
+
+@enduml
 ```
 
 **Parametros importantes:**
@@ -40,7 +136,33 @@ Responsavel por monitorar e responder quando nodes ficam indisponiveis.
 Garante que o numero desejado de replicas esteja rodando.
 
 ```plantuml,format=png
-!include ../assets/diagrams/cluster-components/kube-controller-manager-replicaset-controller-reconciliacao.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title ReplicaSet Controller - Reconciliacao
+
+start
+
+:Recebe evento de ReplicaSet;
+
+:Conta pods com labels\ncorrespondentes;
+
+if (Pods atuais < Replicas desejadas?) then (sim)
+  :Cria novos pods;
+elseif (Pods atuais > Replicas desejadas?) then (sim)
+  :Remove pods excedentes;
+else (igual)
+  :Nenhuma acao;
+endif
+
+:Atualiza status do ReplicaSet;
+
+stop
+
+@enduml
 ```
 
 ### Deployment Controller
@@ -48,7 +170,39 @@ Garante que o numero desejado de replicas esteja rodando.
 Gerencia Deployments, incluindo rolling updates e rollbacks.
 
 ```plantuml,format=png
-!include ../assets/diagrams/cluster-components/kube-controller-manager-deployment-controller-rolling-update.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Deployment Controller - Rolling Update
+
+participant "Deployment\nController" as dc
+participant "API Server" as api
+participant "Old ReplicaSet" as old
+participant "New ReplicaSet" as new
+
+dc -> api : Watch Deployment
+api -> dc : Deployment updated (new image)
+
+dc -> api : Cria novo ReplicaSet
+api -> new : ReplicaSet created
+
+loop Rolling Update
+    dc -> new : Scale up (+1 pod)
+    dc -> dc : Aguarda pod Ready
+    dc -> old : Scale down (-1 pod)
+end
+
+dc -> api : Atualiza Deployment status
+
+note right of dc
+  Respeita maxSurge
+  e maxUnavailable
+end note
+
+@enduml
 ```
 
 ### Endpoints Controller
@@ -201,7 +355,43 @@ kubectl get lease -n kube-system kube-controller-manager -o yaml
 ## Leader Election em Detalhes
 
 ```plantuml,format=png
-!include ../assets/diagrams/cluster-components/kube-controller-manager-leader-election-kube-controller-manager.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Leader Election - kube-controller-manager
+
+participant "Controller Manager 1" as cm1
+participant "Controller Manager 2" as cm2
+participant "Controller Manager 3" as cm3
+database "Lease Object\n(kube-system)" as lease
+
+cm1 -> lease : Tenta adquirir lease
+lease --> cm1 : Lease adquirido (holder: cm1)
+note right of cm1: CM1 e o Leader
+
+cm2 -> lease : Tenta adquirir lease
+lease --> cm2 : Lease ocupado (holder: cm1)
+note right of cm2: CM2 em standby
+
+cm3 -> lease : Tenta adquirir lease
+lease --> cm3 : Lease ocupado (holder: cm1)
+note right of cm3: CM3 em standby
+
+loop A cada renew-deadline
+    cm1 -> lease : Renova lease
+    lease --> cm1 : OK
+end
+
+note over cm1: CM1 falha
+
+cm2 -> lease : Tenta adquirir (lease expirado)
+lease --> cm2 : Lease adquirido (holder: cm2)
+note right of cm2: CM2 vira Leader
+
+@enduml
 ```
 
 ```bash
@@ -299,7 +489,32 @@ kubectl logs -n kube-system kube-controller-manager-<node> | grep -i "starting\|
 O padrao controller pode ser usado para criar operadores customizados:
 
 ```plantuml,format=png
-!include ../assets/diagrams/cluster-components/kube-controller-manager-custom-controller-pattern.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Custom Controller Pattern
+
+package "Custom Controller" {
+    [Informer/Lister] as informer
+    [Work Queue] as queue
+    [Reconcile Loop] as reconcile
+}
+
+package "Kubernetes API" {
+    [API Server] as api
+    [Custom Resource\nDefinition] as crd
+}
+
+informer --> api : Watch CRD
+api --> informer : Events (Add/Update/Delete)
+informer --> queue : Enqueue key
+queue --> reconcile : Dequeue key
+reconcile --> api : Get/Update resources
+
+@enduml
 ```
 
 ## Dicas para o Exame

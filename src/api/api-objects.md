@@ -11,13 +11,79 @@ KCNA (18%), CKA (25%), CKAD (25%), CKS (10%)
 API Objects são entidades persistentes no sistema Kubernetes que representam o estado do cluster. Tudo no Kubernetes é um objeto: Pods, Services, Deployments, Secrets, etc.
 
 ```plantuml,format=png
-../assets/diagrams/general/api-objects-api-objects-conceito.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title API OBJECTS - CONCEITO
+
+note as N1
+  API Object = Representação do estado no cluster
+end note
+
+rectangle "O que você DECLARA" {
+  card "Quais workloads rodar (Pods, Deployments)" as w1
+  card "Quais recursos usar (PV, ConfigMap, Secret)" as w2
+  card "Como expor serviços (Service, Ingress)" as w3
+  card "Políticas de segurança (NetworkPolicy, RBAC)" as w4
+}
+
+rectangle "O que o Kubernetes FAZ" {
+  card "Persiste objetos no etcd" as k1
+  card "Monitora estado atual vs desejado" as k2
+  card "Reconcilia diferenças (control loop)" as k3
+  card "Atualiza status dos objetos" as k4
+}
+
+@enduml
 ```
 
 ### Declarativo vs Imperativo
 
 ```plantuml,format=png
-../assets/diagrams/general/api-objects-declarativo-vs-imperativo.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DECLARATIVO vs IMPERATIVO
+
+rectangle "IMPERATIVO (como fazer)" {
+  note as imp
+    kubectl run nginx --image=nginx
+    kubectl scale deployment nginx --replicas=3
+    kubectl set image deployment/nginx nginx=nginx:1.21
+  end note
+}
+
+rectangle "DECLARATIVO (o que quero)" {
+  note as dec
+    kubectl apply -f deployment.yaml
+  end note
+  
+  note as yaml
+    deployment.yaml:
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: nginx
+    spec:
+      replicas: 3
+      template:
+        spec:
+          containers:
+          - image: nginx:1.21
+  end note
+}
+
+note as rec
+  ✅ RECOMENDADO: Declarativo
+  • Versionável (Git)
+  • Reproduzível
+  • Auditável
+  • GitOps friendly
+end note
+
+@enduml
 ```
 
 ## 📋 Estrutura de um Object
@@ -94,7 +160,36 @@ Annotations armazenam **metadata não-identificadora**:
 ### Por Escopo
 
 ```plantuml,format=png
-../assets/diagrams/general/api-objects-escopo-dos-objetos.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title ESCOPO DOS OBJETOS
+
+rectangle "NAMESPACE-SCOPED (isolados por namespace)" #lightblue {
+  card "Pods" as p1
+  card "Deployments, ReplicaSets, StatefulSets, DaemonSets" as p2
+  card "Services, Endpoints" as p3
+  card "ConfigMaps, Secrets" as p4
+  card "PersistentVolumeClaims" as p5
+  card "Jobs, CronJobs" as p6
+  card "Roles, RoleBindings" as p7
+  card "ServiceAccounts" as p8
+  card "NetworkPolicies" as p9
+  card "Ingresses" as p10
+}
+
+rectangle "CLUSTER-SCOPED (globais no cluster)" #lightyellow {
+  card "Nodes" as c1
+  card "Namespaces" as c2
+  card "PersistentVolumes" as c3
+  card "StorageClasses" as c4
+  card "ClusterRoles, ClusterRoleBindings" as c5
+  card "CustomResourceDefinitions (CRDs)" as c6
+  card "PriorityClasses" as c7
+}
+
+@enduml
 ```
 
 ### Por Categoria
@@ -113,7 +208,41 @@ Annotations armazenam **metadata não-identificadora**:
 ### Estados de um Pod
 
 ```plantuml,format=png
-../assets/diagrams/general/api-objects-pod-lifecycle.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title POD LIFECYCLE
+
+[*] --> Pending
+Pending --> Running
+Pending --> Unschedulable
+Running --> Succeeded : exit 0
+Running --> Failed : exit != 0
+Succeeded --> [*]
+Failed --> [*]
+
+note right of Pending
+  Aceito, mas containers
+  não criados
+end note
+
+note right of Running
+  Pelo menos um
+  container rodando
+end note
+
+note right of Succeeded
+  Todos containers terminaram
+  com sucesso (exit 0)
+end note
+
+note right of Failed
+  Pelo menos um
+  container falhou
+end note
+
+@enduml
 ```
 
 ### Owner References e Garbage Collection
@@ -182,7 +311,50 @@ kubectl explain pod --recursive
 ### Estrutura Básica
 
 ```plantuml,format=png
-../assets/diagrams/general/api-objects-dicas-api-objects.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DICAS - API OBJECTS
+
+rectangle "1️⃣ CAMPOS OBRIGATÓRIOS" {
+  note as n1
+    apiVersion, kind, metadata.name, spec
+  end note
+}
+
+rectangle "2️⃣ DESCOBRIR apiVersion" {
+  note as n2
+    kubectl api-resources | grep <recurso>
+  end note
+}
+
+rectangle "3️⃣ DESCOBRIR spec" {
+  note as n3
+    kubectl explain <recurso>.spec
+  end note
+}
+
+rectangle "4️⃣ GERAR YAML" {
+  note as n4
+    kubectl create <recurso> ... --dry-run=client -o yaml
+  end note
+}
+
+rectangle "5️⃣ VALIDAR ANTES DE APLICAR" {
+  note as n5
+    kubectl apply -f file.yaml --dry-run=server
+  end note
+}
+
+rectangle "6️⃣ LABELS vs ANNOTATIONS" {
+  note as n6
+    Labels: para selecionar (app=nginx)
+    Annotations: para metadata (description="...")
+  end note
+}
+
+@enduml
 ```
 
 ### Selectors Rápidos

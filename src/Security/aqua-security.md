@@ -5,7 +5,36 @@
 Aqua Security fornece diversas ferramentas open source para segurança de containers e Kubernetes.
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/aqua-security-ferramentas-aqua-security-1.puml
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Monospaced
+
+title FERRAMENTAS AQUA SECURITY
+
+rectangle "TRIVY" {
+  card "Scanner de vulnerabilidades" as t1
+  card "Imagens, filesystems, repositórios Git" as t2
+  card "Licenças e secrets" as t3
+}
+
+rectangle "TRACEE" {
+  card "Runtime security com eBPF" as tr1
+  card "Detecção de comportamento anômalo" as tr2
+  card "Tracing de syscalls" as tr3
+}
+
+rectangle "KUBE-BENCH" {
+  card "Validação CIS Benchmark" as kb1
+  card "Verificação de configuração do cluster" as kb2
+}
+
+rectangle "KUBE-HUNTER" {
+  card "Penetration testing" as kh1
+  card "Descoberta de vulnerabilidades" as kh2
+}
+
+@enduml
 ```
 
 ---
@@ -77,7 +106,22 @@ trivy k8s --report all
 ### Saída do Trivy
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/aqua-security-trivy-output-nginxlatest-debian-116-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title TRIVY OUTPUT - nginx:latest (debian 11.6)
+
+note as summary
+  Total: 142 (UNKNOWN: 0, LOW: 98, MEDIUM: 28, HIGH: 14, CRITICAL: 2)
+end note
+
+map "Vulnerabilidades Encontradas" as vulns {
+  libssl1.1 => CVE-2023-0286 | HIGH | Fixed: 1.1.1n-0+deb11
+  openssl => CVE-2023-0464 | CRITICAL | Fixed: 1.1.1t-0+deb11
+}
+@enduml
 ```
 
 ---
@@ -226,7 +270,43 @@ kubectl run kube-hunter --image=aquasec/kube-hunter -- --pod
 ## Dicas para o Exame CKS
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/aqua-security-dicas-cks-aqua-tools-1.puml
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Monospaced
+
+title DICAS CKS - AQUA TOOLS
+
+rectangle "TRIVY" {
+  note as n1
+    trivy image nginx:latest
+    trivy image --severity HIGH,CRITICAL nginx
+    trivy fs /path/to/project
+    trivy k8s --report summary cluster
+  end note
+}
+
+rectangle "KUBE-BENCH" {
+  note as n2
+    ./kube-bench run --targets=master
+    ./kube-bench run --targets=node
+    ./kube-bench run --check="1.1.1"
+  end note
+}
+
+rectangle "TRACEE" {
+  card "Runtime security com eBPF" as tr1
+  card "Detecta syscalls suspeitas" as tr2
+  card "Requer privileged mode" as tr3
+}
+
+rectangle "QUANDO USAR" {
+  card "Trivy: scan de imagens e configurações" as u1
+  card "Kube-bench: validar CIS benchmark" as u2
+  card "Tracee: monitoramento runtime" as u3
+}
+
+@enduml
 ```
 
 ---

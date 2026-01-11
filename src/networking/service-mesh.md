@@ -22,7 +22,44 @@ Service Mesh é uma camada de infraestrutura dedicada a gerenciar comunicação 
 ### Arquitetura
 
 ```plantuml,format=png
-!include ../assets/diagrams/networking/service-mesh-arquitetura.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Arquitetura Service Mesh
+
+package "Control Plane" {
+    [Pilot] as PILOT
+    note bottom: Discovery
+    [Citadel] as CITADEL
+    note bottom: Security
+    [Galley] as GALLEY
+    note bottom: Configuration
+}
+
+package "Data Plane" {
+    package "Pod A" {
+        [App A] as APPA
+        [Proxy A] as PROXYA
+        APPA --> PROXYA
+    }
+    package "Pod B" {
+        [Proxy B] as PROXYB
+        [App B] as APPB
+        PROXYB --> APPB
+    }
+}
+
+PILOT --> PROXYA : config
+PILOT --> PROXYB : config
+CITADEL --> PROXYA : certs
+CITADEL --> PROXYB : certs
+PROXYA <--> PROXYB : mTLS
+
+@enduml
+
 ```
 
 ---

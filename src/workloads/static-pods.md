@@ -11,7 +11,31 @@ CKA (25%), CKS (10%)
 Static Pods são pods gerenciados diretamente pelo **kubelet** em um node específico, sem intervenção do API Server ou de controllers. O kubelet monitora um diretório local e cria/mantém os pods definidos nos manifests YAML desse diretório.
 
 ```plantuml,format=png
-!include ../assets/diagrams/workloads/static-pods-static-pods-vs-regular-pods-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title STATIC PODS vs REGULAR PODS
+
+rectangle "REGULAR PODS" {
+  rectangle "User/\nController" as user
+  rectangle "API Server\n(etcd)" as api
+  rectangle "Scheduler" as sched
+  rectangle "Kubelet" as kubelet1
+  
+  user -> api
+  api -> sched
+  sched -> kubelet1
+}
+
+rectangle "STATIC PODS" {
+  rectangle "/etc/kubernetes/\nmanifests/\n├── pod1.yaml\n└── pod2.yaml" as manifests
+  rectangle "Kubelet\n(monitora diretório local)" as kubelet2
+  
+  manifests -> kubelet2
+}
+
+@enduml
 ```
 
 ### Características dos Static Pods
@@ -28,7 +52,27 @@ Static Pods são pods gerenciados diretamente pelo **kubelet** em um node espec�
 ### Quando usar Static Pods
 
 ```plantuml,format=png
-!include ../assets/diagrams/workloads/static-pods-use-cases-para-static-pods-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title USE CASES PARA STATIC PODS
+
+rectangle "✅ USAR STATIC PODS" #white {
+  card "Control Plane components (etcd, api-server, scheduler, cm)" as u1
+  card "Quando API Server não está disponível" as u2
+  card "Bootstrap do cluster (kubeadm usa isso)" as u3
+  card "Componentes críticos que devem sobreviver ao cluster" as u4
+}
+
+rectangle "❌ NÃO USAR STATIC PODS" #white {
+  card "Workloads normais de aplicação" as n1
+  card "Quando precisa de scaling (ReplicaSet, Deployment)" as n2
+  card "Quando precisa de scheduling entre nodes" as n3
+  card "Quando precisa de service discovery via DNS" as n4
+}
+
+@enduml
 ```
 
 ### Mirror Pods
@@ -36,7 +80,33 @@ Static Pods são pods gerenciados diretamente pelo **kubelet** em um node espec�
 Quando o kubelet cria um Static Pod, ele também cria um **Mirror Pod** no API Server para visibilidade:
 
 ```plantuml,format=png
-!include ../assets/diagrams/workloads/static-pods-mirror-pods-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title MIRROR PODS
+
+rectangle "Node" {
+  rectangle "Static\nPod" as staticpod
+  card "Kubelet" as kubelet
+}
+
+rectangle "API Server" {
+  rectangle "Mirror Pod\n(etcd-node1)" as mirror
+  card "kubectl get pods" as kubectl
+}
+
+staticpod -right-> mirror : cria mirror\n(read-only)
+mirror -left-> staticpod : não controla
+
+note bottom
+  IMPORTANTE:
+  • kubectl delete NÃO remove static pod (apenas mirror)
+  • Para remover: deletar arquivo do diretório de manifests
+  • Mirror tem annotation: kubernetes.io/config.mirror
+end note
+
+@enduml
 ```
 
 ## 🔧 Configuração do Static Pod Path
@@ -267,7 +337,34 @@ kubectl describe pod etcd-master01 -n kube-system | grep Node:
 ### CKA - Cenários Comuns
 
 ```plantuml,format=png
-!include ../assets/diagrams/workloads/static-pods-dicas-cka-static-pods-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DICAS CKA - STATIC PODS
+
+rectangle "1️⃣ IDENTIFICAR STATIC PODS" {
+  card "Procure sufixo do node no nome (etcd-master01)" as i1
+  card "Annotation kubernetes.io/config.source: file" as i2
+}
+
+rectangle "2️⃣ ENCONTRAR O DIRETÓRIO" {
+  card "cat /var/lib/kubelet/config.yaml | grep staticPodPath" as e1
+  card "Padrão: /etc/kubernetes/manifests" as e2
+}
+
+rectangle "3️⃣ CRIAR STATIC POD" {
+  card "kubectl run não funciona para static pods" as c1
+  card "Criar YAML diretamente no diretório" as c2
+  card "Use: kubectl run --dry-run=client -o yaml > pod.yaml\ndepois copie para o diretório de manifests" as c3
+}
+
+rectangle "4️⃣ LEMBRE-SE" {
+  card "kubectl delete NÃO remove static pod" as l1
+  card "Deve remover o arquivo YAML do diretório" as l2
+}
+
+@enduml
 ```
 
 ### Atalhos para o Exame

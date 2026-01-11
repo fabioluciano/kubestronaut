@@ -11,7 +11,24 @@ KCSA (16%), CKS (10%)
 Threat Modeling é o processo de identificar potenciais ameaças e vulnerabilidades em um sistema, avaliar riscos e definir contramedidas.
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/threat-model-processo-de-threat-modeling-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title PROCESSO DE THREAT MODELING
+
+rectangle "1. Identificar Assets" as a1
+rectangle "2. Criar Arquitetura" as a2
+rectangle "3. Identificar Ameaças" as a3
+rectangle "4. Avaliar Riscos" as a4
+rectangle "5. Definir Mitigações" as a5
+
+a1 --> a2
+a2 --> a3
+a3 --> a4
+a4 --> a5
+
+@enduml
 ```
 
 ### Por que é importante?
@@ -29,7 +46,20 @@ Threat Modeling é o processo de identificar potenciais ameaças e vulnerabilida
 Framework desenvolvido pela Microsoft para categorizar ameaças.
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/threat-model-stride-framework-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title STRIDE FRAMEWORK
+
+card "S - Spoofing Identity\nFingir ser outra entidade" as s
+card "T - Tampering with Data\nModificar dados indevidamente" as t
+card "R - Repudiation\nNegar ter realizado ação" as r
+card "I - Information Disclosure\nVazamento de informações" as i
+card "D - Denial of Service\nIndisponibilizar serviço" as d
+card "E - Elevation of Privilege\nObter permissões indevidas" as e
+
+@enduml
 ```
 
 ### STRIDE no Kubernetes
@@ -50,7 +80,37 @@ Framework desenvolvido pela Microsoft para categorizar ameaças.
 ### Visão Geral
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/threat-model-attack-surfaces-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title ATTACK SURFACES
+
+rectangle "External" {
+  card "Ingress/LoadBalancer" as ext1
+  card "NodePort Services" as ext2
+  card "API Server (se exposto)" as ext3
+}
+
+rectangle "Network" {
+  card "Pod-to-Pod" as net1
+  card "Pod-to-Service" as net2
+  card "Egress to Internet" as net3
+}
+
+rectangle "Node" {
+  card "kubelet API" as node1
+  card "Container Runtime" as node2
+  card "Host filesystem" as node3
+}
+
+rectangle "Workload" {
+  card "Application vulnerabilities" as work1
+  card "Container image" as work2
+  card "Secrets/ConfigMaps" as work3
+}
+
+@enduml
 ```
 
 ### API Server Attacks
@@ -95,7 +155,25 @@ Framework desenvolvido pela Microsoft para categorizar ameaças.
 ### Tipos de Atacantes
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/threat-model-threat-actors-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title THREAT ACTORS
+
+rectangle "External" {
+  card "Script Kiddies\nBaixa sofisticação" as ext1
+  card "Cybercriminals\nMotivação financeira" as ext2
+  card "Nation States\nAPT, recursos ilimitados" as ext3
+}
+
+rectangle "Internal" {
+  card "Malicious Insider\nAcesso legítimo" as int1
+  card "Negligent User\nErros acidentais" as int2
+  card "Compromised Account\nCredenciais roubadas" as int3
+}
+
+@enduml
 ```
 
 ### Motivações
@@ -114,19 +192,100 @@ Framework desenvolvido pela Microsoft para categorizar ameaças.
 ### Scenario 1: Compromised Container
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/threat-model-container-compromise-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title CONTAINER COMPROMISE
+
+rectangle "Attacker" as att
+
+rectangle "Compromised Pod" as pod {
+  card "1. Exploit app vulnerability" as s1
+  card "2. Access ServiceAccount token" as s2
+  card "3. Query API Server" as s3
+  card "4. Escalate privileges" as s4
+}
+
+att --> s1
+s1 --> s2
+s2 --> s3
+s3 --> s4
+
+note bottom
+  Mitigação:
+  • RBAC mínimo para ServiceAccount
+  • automountServiceAccountToken: false
+  • Network Policy
+  • Pod Security Restricted
+end note
+
+@enduml
 ```
 
 ### Scenario 2: Supply Chain Attack
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/threat-model-supply-chain-attack-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title SUPPLY CHAIN ATTACK
+
+rectangle "Attack Chain" {
+  card "1. Compromete base image" as s1
+  card "2. Imagem usada no build" as s2
+  card "3. Deploy em produção" as s3
+  card "4. Backdoor ativo" as s4
+}
+
+s1 --> s2
+s2 --> s3
+s3 --> s4
+
+note bottom
+  Mitigação:
+  • Image scanning (Trivy)
+  • Image signing (Cosign)
+  • Admission policies
+  • SBOM verification
+end note
+
+@enduml
 ```
 
 ### Scenario 3: Lateral Movement
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/threat-model-lateral-movement-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title LATERAL MOVEMENT
+
+rectangle "Namespace A" {
+  card "Compromised\nPod A" as poda
+}
+
+rectangle "Namespace B" {
+  card "Database\nPod" as podb
+}
+
+rectangle "Namespace C" {
+  card "Secret\nStore" as podc
+}
+
+poda --> podb : "Sem Network Policy"
+podb --> podc : "Cross-namespace"
+
+note bottom
+  Mitigação:
+  • Default deny Network Policy
+  • Namespace isolation
+  • Service Mesh mTLS
+end note
+
+@enduml
 ```
 
 ---
@@ -241,7 +400,38 @@ trivy k8s --report summary cluster
 ### Defense in Depth
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/threat-model-defense-in-depth-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DEFENSE IN DEPTH
+
+rectangle "Camada 1: Network" {
+  card "Firewall, Network Policy" as c1
+}
+
+rectangle "Camada 2: Identity" {
+  card "RBAC, mTLS, OIDC" as c2
+}
+
+rectangle "Camada 3: Workload" {
+  card "Pod Security, Seccomp" as c3
+}
+
+rectangle "Camada 4: Data" {
+  card "Encryption, Secrets Mgmt" as c4
+}
+
+rectangle "Camada 5: Detection" {
+  card "Audit, Monitoring, Falco" as c5
+}
+
+c1 -[hidden]down-> c2
+c2 -[hidden]down-> c3
+c3 -[hidden]down-> c4
+c4 -[hidden]down-> c5
+
+@enduml
 ```
 
 ### Zero Trust Principles
@@ -256,7 +446,19 @@ trivy k8s --report summary cluster
 ## Dicas para o Exame
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/threat-model-dicas-threat-model-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DICAS - THREAT MODEL
+
+card "1. Conheça STRIDE\nCada letra e exemplo em K8s" as d1
+card "2. Attack surfaces\nAPI Server, etcd, kubelet, pods" as d2
+card "3. Container escape\nPrivileged, capabilities, hostPID" as d3
+card "4. Lateral movement\nNetwork Policy é a mitigação" as d4
+card "5. Supply chain\nImage scanning, signing, SBOM" as d5
+
+@enduml
 ```
 
 ### Conceitos-Chave

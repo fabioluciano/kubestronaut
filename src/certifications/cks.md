@@ -20,7 +20,27 @@
 ### Distribuição do Currículo
 
 ```plantuml,format=png
-!include ../assets/diagrams/certifications/cks-domínios-do-cks.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DOMÍNIOS DO CKS
+
+card "Cluster Setup" as d1 #lightgray
+card "Cluster Hardening" as d2 #lightgray
+card "System Hardening" as d3 #lightgray
+card "Minimize Microservice Vulnerabilities" as d4 #lightgray
+card "Supply Chain Security" as d5 #lightgray
+card "Monitoring, Logging and Runtime Security" as d6 #lightgray
+
+note right of d1 : 10%
+note right of d2 : 15%
+note right of d3 : 15%
+note right of d4 : 20%
+note right of d5 : 20%
+note right of d6 : 20%
+
+@enduml
 ```
 
 ---
@@ -448,7 +468,20 @@ cosign verify --key cosign.pub myimage:tag
 ## Dicas para o Exame
 
 ```plantuml,format=png
-!include ../assets/diagrams/certifications/cks-dicas-cks.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DICAS CKS
+
+card "1. Network Policies\nDefault deny + allow specific" as d1
+card "2. Pod Security\nRestricted profile, security context" as d2
+card "3. RBAC\nLeast privilege, verify with can-i" as d3
+card "4. Secrets\nEncryption at rest" as d4
+card "5. Image Security\nTrivy, admission control" as d5
+card "6. Audit Logging\nPolicy levels, log analysis" as d6
+
+@enduml
 ```
 
 ### Checklist Pré-Exame

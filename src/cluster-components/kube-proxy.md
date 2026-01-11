@@ -8,7 +8,48 @@ O **kube-proxy** e um componente de rede que roda em cada no do cluster Kubernet
 ## Arquitetura e Funcionamento
 
 ```plantuml,format=png
-!include ../assets/diagrams/cluster-components/kube-proxy-arquitetura-do-kube-proxy.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Arquitetura do kube-proxy
+
+package "Control Plane" {
+    [kube-apiserver] as api
+}
+
+package "Worker Node 1" {
+    [kube-proxy] as kp1
+    package "iptables/ipvs" {
+        [Regras NAT] as nat1
+        [Regras Filter] as filter1
+    }
+    [Pod A] as poda
+    [Pod B] as podb
+}
+
+package "Worker Node 2" {
+    [kube-proxy] as kp2
+    package "iptables/ipvs " {
+        [Regras NAT ] as nat2
+        [Regras Filter ] as filter2
+    }
+    [Pod C] as podc
+}
+
+api --> kp1 : Watch Services/Endpoints
+api --> kp2 : Watch Services/Endpoints
+kp1 --> nat1 : Configura regras
+kp1 --> filter1 : Configura regras
+kp2 --> nat2 : Configura regras
+kp2 --> filter2 : Configura regras
+
+poda --> nat1 : Trafego para Service
+nat1 --> podc : DNAT para Pod
+
+@enduml
 ```
 
 ## Modos de Operacao
@@ -20,7 +61,34 @@ O kube-proxy suporta tres modos de operacao para implementar Services:
 O modo mais comum, usa regras iptables para redirecionar trafego.
 
 ```plantuml,format=png
-!include ../assets/diagrams/cluster-components/kube-proxy-modo-iptables-fluxo-de-trafego.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Modo iptables - Fluxo de Trafego
+
+actor Cliente
+participant "iptables\nPREROUTING" as pre
+participant "iptables\nKUBE-SERVICES" as svc
+participant "iptables\nKUBE-SVC-XXX" as chain
+participant "iptables\nKUBE-SEP-XXX" as sep
+participant "Pod" as pod
+
+Cliente -> pre : Pacote para ClusterIP
+pre -> svc : -j KUBE-SERVICES
+svc -> chain : Match ClusterIP:Port
+chain -> sep : Random selection\n(probability)
+sep -> pod : DNAT para Pod IP:Port
+
+note right of chain
+  Selecao aleatoria
+  com probabilidade
+  igual entre pods
+end note
+
+@enduml
 ```
 
 **Caracteristicas:**
@@ -47,7 +115,33 @@ iptables -t nat -L | wc -l
 O modo IPVS (IP Virtual Server) oferece melhor performance para clusters grandes.
 
 ```plantuml,format=png
-!include ../assets/diagrams/cluster-components/kube-proxy-modo-ipvs-fluxo-de-trafego.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Modo IPVS - Fluxo de Trafego
+
+actor Cliente
+participant "IPVS\nVirtual Server" as vs
+participant "IPVS\nReal Servers" as rs
+participant "Pod 1" as pod1
+participant "Pod 2" as pod2
+participant "Pod 3" as pod3
+
+Cliente -> vs : Pacote para ClusterIP
+vs -> rs : Selecao por algoritmo\n(rr, lc, dh, sh, sed, nq)
+
+alt Round Robin
+    rs -> pod1 : Request 1
+    rs -> pod2 : Request 2
+    rs -> pod3 : Request 3
+else Least Connection
+    rs -> pod1 : Menos conexoes
+end
+
+@enduml
 ```
 
 **Caracteristicas:**

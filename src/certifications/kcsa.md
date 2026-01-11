@@ -20,7 +20,27 @@
 ### Distribuição do Currículo
 
 ```plantuml,format=png
-!include ../assets/diagrams/certifications/kcsa-domínios-do-kcsa.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DOMÍNIOS DO KCSA
+
+card "Overview of Cloud Native Security" as d1 #lightgray
+card "Kubernetes Cluster Component Security" as d2 #lightgray
+card "Kubernetes Security Fundamentals" as d3 #lightgray
+card "Kubernetes Threat Model" as d4 #lightgray
+card "Platform Security" as d5 #lightgray
+card "Compliance and Security Frameworks" as d6 #lightgray
+
+note right of d1 : 14%
+note right of d2 : 22%
+note right of d3 : 22%
+note right of d4 : 16%
+note right of d5 : 16%
+note right of d6 : 10%
+
+@enduml
 ```
 
 ---
@@ -30,7 +50,41 @@
 ### Os 4 Cs da Segurança Cloud Native
 
 ```plantuml,format=png
-!include ../assets/diagrams/certifications/kcsa-os-4-cs-da-segurança.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title OS 4 Cs DA SEGURANÇA
+
+rectangle "Cloud" as cloud {
+  rectangle "Cluster" as cluster {
+    rectangle "Container" as container {
+      rectangle "Code" as code
+    }
+  }
+}
+
+note right of cloud
+  Infraestrutura do
+  provedor de cloud
+end note
+
+note right of cluster
+  Componentes do
+  Kubernetes
+end note
+
+note right of container
+  Runtime, imagem,
+  configuração
+end note
+
+note right of code
+  Código da
+  aplicação
+end note
+
+@enduml
 ```
 
 ### Responsabilidades por Camada
@@ -45,7 +99,31 @@
 ### Modelo de Responsabilidade Compartilhada
 
 ```plantuml,format=png
-!include ../assets/diagrams/certifications/kcsa-responsabilidade-compartilhada.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title RESPONSABILIDADE COMPARTILHADA
+
+rectangle "Cloud Provider" {
+  card "Infraestrutura física" as p1
+  card "Rede do datacenter" as p2
+  card "Hypervisor" as p3
+}
+
+rectangle "Cliente" {
+  card "Workloads" as c1
+  card "Dados" as c2
+  card "Configuração" as c3
+  card "IAM" as c4
+}
+
+note bottom
+  Provider: Segurança DA cloud
+  Cliente: Segurança NA cloud
+end note
+
+@enduml
 ```
 
 ---
@@ -55,7 +133,34 @@
 ### Componentes do Control Plane
 
 ```plantuml,format=png
-!include ../assets/diagrams/certifications/kcsa-segurança-do-control-plane.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title SEGURANÇA DO CONTROL PLANE
+
+rectangle "Control Plane" {
+  component "kube-apiserver" as api
+  component "etcd" as etcd
+  component "kube-scheduler" as sched
+  component "controller-manager" as ctrl
+}
+
+note bottom of api
+  • TLS obrigatório
+  • Autenticação/Autorização
+  • Admission Controllers
+  • Audit logging
+end note
+
+note bottom of etcd
+  • Criptografia at rest
+  • mTLS entre membros
+  • Backup criptografado
+  • Acesso restrito
+end note
+
+@enduml
 ```
 
 ### kube-apiserver Security
@@ -100,7 +205,31 @@ etcdctl member list --cacert=/etc/kubernetes/pki/etcd/ca.crt \
 ### RBAC - Role-Based Access Control
 
 ```plantuml,format=png
-!include ../assets/diagrams/certifications/kcsa-rbac.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title RBAC
+
+rectangle "Subjects (WHO)" {
+  card "User" as u
+  card "Group" as g
+  card "ServiceAccount" as sa
+}
+
+rectangle "Verbs (WHAT)" {
+  card "get, list, watch" as read
+  card "create, update, patch" as write
+  card "delete" as del
+}
+
+rectangle "Resources (ON WHAT)" {
+  card "pods, deployments" as res
+  card "secrets, configmaps" as conf
+  card "nodes, namespaces" as cluster
+}
+
+@enduml
 ```
 
 ### Tipos de Roles e Bindings
@@ -115,7 +244,32 @@ etcdctl member list --cacert=/etc/kubernetes/pki/etcd/ca.crt \
 ### Pod Security
 
 ```plantuml,format=png
-!include ../assets/diagrams/certifications/kcsa-pod-security-standards.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title POD SECURITY STANDARDS
+
+rectangle "Privileged" as priv #white
+rectangle "Baseline" as base #lightgray
+rectangle "Restricted" as rest #gray
+
+note right of priv
+  Sem restrições
+  Para system workloads
+end note
+
+note right of base
+  Previne escalação conhecida
+  Minimamente restritivo
+end note
+
+note right of rest
+  Hardening máximo
+  Best practices
+end note
+
+@enduml
 ```
 
 ### Pod Security Admission
@@ -148,7 +302,20 @@ etcdctl member list --cacert=/etc/kubernetes/pki/etcd/ca.crt \
 ### STRIDE Model
 
 ```plantuml,format=png
-!include ../assets/diagrams/certifications/kcsa-stride-threat-model.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title STRIDE THREAT MODEL
+
+card "S - Spoofing\nFingir ser outra entidade" as s
+card "T - Tampering\nModificar dados" as t
+card "R - Repudiation\nNegar ações" as r
+card "I - Information Disclosure\nVazamento de dados" as i
+card "D - Denial of Service\nIndisponibilidade" as d
+card "E - Elevation of Privilege\nEscalação" as e
+
+@enduml
 ```
 
 ### Ameaças Comuns no Kubernetes
@@ -165,7 +332,30 @@ etcdctl member list --cacert=/etc/kubernetes/pki/etcd/ca.crt \
 ### Attack Vectors
 
 ```plantuml,format=png
-!include ../assets/diagrams/certifications/kcsa-vetores-de-ataque.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title VETORES DE ATAQUE
+
+rectangle "External" {
+  card "Exposed Services" as ext1
+  card "Ingress vulnerabilities" as ext2
+  card "Supply chain" as ext3
+}
+
+rectangle "Internal" {
+  card "Compromised pod" as int1
+  card "Lateral movement" as int2
+  card "Privilege escalation" as int3
+}
+
+rectangle "Insider" {
+  card "Malicious admin" as ins1
+  card "Stolen credentials" as ins2
+}
+
+@enduml
 ```
 
 ### Kubernetes-Specific Threats
@@ -184,7 +374,36 @@ etcdctl member list --cacert=/etc/kubernetes/pki/etcd/ca.crt \
 ### Supply Chain Security
 
 ```plantuml,format=png
-!include ../assets/diagrams/certifications/kcsa-supply-chain-security.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title SUPPLY CHAIN SECURITY
+
+rectangle "Build" {
+  card "Source Code\nScan, SAST" as src
+  card "Dependencies\nSCA, SBOM" as dep
+  card "Build Process\nSecure CI/CD" as build
+}
+
+rectangle "Ship" {
+  card "Image Signing\nCosign, Notary" as sign
+  card "Registry Security\nHarbor, private" as reg
+}
+
+rectangle "Run" {
+  card "Admission Control\nImage policies" as admit
+  card "Runtime Security\nFalco, monitoring" as runtime
+}
+
+src --> dep
+dep --> build
+build --> sign
+sign --> reg
+reg --> admit
+admit --> runtime
+
+@enduml
 ```
 
 ### Image Security
@@ -234,7 +453,24 @@ kubectl get pods -A -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.spec.c
 ### CIS Kubernetes Benchmark
 
 ```plantuml,format=png
-!include ../assets/diagrams/certifications/kcsa-cis-benchmark-categories.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title CIS BENCHMARK CATEGORIES
+
+card "1. Control Plane Components" as c1
+card "2. etcd" as c2
+card "3. Control Plane Configuration" as c3
+card "4. Worker Nodes" as c4
+card "5. Policies" as c5
+
+note bottom
+  Ferramenta: kube-bench
+  Níveis: L1 (básico), L2 (avançado)
+end note
+
+@enduml
 ```
 
 ### Audit e Compliance
@@ -258,7 +494,32 @@ kubectl get pods -A -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.spec.c
 ## Comparação com Outras Certificações
 
 ```plantuml,format=png
-!include ../assets/diagrams/certifications/kcsa-kcsa-vs-outras-certificações.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title KCSA vs OUTRAS CERTIFICAÇÕES
+
+rectangle "Entry Level" {
+  card "KCNA\nConceitos gerais" as kcna
+  card "KCSA\nSegurança (teoria)" as kcsa
+}
+
+rectangle "Practitioner" {
+  card "CKAD\nDesenvolvimento" as ckad
+  card "CKA\nAdministração" as cka
+}
+
+rectangle "Specialist" {
+  card "CKS\nSegurança (prática)" as cks
+}
+
+kcna --> ckad
+kcna --> cka
+kcsa --> cks
+cka --> cks
+
+@enduml
 ```
 
 | Aspecto | KCSA | CKS |
@@ -273,7 +534,20 @@ kubectl get pods -A -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.spec.c
 ## Dicas para o Exame
 
 ```plantuml,format=png
-!include ../assets/diagrams/certifications/kcsa-dicas-kcsa.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DICAS KCSA
+
+card "1. Conheça os 4 Cs\nCloud, Cluster, Container, Code" as d1
+card "2. RBAC profundamente\nRoles, Bindings, ServiceAccounts" as d2
+card "3. Pod Security Standards\nPrivileged, Baseline, Restricted" as d3
+card "4. Threat Model\nSTRIDE, attack vectors" as d4
+card "5. Supply Chain\nImage scanning, signing, SBOM" as d5
+card "6. Compliance\nCIS Benchmark, frameworks" as d6
+
+@enduml
 ```
 
 ### Conceitos-Chave para Memorizar

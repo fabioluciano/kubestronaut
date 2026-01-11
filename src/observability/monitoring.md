@@ -121,7 +121,22 @@ kubectl top pods -n kube-system --sort-by=cpu
 ### Arquitetura
 
 ```plantuml,format=png
-!include ../assets/diagrams/observability/monitoring-arquitetura-prometheus.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title Arquitetura Prometheus
+
+rectangle "Targets\n(exporters)" as targets
+rectangle "Prometheus\n(scrape)" as prom
+rectangle "Grafana\n(visuali)" as grafana
+rectangle "AlertManager" as alert
+
+targets --> prom
+prom --> grafana
+prom --> alert
+
+@enduml
 ```
 
 ### Conceitos Básicos

@@ -11,7 +11,31 @@ CKAD (20%), CKA (10%)
 ConfigMaps são objetos para armazenar dados de configuração não sensíveis em pares chave-valor. Permitem separar configuração do código da aplicação.
 
 ```plantuml,format=png
-!include ../assets/diagrams/configuration/configmap-configmap-overview.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title CONFIGMAP OVERVIEW
+
+rectangle "ConfigMap: app-config" {
+  rectangle "data:" {
+    card "DB_HOST: mysql-service" as d1
+    card "DB_PORT: 3306" as d2
+    card "config.yaml: |\n  server:\n    port: 8080" as d3
+  }
+  
+  rectangle "binaryData:" {
+    card "logo.png: <base64>" as b1
+  }
+}
+
+rectangle "Consumido por:" {
+  card "Variáveis de ambiente" as c1
+  card "Argumentos de linha de comando" as c2
+  card "Volumes montados como arquivos" as c3
+}
+
+@enduml
 ```
 
 ### ConfigMap vs Secret
@@ -26,7 +50,53 @@ ConfigMaps são objetos para armazenar dados de configuração não sensíveis e
 ### Formas de Usar ConfigMap
 
 ```plantuml,format=png
-!include ../assets/diagrams/configuration/configmap-formas-de-consumir-configmap.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title FORMAS DE CONSUMIR CONFIGMAP
+
+rectangle "1. VARIÁVEL DE AMBIENTE (Única)" {
+  note as n1
+    env:
+    - name: MY_VAR
+      valueFrom:
+        configMapKeyRef:
+          name: my-config
+          key: my-key
+  end note
+}
+
+rectangle "2. TODAS AS VARIÁVEIS" {
+  note as n2
+    envFrom:
+    - configMapRef:
+        name: my-config
+  end note
+}
+
+rectangle "3. VOLUME (Arquivos)" {
+  note as n3
+    volumes:
+    - name: config-volume
+      configMap:
+        name: my-config
+  end note
+}
+
+rectangle "4. VOLUME (Items Específicos)" {
+  note as n4
+    volumes:
+    - name: config-volume
+      configMap:
+        name: my-config
+        items:
+        - key: config.yaml
+          path: app/config.yaml
+  end note
+}
+
+@enduml
 ```
 
 ---
@@ -171,7 +241,30 @@ kubectl create configmap app-config --from-file=config.properties
 ### Comportamento de Atualização
 
 ```plantuml,format=png
-!include ../assets/diagrams/configuration/configmap-atualização-de-configmaps.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title ATUALIZAÇÃO DE CONFIGMAPS
+
+rectangle "VOLUMES MONTADOS" {
+  card "Atualização automática (kubelet sync period ~1min)" as v1
+  card "Usa symlinks para atualização atômica" as v2
+  card "Aplicação precisa detectar mudança no arquivo" as v3
+}
+
+rectangle "VARIÁVEIS DE AMBIENTE" {
+  card "NÃO são atualizadas automaticamente" as e1
+  card "Requer restart do Pod" as e2
+  card "Variáveis são definidas no início do container" as e3
+}
+
+rectangle "SUBPATH" {
+  card "NÃO é atualizado automaticamente" as s1
+  card "Requer restart do Pod" as s2
+}
+
+@enduml
 ```
 
 ### Forçar Atualização com Rollout

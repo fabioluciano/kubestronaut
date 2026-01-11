@@ -9,7 +9,30 @@
 Containers sao unidades padronizadas de software que empacotam codigo e todas as suas dependencias para que a aplicacao execute de forma rapida e confiavel em diferentes ambientes computacionais.
 
 ```plantuml,format=png
-../assets/diagrams/general/containers-o-que-e-um-container.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title O QUE E UM CONTAINER?
+
+rectangle "Container" {
+  card "Aplicacao" as app
+  card "Dependencias\n(libs, bins)" as deps
+  card "Configuracoes" as config
+}
+
+note bottom
+  Um container inclui tudo necessario
+  para executar a aplicacao:
+  - Codigo
+  - Runtime
+  - Bibliotecas
+  - Variaveis de ambiente
+end note
+
+@enduml
 ```
 
 ### Caracteristicas Principais
@@ -29,7 +52,45 @@ Containers sao unidades padronizadas de software que empacotam codigo e todas as
 ### Comparacao Arquitetural
 
 ```plantuml,format=png
-../assets/diagrams/general/containers-containers-vs-vms.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title CONTAINERS vs VMs
+
+rectangle "MAQUINA VIRTUAL" {
+  rectangle "VM 1" {
+    card "App A" as va
+    card "Bins/Libs" as vb1
+    card "Guest OS" as vos1
+  }
+  rectangle "VM 2" {
+    card "App B" as vb
+    card "Bins/Libs" as vb2
+    card "Guest OS" as vos2
+  }
+  rectangle "Hypervisor" as hyp
+  rectangle "Host OS" as hos
+  rectangle "Hardware" as hw1
+}
+
+rectangle "CONTAINERS" {
+  rectangle "Container 1" {
+    card "App A" as ca
+    card "Bins/Libs" as cb1
+  }
+  rectangle "Container 2" {
+    card "App B" as cb
+    card "Bins/Libs" as cb2
+  }
+  rectangle "Container Runtime" as crt
+  rectangle "Host OS" as cos
+  rectangle "Hardware" as hw2
+}
+
+@enduml
 ```
 
 ### Diferencas Detalhadas
@@ -48,7 +109,38 @@ Containers sao unidades padronizadas de software que empacotam codigo e todas as
 ### Quando Usar Cada Um
 
 ```plantuml,format=png
-../assets/diagrams/general/containers-quando-usar.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title QUANDO USAR?
+
+card "USE CONTAINERS" as c {
+}
+
+card "USE VMs" as v {
+}
+
+note bottom of c
+  - Microservices
+  - CI/CD pipelines
+  - Aplicacoes cloud native
+  - Alta densidade
+  - Deploy rapido
+  - Desenvolvimento local
+end note
+
+note bottom of v
+  - Isolamento forte necessario
+  - Diferentes kernels/SOs
+  - Aplicacoes legadas
+  - Compliance estrito
+  - Multi-tenancy seguro
+end note
+
+@enduml
 ```
 
 ---
@@ -60,7 +152,36 @@ Containers sao unidades padronizadas de software que empacotam codigo e todas as
 Namespaces fornecem isolamento de recursos do sistema para processos.
 
 ```plantuml,format=png
-../assets/diagrams/general/containers-linux-namespaces.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title LINUX NAMESPACES
+
+rectangle "Host" {
+  rectangle "Namespace PID" as pid {
+    card "Processos isolados" as p1
+  }
+  rectangle "Namespace NET" as net {
+    card "Network stack proprio" as n1
+  }
+  rectangle "Namespace MNT" as mnt {
+    card "Filesystem isolado" as m1
+  }
+  rectangle "Namespace UTS" as uts {
+    card "Hostname proprio" as u1
+  }
+  rectangle "Namespace IPC" as ipc {
+    card "IPC isolado" as i1
+  }
+  rectangle "Namespace USER" as user {
+    card "UIDs/GIDs mapeados" as us1
+  }
+}
+
+@enduml
 ```
 
 ### Tipos de Namespaces
@@ -96,7 +217,28 @@ nsenter -t <PID> -n ip addr
 Cgroups limitam e contabilizam recursos usados por processos.
 
 ```plantuml,format=png
-../assets/diagrams/general/containers-control-groups-cgroups.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title CONTROL GROUPS (cgroups)
+
+rectangle "cgroups" {
+  card "CPU\nLimitar ciclos" as cpu
+  card "Memory\nLimitar RAM" as mem
+  card "I/O\nLimitar disco" as io
+  card "Network\nLimitar banda" as net
+  card "PIDs\nLimitar processos" as pids
+}
+
+note bottom
+  cgroups v1: hierarquia por recurso
+  cgroups v2: hierarquia unificada (moderno)
+end note
+
+@enduml
 ```
 
 ### Recursos Controlados por cgroups
@@ -135,7 +277,41 @@ cat /sys/fs/cgroup/cgroup.controllers
 A **Open Container Initiative** e uma estrutura de governanca da Linux Foundation para criar padroes abertos para containers.
 
 ```plantuml,format=png
-../assets/diagrams/general/containers-oci-especificacoes.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title OCI - ESPECIFICACOES
+
+rectangle "OCI Standards" {
+  card "Image Spec\n(image-spec)" as img
+  card "Runtime Spec\n(runtime-spec)" as rt
+  card "Distribution Spec\n(distribution-spec)" as dist
+}
+
+note bottom of img
+  Define formato de imagem:
+  - Layers
+  - Manifests
+  - Configuracao
+end note
+
+note bottom of rt
+  Define como executar container:
+  - Lifecycle
+  - Configuracao
+  - Filesystem bundle
+end note
+
+note bottom of dist
+  Define distribuicao de imagens:
+  - API de registry
+  - Pull/Push
+end note
+
+@enduml
 ```
 
 ### Especificacoes OCI
@@ -195,7 +371,45 @@ A **Open Container Initiative** e uma estrutura de governanca da Linux Foundatio
 ### Hierarquia de Runtimes
 
 ```plantuml,format=png
-../assets/diagrams/general/containers-hierarquia-de-container-runtimes.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title HIERARQUIA DE CONTAINER RUNTIMES
+
+rectangle "Orquestrador" {
+  card "Kubernetes" as k8s
+}
+
+rectangle "High-Level Runtime (CRI)" {
+  card "containerd" as cd
+  card "CRI-O" as crio
+}
+
+rectangle "Low-Level Runtime (OCI)" {
+  card "runc" as runc
+  card "crun" as crun
+  card "gVisor (runsc)" as gvisor
+  card "Kata Containers" as kata
+}
+
+rectangle "Linux Kernel" {
+  card "namespaces + cgroups" as kernel
+}
+
+k8s --> cd : CRI
+k8s --> crio : CRI
+cd --> runc : OCI
+cd --> gvisor : OCI
+crio --> runc : OCI
+runc --> kernel
+crun --> kernel
+gvisor --> kernel
+kata --> kernel
+
+@enduml
 ```
 
 ### High-Level Runtimes (CRI)
@@ -222,7 +436,27 @@ Executam containers seguindo a especificacao OCI.
 ### Container Runtime Interface (CRI)
 
 ```plantuml,format=png
-../assets/diagrams/general/containers-cri-container-runtime-interface.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title CRI - CONTAINER RUNTIME INTERFACE
+
+participant "kubelet" as kubelet
+participant "CRI Runtime\n(containerd)" as cri
+participant "OCI Runtime\n(runc)" as oci
+
+kubelet -> cri : RunPodSandbox()
+kubelet -> cri : CreateContainer()
+kubelet -> cri : StartContainer()
+cri -> oci : create
+oci -> oci : start
+kubelet -> cri : StopContainer()
+kubelet -> cri : RemoveContainer()
+
+@enduml
 ```
 
 ### Operacoes CRI Principais
@@ -249,7 +483,32 @@ Executam containers seguindo a especificacao OCI.
 ### Anatomia de uma Imagem
 
 ```plantuml,format=png
-../assets/diagrams/general/containers-anatomia-de-uma-container-image.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title ANATOMIA DE UMA CONTAINER IMAGE
+
+rectangle "Container Image" {
+  rectangle "Layer 4: App config" as l4 #lightgreen
+  rectangle "Layer 3: App binaries" as l3 #lightblue
+  rectangle "Layer 2: Dependencies" as l2 #lightyellow
+  rectangle "Layer 1: Base image" as l1 #lightgray
+}
+
+note right of l4 : Read-Write (em runtime)
+note right of l3 : Read-Only
+note right of l2 : Read-Only
+note right of l1 : Read-Only
+
+note bottom
+  Layers sao empilhadas usando
+  Union Filesystem (overlay2)
+end note
+
+@enduml
 ```
 
 ### Componentes de uma Imagem OCI
@@ -314,7 +573,29 @@ Sempre use digests ou tags especificas em producao. A tag `latest` e mutavel e p
 Um registry e um servico para armazenar e distribuir container images.
 
 ```plantuml,format=png
-../assets/diagrams/general/containers-container-registry.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title CONTAINER REGISTRY
+
+actor "Developer" as dev
+entity "CI/CD" as ci
+database "Container\nRegistry" as reg
+entity "Kubernetes\nCluster" as k8s
+dev --> ci : push code
+ci --> reg : docker push
+k8s --> reg : docker pull
+
+note bottom of reg
+  Armazena imagens OCI
+  Controla acesso
+  Escaneia vulnerabilidades
+end note
+
+@enduml
 ```
 
 ### Registries Populares
@@ -365,7 +646,24 @@ skopeo copy docker://source/image:tag docker://dest/image:tag
 ### Superficie de Ataque
 
 ```plantuml,format=png
-../assets/diagrams/general/containers-superficie-de-ataque.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title SUPERFICIE DE ATAQUE
+
+rectangle "Riscos de Seguranca" {
+  card "Imagem com\nvulnerabilidades" as r1
+  card "Container\nprivilegiado" as r2
+  card "Escape do\ncontainer" as r3
+  card "Secrets\nexpostos" as r4
+  card "Network\nnao segmentada" as r5
+  card "Runtime\nvulneravel" as r6
+}
+
+@enduml
 ```
 
 ### Melhores Praticas de Seguranca

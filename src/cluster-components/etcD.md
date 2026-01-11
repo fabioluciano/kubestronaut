@@ -8,7 +8,45 @@ O **etcd** e um banco de dados distribuido de chave-valor, altamente disponivel 
 ## Arquitetura do etcd
 
 ```plantuml,format=png
-!include ../assets/diagrams/cluster-components/etcd-arquitetura-do-etcd-no-kubernetes.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Arquitetura do etcd no Kubernetes
+
+package "Control Plane Node 1" {
+    [kube-apiserver] as api1
+    database "etcd\n(Leader)" as etcd1
+}
+
+package "Control Plane Node 2" {
+    [kube-apiserver ] as api2
+    database "etcd\n(Follower)" as etcd2
+}
+
+package "Control Plane Node 3" {
+    [kube-apiserver  ] as api3
+    database "etcd\n(Follower)" as etcd3
+}
+
+api1 --> etcd1 : gRPC
+api2 --> etcd1 : gRPC (writes)
+api2 --> etcd2 : gRPC (reads)
+api3 --> etcd1 : gRPC (writes)
+api3 --> etcd3 : gRPC (reads)
+
+etcd1 <--> etcd2 : Raft Consensus
+etcd2 <--> etcd3 : Raft Consensus
+etcd1 <--> etcd3 : Raft Consensus
+
+note bottom of etcd1
+  Todas as escritas
+  vao para o Leader
+end note
+
+@enduml
 ```
 
 ## Conceitos Fundamentais
@@ -18,7 +56,34 @@ O **etcd** e um banco de dados distribuido de chave-valor, altamente disponivel 
 O etcd usa o algoritmo Raft para garantir consistencia entre os nos.
 
 ```plantuml,format=png
-!include ../assets/diagrams/cluster-components/etcd-raft-consensus-eleicao-de-leader.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Raft Consensus - Eleicao de Leader
+
+participant "Node 1\n(Follower)" as n1
+participant "Node 2\n(Candidate)" as n2
+participant "Node 3\n(Follower)" as n3
+
+note over n1,n3: Leader atual falha
+
+n2 -> n2 : Timeout expirado\nInicia eleicao
+n2 -> n2 : Incrementa term\nVota em si mesmo
+n2 -> n1 : RequestVote (term=2)
+n2 -> n3 : RequestVote (term=2)
+n1 --> n2 : VoteGranted
+n3 --> n2 : VoteGranted
+n2 -> n2 : Maioria alcancada\nTorna-se Leader
+
+note over n2: Novo Leader (term=2)
+
+n2 -> n1 : Heartbeat
+n2 -> n3 : Heartbeat
+
+@enduml
 ```
 
 ### Quorum
@@ -152,7 +217,31 @@ etcdctl del /test/key
 ### Backup do etcd
 
 ```plantuml,format=png
-!include ../assets/diagrams/cluster-components/etcd-processo-de-backup-do-etcd.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Processo de Backup do etcd
+
+actor Admin
+participant "etcdctl" as ctl
+participant "etcd" as etcd
+database "Snapshot\n(.db file)" as snap
+entity "Storage\nExterno" as storage
+
+Admin -> ctl : etcdctl snapshot save
+ctl -> etcd : Solicita snapshot
+etcd -> etcd : Cria snapshot\nconsistente
+etcd -> snap : Grava arquivo .db
+ctl --> Admin : Snapshot criado
+
+Admin -> snap : Copia para storage
+snap -> storage : backup.db
+Admin -> storage : Verifica integridade
+
+@enduml
 ```
 
 ```bash
@@ -187,7 +276,34 @@ find ${BACKUP_DIR} -name "*.db" -mtime +7 -delete
 ### Restore do etcd
 
 ```plantuml,format=png
-!include ../assets/diagrams/cluster-components/etcd-processo-de-restore-do-etcd.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Processo de Restore do etcd
+
+actor Admin
+participant "etcdctl" as ctl
+database "Snapshot" as snap
+entity "Novo Data Dir" as newdir
+participant "etcd" as etcd
+participant "kube-apiserver" as api
+
+Admin -> Admin : 1. Para kube-apiserver
+Admin -> Admin : 2. Para etcd
+Admin -> ctl : 3. etcdctl snapshot restore
+ctl -> snap : Le snapshot
+ctl -> newdir : Restaura dados
+ctl --> Admin : Restore completo
+
+Admin -> Admin : 4. Atualiza data-dir\nno manifest
+Admin -> etcd : 5. Inicia etcd
+etcd -> newdir : Carrega dados
+Admin -> api : 6. Inicia kube-apiserver
+
+@enduml
 ```
 
 ```bash

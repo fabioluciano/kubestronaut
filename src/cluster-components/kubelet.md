@@ -12,13 +12,96 @@ O kubelet **nao e instalado pelo kubeadm** como static pod. Ele deve ser instala
 ## Arquitetura e Funcionamento
 
 ```plantuml,format=png
-!include ../assets/diagrams/cluster-components/kubelet-arquitetura-do-kubelet.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Arquitetura do kubelet
+
+package "kubelet" {
+    [Pod Lifecycle\nManager] as plm
+    [Volume Manager] as vol
+    [Image Manager] as img
+    [Probe Manager] as probe
+    [cAdvisor] as cadvisor
+    [Certificate Manager] as cert
+    [Node Status Manager] as status
+}
+
+package "Container Runtime" {
+    [CRI] as cri
+    [containerd] as containerd
+}
+
+package "External" {
+    [kube-apiserver] as api
+    [Static Pod\nManifests] as static
+    database "etcd" as etcd
+}
+
+plm --> cri : Gerencia containers
+cri --> containerd
+vol --> plm : Monta volumes
+img --> cri : Pull images
+probe --> plm : Health checks
+cadvisor --> status : Metricas
+status --> api : Reporta status
+api --> etcd
+plm --> api : Watch pods
+static --> plm : Le manifests
+
+@enduml
 ```
 
 ## Funcoes do kubelet
 
 ```plantuml,format=png
-!include ../assets/diagrams/cluster-components/kubelet-funcoes-do-kubelet.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Funcoes do kubelet
+
+start
+
+partition "Registro do Node" {
+    :Registra node no cluster;
+    :Envia informacoes de capacidade;
+}
+
+partition "Watch de Pods" {
+    :Observa pods assignados ao node;
+    :Recebe specs via API Server;
+    :Le Static Pods de diretorio local;
+}
+
+partition "Gerenciamento de Pods" {
+    :Cria/atualiza/deleta pods;
+    :Gerencia containers via CRI;
+    :Monta volumes necessarios;
+    :Configura rede (CNI);
+}
+
+partition "Health Checks" {
+    :Executa liveness probes;
+    :Executa readiness probes;
+    :Executa startup probes;
+    :Reinicia containers se necessario;
+}
+
+partition "Status Report" {
+    :Reporta status do node;
+    :Reporta status dos pods;
+    :Envia metricas (via cAdvisor);
+}
+
+stop
+
+@enduml
 ```
 
 ## Configuracao do kubelet
@@ -69,7 +152,37 @@ ExecStart=/usr/bin/kubelet $KUBELET_KUBECONFIG_ARGS $KUBELET_CONFIG_ARGS $KUBELE
 Static Pods sao gerenciados diretamente pelo kubelet, sem passar pelo API Server.
 
 ```plantuml,format=png
-!include ../assets/diagrams/cluster-components/kubelet-static-pods-vs-regular-pods.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Static Pods vs Regular Pods
+
+package "Regular Pods" {
+    [kube-apiserver] as api
+    [etcd] as etcd
+    [kubelet] as kub1
+}
+
+package "Static Pods" {
+    folder "/etc/kubernetes/manifests" as manifests
+    [kubelet ] as kub2
+}
+
+api --> etcd : Persiste spec
+api --> kub1 : Envia spec
+manifests --> kub2 : Le spec local
+kub2 --> api : Cria mirror pod\n(apenas para visibilidade)
+
+note bottom of manifests
+  Arquivos YAML neste diretorio
+  sao automaticamente criados
+  como pods pelo kubelet
+end note
+
+@enduml
 ```
 
 ### Criar Static Pod
@@ -137,7 +250,50 @@ Usado para containers que demoram a iniciar. Desabilita liveness/readiness ate p
 ### Metodos de Probe
 
 ```plantuml,format=png
-!include ../assets/diagrams/cluster-components/kubelet-metodos-de-probe.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Metodos de Probe
+
+rectangle "HTTP GET" as http {
+    note as n1
+      httpGet:
+        path: /healthz
+        port: 8080
+        httpHeaders:
+        - name: Custom-Header
+          value: value
+    end note
+}
+
+rectangle "TCP Socket" as tcp {
+    note as n2
+      tcpSocket:
+        port: 8080
+    end note
+}
+
+rectangle "Exec" as exec {
+    note as n3
+      exec:
+        command:
+        - cat
+        - /tmp/healthy
+    end note
+}
+
+rectangle "gRPC" as grpc {
+    note as n4
+      grpc:
+        port: 8080
+        service: health
+    end note
+}
+
+@enduml
 ```
 
 ## Seguranca do kubelet
@@ -181,7 +337,40 @@ A porta 10255 (read-only) permite acesso nao autenticado a informacoes sensiveis
 ## Comunicacao kubelet-APIServer
 
 ```plantuml,format=png
-!include ../assets/diagrams/cluster-components/kubelet-comunicacao-kubelet-api-server.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Comunicacao kubelet - API Server
+
+participant "kube-apiserver" as api
+participant "kubelet" as kubelet
+
+note over api,kubelet: kubelet -> API Server
+
+kubelet -> api : Registra node
+kubelet -> api : Watch pods para este node
+kubelet -> api : Atualiza status do node
+kubelet -> api : Atualiza status dos pods
+
+note over api,kubelet: API Server -> kubelet
+
+api -> kubelet : exec into pod
+api -> kubelet : port-forward
+api -> kubelet : logs
+api -> kubelet : attach
+
+note right of api
+  API Server usa
+  certificados para
+  autenticar no kubelet
+  --kubelet-client-certificate
+  --kubelet-client-key
+end note
+
+@enduml
 ```
 
 ## Gerenciamento de Configuracao

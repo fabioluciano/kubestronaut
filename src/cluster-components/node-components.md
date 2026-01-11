@@ -18,7 +18,79 @@ Entender a funcao de cada componente e como eles se comunicam e essencial para a
 ## Diagrama da Arquitetura
 
 ```plantuml,format=png
-../../assets/diagrams/general/node-components-arquitetura-completa-do-kubernetes.puml
+@startuml
+
+skinparam linetype ortho
+skinparam packageStyle rectangle
+
+title Arquitetura Completa do Kubernetes
+
+package "Control Plane" as CP {
+    component [kube-apiserver] as API #LightBlue
+    component [etcd] as ETCD #LightGreen
+    component [kube-scheduler] as SCHED #LightYellow
+    component [kube-controller-manager] as KCM #LightCoral
+    component [cloud-controller-manager] as CCM #LightGray
+}
+
+package "Worker Node 1" as WN1 {
+    component [kubelet] as KUB1 #PaleGreen
+    component [kube-proxy] as KP1 #PaleTurquoise
+    component [Container Runtime] as CR1 #Wheat
+
+    package "Pods" as P1 {
+        component [Pod A] as PA
+        component [Pod B] as PB
+    }
+}
+
+package "Worker Node 2" as WN2 {
+    component [kubelet] as KUB2 #PaleGreen
+    component [kube-proxy] as KP2 #PaleTurquoise
+    component [Container Runtime] as CR2 #Wheat
+
+    package "Pods" as P2 {
+        component [Pod C] as PC
+        component [Pod D] as PD
+    }
+}
+
+' Control Plane Internal Communications
+API <-down-> ETCD : "gRPC\n2379/2380"
+SCHED --> API : "HTTPS\n6443"
+KCM --> API : "HTTPS\n6443"
+CCM --> API : "HTTPS\n6443"
+
+' Worker Node 1 Communications
+KUB1 --> API : "HTTPS\n6443"
+KP1 --> API : "HTTPS\n6443"
+API --> KUB1 : "HTTPS\n10250"
+KUB1 --> CR1 : "CRI\nUnix Socket"
+CR1 --> PA
+CR1 --> PB
+
+' Worker Node 2 Communications
+KUB2 --> API : "HTTPS\n6443"
+KP2 --> API : "HTTPS\n6443"
+API --> KUB2 : "HTTPS\n10250"
+KUB2 --> CR2 : "CRI\nUnix Socket"
+CR2 --> PC
+CR2 --> PD
+
+' Inter-node communication
+KP1 <.down.> KP2 : "Pod Network"
+
+note right of API
+  Ponto central de
+  comunicacao do cluster
+end note
+
+note bottom of ETCD
+  Unico armazenamento
+  persistente do cluster
+end note
+
+@enduml
 ```
 
 ## Componentes do Control Plane
@@ -213,7 +285,45 @@ O **Container Runtime** e responsavel por executar os containers. O Kubernetes s
 ## Comunicacao entre Componentes
 
 ```plantuml,format=png
-../../assets/diagrams/general/node-components-fluxo-de-comunicacao-criacao-de-um-pod.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Fluxo de Comunicacao - Criacao de um Pod
+
+actor Usuario as U
+participant "kubectl" as K
+participant "kube-apiserver" as API
+database "etcd" as ETCD
+participant "kube-scheduler" as SCHED
+participant "kube-controller-manager" as KCM
+participant "kubelet" as KUB
+participant "Container Runtime" as CR
+
+U -> K: kubectl apply -f pod.yaml
+K -> API: POST /api/v1/pods\n(HTTPS:6443)
+API -> API: Autenticacao\nAutorizacao\nAdmission Control
+API -> ETCD: Armazena Pod\n(gRPC:2379)
+ETCD --> API: Confirmacao
+
+API --> K: Pod criado (Pending)
+
+SCHED -> API: Watch: Pods sem no
+API --> SCHED: Pod sem no atribuido
+SCHED -> SCHED: Filtra e ranqueia nos
+SCHED -> API: Bind Pod ao No X
+
+API -> ETCD: Atualiza Pod\n(nodeName: X)
+
+KUB -> API: Watch: Pods do No X
+API --> KUB: Novo Pod para criar
+KUB -> CR: CRI: CreateContainer
+CR --> KUB: Container criado
+KUB -> API: Atualiza status:\nRunning
+
+@enduml
 ```
 
 ### Tabela de Comunicacao

@@ -11,7 +11,29 @@ CKA (10%), CKAD (15%), CKS (20%)
 Secrets armazenam dados sensíveis como senhas, tokens e chaves. Os dados são codificados em base64 (não criptografados por padrão).
 
 ```plantuml,format=png
-!include ../assets/diagrams/configuration/secrets-secrets-overview.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title SECRETS OVERVIEW
+
+rectangle "Secret: db-credentials\ntype: Opaque" {
+  rectangle "data: (base64 encoded)" {
+    card "username: YWRtaW4= (admin)" as d1
+    card "password: cGFzc3dvcmQxMjM= (password123)" as d2
+  }
+  
+  rectangle "stringData: (plain text, encoded on create)" {
+    card "api-key: my-secret-key" as s1
+  }
+}
+
+note bottom
+  ⚠️ Base64 NÃO É CRIPTOGRAFIA - apenas encoding
+  ⚠️ Habilitar Encryption at Rest para segurança
+end note
+
+@enduml
 ```
 
 ### Tipos de Secrets
@@ -28,7 +50,49 @@ Secrets armazenam dados sensíveis como senhas, tokens e chaves. Os dados são c
 ### Formas de Usar Secrets
 
 ```plantuml,format=png
-!include ../assets/diagrams/configuration/secrets-formas-de-consumir-secrets.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title FORMAS DE CONSUMIR SECRETS
+
+rectangle "1. VARIÁVEL DE AMBIENTE (Única chave)" {
+  note right
+    env:
+    - name: DB_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: db-secret
+          key: password
+  end note
+}
+
+rectangle "2. TODAS AS VARIÁVEIS" {
+  note right
+    envFrom:
+    - secretRef:
+        name: db-secret
+  end note
+}
+
+rectangle "3. VOLUME (Arquivos)" {
+  note right
+    volumes:
+    - name: secret-volume
+      secret:
+        secretName: db-secret
+        defaultMode: 0400
+  end note
+}
+
+rectangle "4. IMAGEPULLSECRETS" {
+  note right
+    imagePullSecrets:
+    - name: docker-registry-secret
+  end note
+}
+
+@enduml
 ```
 
 ---
@@ -180,7 +244,31 @@ kubectl create secret docker-registry my-registry \
 ### Problemas de Segurança
 
 ```plantuml,format=png
-!include ../assets/diagrams/configuration/secrets-problemas-de-segurança.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title PROBLEMAS DE SEGURANÇA
+
+rectangle "PROBLEMAS" {
+  card "❌ Base64 não é criptografia" as p1
+  card "❌ Secrets em texto plano no etcd (padrão)" as p2
+  card "❌ Qualquer um com acesso ao namespace pode ver" as p3
+  card "❌ Logs podem expor valores de env vars" as p4
+  card "❌ Secrets podem vazar em dumps de memória" as p5
+}
+
+rectangle "MITIGAÇÕES" {
+  card "✅ Habilitar Encryption at Rest no etcd" as m1
+  card "✅ Usar RBAC para restringir acesso" as m2
+  card "✅ Usar volumes ao invés de env vars" as m3
+  card "✅ Usar external secret managers (Vault, AWS)" as m4
+  card "✅ Ativar audit logging" as m5
+}
+
+PROBLEMAS -[hidden]down-> MITIGAÇÕES
+
+@enduml
 ```
 
 ### RBAC para Secrets
@@ -192,7 +280,31 @@ kubectl create secret docker-registry my-registry \
 ### Volumes vs Environment Variables
 
 ```plantuml,format=png
-!include ../assets/diagrams/configuration/secrets-volumes-vs-env-vars.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title VOLUMES vs ENV VARS
+
+rectangle "ENVIRONMENT VARIABLES" {
+  card "❌ Podem vazar em logs de crash" as e1
+  card "❌ Visíveis em /proc/<pid>/environ" as e2
+  card "❌ Passadas para processos filhos" as e3
+  card "❌ Não atualizam sem restart" as e4
+}
+
+rectangle "VOLUMES" {
+  card "✅ Atualizados automaticamente (~1min)" as v1
+  card "✅ Podem ter permissões restritivas (0400)" as v2
+  card "✅ Menos propensos a vazamento" as v3
+  card "⚠️ SubPath não atualiza automaticamente" as v4
+}
+
+note bottom
+  RECOMENDAÇÃO: Prefira volumes para dados sensíveis
+end note
+
+@enduml
 ```
 
 

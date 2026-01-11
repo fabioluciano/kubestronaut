@@ -7,7 +7,29 @@
 A Certificate API do Kubernetes permite criar, aprovar e gerenciar certificados TLS através do cluster. É usada principalmente para criar certificados de usuário para autenticação no cluster.
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/certificate-api-fluxo-da-certificate-api-1.puml
+@startuml
+skinparam monochrome true
+
+title FLUXO DA CERTIFICATE API
+
+actor "Admin/User" as user
+
+user -> [1. Gera chave privada + CSR]
+[1. Gera chave privada + CSR] -> [2. CSR codificado em base64]
+[2. CSR codificado em base64] -> [3. CertificateSigningRequest criado no K8s]
+
+rectangle "Controller Manager\n(kube-controller-manager)" as cm {
+  note as n1
+    • Verifica CSR
+    • Usa CA do cluster para assinar
+    • /etc/kubernetes/pki/ca.*
+  end note
+}
+
+[3. CertificateSigningRequest criado no K8s] -> cm
+cm -> [5. Admin aprova/rejeita o CSR]
+[5. Admin aprova/rejeita o CSR] -> [6. Certificado disponível em .status.certificate]
+@enduml
 ```
 
 ### Componentes
@@ -107,7 +129,30 @@ openssl x509 -in john.crt -text -noout
 ### Signers Disponíveis
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/certificate-api-diagram-2-1.puml
+@startuml
+skinparam monochrome true
+
+map "SIGNER NAMES" as signers {
+}
+
+note bottom of signers
+  **kubernetes.io/kube-apiserver-client**
+  • Para autenticação de clientes (usuários, CI/CD)
+  • usages: ["client auth"]
+
+  **kubernetes.io/kube-apiserver-client-kubelet**
+  • Para kubelets se autenticarem
+  • Restrito a CN=system:node:*
+
+  **kubernetes.io/kubelet-serving**
+  • Para certificados de servidor do kubelet
+  • usages: ["server auth"]
+
+  **kubernetes.io/legacy-unknown**
+  • Para compatibilidade com versões antigas
+  • Não recomendado
+end note
+@enduml
 ```
 
 ### Usages Válidos
@@ -311,7 +356,36 @@ openssl x509 -in john.crt -enddate -noout
 ## Dicas para o Exame CKA/CKS
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/certificate-api-diagram-3-1.puml
+@startuml
+skinparam monochrome true
+
+map "DICAS - CERTIFICATE API" as dicas {
+}
+
+note bottom of dicas
+  **Criar certificado:**
+  1. openssl genrsa -out user.key 2048
+  2. openssl req -new -key user.key -out user.csr
+     -subj "/CN=user/O=group"
+  3. Criar CSR com request: $(base64 -w 0 user.csr)
+  4. kubectl certificate approve <name>
+  5. kubectl get csr <name> -o jsonpath=...
+
+  **signerName:**
+  • kubernetes.io/kube-apiserver-client (para usuários)
+
+  **usages:**
+  • client auth (para clientes/usuários)
+  • server auth (para servidores)
+
+  **kubeconfig:**
+  kubectl config set-credentials USER --client-key=...
+  kubectl config set-context NAME --cluster=... --user=...
+
+  **CN = nome do usuário no RBAC**
+  **O = grupo do usuário no RBAC**
+end note
+@enduml
 ```
 
 ---

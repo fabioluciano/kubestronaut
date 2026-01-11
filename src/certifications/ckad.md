@@ -20,7 +20,25 @@
 ### Distribuição do Currículo
 
 ```plantuml,format=png
-!include ../assets/diagrams/certifications/ckad-domínios-do-ckad.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DOMÍNIOS DO CKAD
+
+card "Application Design and Build" as d1 #lightgray
+card "Application Deployment" as d2 #lightgray
+card "Application Observability and Maintenance" as d3 #lightgray
+card "Application Environment, Configuration and Security" as d4 #lightgray
+card "Services and Networking" as d5 #lightgray
+
+note right of d1 : 20%
+note right of d2 : 20%
+note right of d3 : 15%
+note right of d4 : 25%
+note right of d5 : 20%
+
+@enduml
 ```
 
 ---
@@ -58,7 +76,37 @@ CMD ["/myapp"]
 ### 1.3 Multi-Container Pods
 
 ```plantuml,format=png
-!include ../assets/diagrams/certifications/ckad-padrões-multi-container.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title PADRÕES MULTI-CONTAINER
+
+rectangle "Sidecar" as s {
+  card "App" as s1
+  card "Log Agent" as s2
+  s1 --> s2 : logs
+}
+
+rectangle "Ambassador" as a {
+  card "App" as a1
+  card "Proxy" as a2
+  a1 --> a2 : localhost
+}
+
+rectangle "Adapter" as ad {
+  card "App" as ad1
+  card "Transformer" as ad2
+  ad1 --> ad2 : transform
+}
+
+rectangle "Init Container" as i {
+  card "Init" as i1
+  card "App" as i2
+  i1 --> i2 : "setup first"
+}
+
+@enduml
 ```
 
 ```yaml
@@ -107,7 +155,25 @@ kubectl rollout undo deployment/nginx --to-revision=2
 ### 2.3 Blue-Green e Canary
 
 ```plantuml,format=png
-!include ../assets/diagrams/certifications/ckad-estratégias-de-deployment.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title ESTRATÉGIAS DE DEPLOYMENT
+
+rectangle "Blue-Green" {
+  card "Blue (v1)\n100% → 0%" as bg1
+  card "Green (v2)\n0% → 100%" as bg2
+  bg1 --> bg2 : switch
+}
+
+rectangle "Canary" {
+  card "Stable (v1)\n90%" as c1
+  card "Canary (v2)\n10%" as c2
+  c1 --> c2 : gradual
+}
+
+@enduml
 ```
 
 ```yaml
@@ -357,7 +423,20 @@ kubectl get events --sort-by='.lastTimestamp'
 ## Dicas para o Exame
 
 ```plantuml,format=png
-!include ../assets/diagrams/certifications/ckad-dicas-ckad.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DICAS CKAD
+
+card "1. Use --dry-run=client -o yaml\nGerar YAML rapidamente" as d1
+card "2. kubectl explain\nDocumentação inline" as d2
+card "3. Alias e autocomplete\nalias k=kubectl" as d3
+card "4. Bookmarks permitidos\nkubernetes.io/docs" as d4
+card "5. Gerenciamento de tempo\n~6 min por questão" as d5
+card "6. Não trave em uma questão\nVolte depois se precisar" as d6
+
+@enduml
 ```
 
 ### Atalhos Importantes

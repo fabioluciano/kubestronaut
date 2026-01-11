@@ -1,0 +1,29 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title FLUXO DE FINALIZERS
+
+start
+
+:Usuario solicita DELETE;
+
+if (Objeto tem Finalizers?) then (sim)
+  :metadata.deletionTimestamp = now;
+  :metadata.deletionGracePeriodSeconds = X;
+  :Estado = Terminating;
+  
+  repeat
+    :Controller executa\npre-delete hook;
+    :Remove finalizer da lista;
+  repeat while (Lista de finalizers vazia?) is (nao)
+  -> sim;
+  
+  :Objeto removido do etcd;
+else (nao)
+  :Objeto removido\nimediatamente;
+endif
+
+stop
+
+@enduml

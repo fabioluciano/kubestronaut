@@ -14,7 +14,22 @@ O Kubernetes Dashboard e outras interfaces gráficas representam **superfícies 
 ### Riscos do Dashboard
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/minimizar-acesso-gui-riscos-do-dashboard-1.puml
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Monospaced
+
+title RISCOS DO DASHBOARD
+
+rectangle "Riscos" {
+  card "Exposição via NodePort/LoadBalancer = Acesso externo" as r1
+  card "ServiceAccount com permissões excessivas" as r2
+  card "Tokens de autenticação vazados" as r3
+  card "Histórico: CVE-2018-18264 (bypass de autenticação)" as r4
+  card "Ataques de criptomineração via Dashboard exposto" as r5
+}
+
+@enduml
 ```
 
 ---
@@ -123,7 +138,25 @@ Este exemplo mostra o que **NÃO** fazer - conceder acesso admin irrestrito ao D
 ### Princípio Geral
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/minimizar-acesso-gui-princípio-de-minimização-1.puml
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Monospaced
+
+title PRINCÍPIO DE MINIMIZAÇÃO
+
+note as quote
+  "Se você não precisa, não instale"
+end note
+
+rectangle "Princípios" {
+  card "Dashboard não é obrigatório" as p1
+  card "kubectl é suficiente para maioria das operações" as p2
+  card "GUIs locais (Lens, K9s) são mais seguras que web" as p3
+  card "Cada componente adicional = superfície de ataque extra" as p4
+}
+
+@enduml
 ```
 
 ---
@@ -195,7 +228,34 @@ curl -k -H "Authorization: Bearer $TOKEN" https://localhost:8443/api/v1/namespac
 ## Dicas para o Exame CKS
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/minimizar-acesso-gui-dicas-cks-dashboard-1.puml
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Monospaced
+
+title DICAS CKS - DASHBOARD
+
+rectangle "1. Minimizar acesso" {
+  card "ClusterIP em vez de NodePort/LoadBalancer" as m1
+  card "kubectl proxy para acesso" as m2
+}
+
+rectangle "2. RBAC do Dashboard" {
+  card "NUNCA cluster-admin" as r1
+  card "Criar Role/ClusterRole com permissões mínimas" as r2
+}
+
+rectangle "3. Argumentos importantes" {
+  card "--enable-insecure-login=false" as a1
+  card "--insecure-port=0" as a2
+  card "--enable-skip-login=false" as a3
+}
+
+note bottom
+  **4. Lembrar:** kubectl proxy usa autenticação do kubeconfig
+end note
+
+@enduml
 ```
 
 ---

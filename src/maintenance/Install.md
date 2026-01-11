@@ -7,13 +7,72 @@
 A instalacao de um cluster Kubernetes envolve diversos componentes que precisam ser configurados corretamente para garantir o funcionamento adequado. O `kubeadm` e a ferramenta oficial para bootstrap de clusters Kubernetes, simplificando significativamente o processo de instalacao.
 
 ```plantuml,format=png
-!include ../assets/diagrams/maintenance/install-arquitetura-de-um-cluster-kubernetes.puml
+@startuml
+
+skinparam backgroundColor white
+
+title Arquitetura de um Cluster Kubernetes
+
+package "Control Plane" {
+  [kube-apiserver] as api
+  [etcd] as etcd
+  [kube-scheduler] as scheduler
+  [kube-controller-manager] as controller
+}
+
+package "Worker Node 1" {
+  [kubelet] as kubelet1
+  [kube-proxy] as proxy1
+  [Container Runtime] as cri1
+}
+
+package "Worker Node 2" {
+  [kubelet] as kubelet2
+  [kube-proxy] as proxy2
+  [Container Runtime] as cri2
+}
+
+api --> etcd
+api --> scheduler
+api --> controller
+kubelet1 --> api
+kubelet2 --> api
+proxy1 --> api
+proxy2 --> api
+kubelet1 --> cri1
+kubelet2 --> cri2
+
+@enduml
 ```
 
 ### Fluxo de Instalação
 
 ```plantuml,format=png
-!include ../assets/diagrams/maintenance/install-fluxo-instalacao.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Fluxo de Instalação do Cluster Kubernetes
+
+start
+:Instalar Container Runtime Interface;
+:Configurar o Container Runtime;
+:Configurar Repositórios para instalar o ""kubeadm"";
+:instalar kubeadm, kubelet, kubectl;
+
+if (is controlplane) then(controlplane)
+	:Inicializar o cluster ""kubeadm init"";
+	:Instalar o Container Runtime Network;
+else (worker node)
+	:rodar o kube join;
+endif
+
+end
+
+@enduml
+
 ```
 
 ### Componentes Necessarios
@@ -123,7 +182,23 @@ sysctl net.bridge.bridge-nf-call-iptables net.bridge.bridge-nf-call-ip6tables ne
 ## Instalacao do Container Runtime (containerd)
 
 ```plantuml,format=png
-!include ../assets/diagrams/maintenance/install-fluxo-de-instalacao-do-container-runtime.puml
+@startuml
+
+skinparam backgroundColor white
+
+title Fluxo de Instalacao do Container Runtime
+
+start
+:Instalar dependencias;
+:Adicionar repositorio Docker;
+:Instalar containerd;
+:Gerar configuracao padrao;
+:Configurar SystemdCgroup = true;
+:Reiniciar containerd;
+:Verificar status;
+stop
+
+@enduml
 ```
 
 ### Instalar containerd
@@ -196,7 +271,25 @@ kubectl version --client
 ## Inicializacao do Cluster (Control Plane)
 
 ```plantuml,format=png
-!include ../assets/diagrams/maintenance/install-fluxo-de-inicializacao-com-kubeadm.puml
+@startuml
+
+skinparam backgroundColor white
+
+title Fluxo de Inicializacao com kubeadm
+
+start
+:kubeadm init;
+:Gerar certificados;
+:Configurar etcd;
+:Iniciar kube-apiserver;
+:Iniciar kube-controller-manager;
+:Iniciar kube-scheduler;
+:Gerar token de join;
+:Configurar kubeconfig;
+:Instalar CNI Plugin;
+stop
+
+@enduml
 ```
 
 ### kubeadm init - Opcoes Importantes
@@ -345,7 +438,39 @@ sudo kubeadm join 192.168.1.10:6443 \
 ## Verificacao Pos-Instalacao
 
 ```plantuml,format=png
-!include ../assets/diagrams/maintenance/install-checklist-de-verificacao.puml
+@startuml
+
+skinparam backgroundColor white
+
+title Checklist de Verificacao
+
+start
+:Verificar nodes Ready;
+if (nodes Ready?) then (sim)
+  :Verificar pods kube-system;
+  if (pods Running?) then (sim)
+    :Verificar CoreDNS;
+    if (DNS funcionando?) then (sim)
+      :Criar pod de teste;
+      if (pod Running?) then (sim)
+        :Cluster OK!;
+        stop
+      else (nao)
+        :Verificar logs do pod;
+      endif
+    else (nao)
+      :Verificar CNI;
+    endif
+  else (nao)
+    :Verificar logs dos pods;
+  endif
+else (nao)
+  :Verificar kubelet e containerd;
+endif
+:Troubleshooting;
+stop
+
+@enduml
 ```
 
 ### Verificar Status dos Nodes

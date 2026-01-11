@@ -7,7 +7,49 @@
 A observabilidade é a capacidade de entender o estado interno de um sistema através de suas saídas externas. No contexto de Kubernetes, baseia-se em **três pilares**:
 
 ```plantuml,format=png
-!include ../assets/diagrams/observability/observabilidade-três-pilares-da-observabilidade.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title TRÊS PILARES DA OBSERVABILIDADE
+
+rectangle "MÉTRICAS" as metricas {
+  note as nmetricas
+    Números que
+    representam
+    estado
+    ----
+    Prometheus
+    Grafana
+  end note
+}
+
+rectangle "LOGS" as logs {
+  note as nlogs
+    Eventos
+    discretos
+    textuais
+    ----
+    Loki/EFK
+    Fluentd
+  end note
+}
+
+rectangle "TRACES" as traces {
+  note as ntraces
+    Caminho de
+    uma request
+    distribuída
+    ----
+    Jaeger/Zipkin
+    Tempo
+  end note
+}
+
+metricas -[hidden]right-> logs
+logs -[hidden]right-> traces
+
+@enduml
 ```
 
 ### Métricas vs Logs vs Traces
@@ -84,7 +126,41 @@ kubectl top pods --containers
 ### Níveis de Logging
 
 ```plantuml,format=png
-!include ../assets/diagrams/observability/observabilidade-níveis-de-log.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title NÍVEIS DE LOG
+
+rectangle "Container" as container
+rectangle "Pod" as pod
+rectangle "Node" as node
+rectangle "Cluster" as cluster
+
+container --> pod
+pod --> node
+node --> cluster
+
+note bottom of container
+  1. Container Logs (stdout/stderr)
+     kubectl logs <pod>
+end note
+
+note bottom of node
+  2. Node Logs (/var/log/)
+     - kubelet.log
+     - kube-proxy.log
+     - container runtime logs
+end note
+
+note bottom of cluster
+  3. Control Plane Logs
+     - /var/log/kube-apiserver.log
+     - /var/log/kube-scheduler.log
+     - /var/log/kube-controller-manager.log
+end note
+
+@enduml
 ```
 
 ### Comandos de Log
@@ -117,7 +193,24 @@ kubectl logs -l app=nginx --all-containers
 ### Stack EFK (Elasticsearch + Fluentd + Kibana)
 
 ```plantuml,format=png
-!include ../assets/diagrams/observability/observabilidade-stack-efk.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title STACK EFK
+
+rectangle "Pods\nstdout" as pods
+rectangle "Fluentd\n(DaemonSet)" as fluentd
+rectangle "Elasticsearch\n(Index)" as elastic
+rectangle "Kibana\n(UI)" as kibana
+
+pods --> fluentd : Coleta
+fluentd --> elastic : Processa
+elastic --> kibana : Armazena
+
+note bottom of kibana : Visualiza
+
+@enduml
 ```
 
 ### Loki (Alternativa Leve)
@@ -133,7 +226,32 @@ kubectl logs -l app=nginx --all-containers
 ### Conceitos de Tracing
 
 ```plantuml,format=png
-!include ../assets/diagrams/observability/observabilidade-distributed-tracing.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DISTRIBUTED TRACING
+
+note as intro
+  Trace: Jornada completa de uma requisição
+end note
+
+rectangle "Trace ID: abc123" as trace {
+  rectangle "Span: Frontend (50ms)" as frontend {
+    rectangle "Span: API Gateway (45ms)" as gateway {
+      rectangle "Span: Auth Service (10ms)" as auth
+      rectangle "Span: Product Service (30ms)" as product {
+        rectangle "Span: Database (20ms)" as db
+      }
+    }
+  }
+}
+
+note bottom of trace
+  Cada Span contém: nome, duração, tags, logs, baggage
+end note
+
+@enduml
 ```
 
 ### Ferramentas de Tracing
@@ -158,7 +276,24 @@ kubectl logs -l app=nginx --all-containers
 ### Arquitetura Prometheus
 
 ```plantuml,format=png
-!include ../assets/diagrams/observability/observabilidade-prometheus-stack.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title PROMETHEUS STACK
+
+rectangle "Targets\n/metrics" as targets
+rectangle "Prometheus\n(TSDB)" as prometheus
+rectangle "AlertManager" as alertmgr
+rectangle "Slack / Email" as notify
+rectangle "Grafana\n(Dashboards)" as grafana
+
+targets --> prometheus
+prometheus --> alertmgr
+alertmgr --> notify
+prometheus --> grafana
+
+@enduml
 ```
 
 ### ServiceMonitor (Prometheus Operator)
@@ -226,7 +361,48 @@ kubectl get --raw /apis/metrics.k8s.io/v1beta1/nodes
 ## Dicas para os Exames
 
 ```plantuml,format=png
-!include ../assets/diagrams/observability/observabilidade-dicas-observabilidade.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DICAS - OBSERVABILIDADE
+
+rectangle "KCNA" as kcna {
+  note as nkcna
+    • Conhecer os 3 pilares (métricas, logs, traces)
+    • Prometheus é CNCF Graduated
+    • OpenTelemetry é o padrão unificado
+  end note
+}
+
+rectangle "CKA" as cka {
+  note as ncka
+    • kubectl logs (com -f, --previous, --tail)
+    • kubectl top nodes/pods
+    • Instalar Metrics Server
+  end note
+}
+
+rectangle "CKAD" as ckad {
+  note as nckad
+    • Configurar livenessProbe e readinessProbe
+    • Diferença entre os três tipos de probe
+    • Ajustar initialDelaySeconds e periodSeconds
+  end note
+}
+
+rectangle "CKS" as cks {
+  note as ncks
+    • Audit logs para segurança
+    • Falco para detecção de anomalias
+  end note
+}
+
+kcna -[hidden]down-> cka
+cka -[hidden]down-> ckad
+ckad -[hidden]down-> cks
+
+@enduml
 ```
 
 ---

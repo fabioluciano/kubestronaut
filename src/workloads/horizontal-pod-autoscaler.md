@@ -7,7 +7,33 @@
 O HorizontalPodAutoscaler ajusta automaticamente o número de réplicas de um Deployment, ReplicaSet ou StatefulSet baseado em métricas observadas.
 
 ```plantuml,format=png
-!include ../assets/diagrams/workloads/horizontal-pod-autoscaler-como-o-hpa-funciona-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title COMO O HPA FUNCIONA
+
+rectangle "Processo" {
+  card "1. Coleta métricas (CPU, memória, custom)" as p1
+  card "2. Calcula número desejado de réplicas" as p2
+  card "3. Ajusta o target (Deployment, etc)" as p3
+}
+
+rectangle "Fluxo" {
+  component "Metrics\nServer" as metrics
+  component "HPA" as hpa
+  component "Deploy" as deploy
+  
+  metrics --> hpa : métricas
+  hpa --> deploy : scale
+}
+
+note bottom
+  **Fórmula:**
+  desiredReplicas = ceil[currentReplicas × (current / target)]
+end note
+
+@enduml
 ```
 
 ### Pré-requisitos
@@ -212,7 +238,39 @@ kubectl get hpa <name> -o yaml | grep scaleTargetRef -A3
 ## HPA vs VPA vs Cluster Autoscaler
 
 ```plantuml,format=png
-!include ../assets/diagrams/workloads/horizontal-pod-autoscaler-tipos-de-autoscaling-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title TIPOS DE AUTOSCALING
+
+rectangle "HPA (Horizontal Pod Autoscaler)" {
+  note as n1
+    Ajusta QUANTIDADE de pods
+    Quando: Carga variável, apps stateless
+  end note
+}
+
+rectangle "VPA (Vertical Pod Autoscaler)" {
+  note as n2
+    Ajusta RECURSOS (CPU/mem) dos pods
+    Quando: Otimizar requests, apps stateful
+    Nota: Requer restart dos pods
+  end note
+}
+
+rectangle "Cluster Autoscaler" {
+  note as n3
+    Ajusta QUANTIDADE de nodes
+    Quando: Pods pending por falta de recursos
+  end note
+}
+
+note bottom
+  ⚠️ HPA e VPA não devem gerenciar mesma métrica (CPU/mem)
+end note
+
+@enduml
 ```
 
 ---
@@ -220,7 +278,32 @@ kubectl get hpa <name> -o yaml | grep scaleTargetRef -A3
 ## Dicas para os Exames
 
 ```plantuml,format=png
-!include ../assets/diagrams/workloads/horizontal-pod-autoscaler-dicas-hpa-exames-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DICAS HPA - EXAMES
+
+rectangle "CKA" {
+  card "kubectl autoscale deployment <n> --cpu-percent=X --min --max" as cka1
+  card "Saber que Metrics Server é pré-requisito" as cka2
+  card "Verificar se HPA está funcionando com kubectl get hpa" as cka3
+}
+
+rectangle "CKAD" {
+  card "Criar HPA via kubectl e via YAML" as ckad1
+  card "Entender apiVersion: autoscaling/v2" as ckad2
+  card "resources.requests é OBRIGATÓRIO para métricas de CPU/mem" as ckad3
+}
+
+note bottom
+  **Lembre-se:**
+  • Sem requests → HPA mostra <unknown>
+  • minReplicas >= 1 (não pode ser 0, exceto com KEDA)
+  • behavior só existe em autoscaling/v2
+end note
+
+@enduml
 ```
 
 ---

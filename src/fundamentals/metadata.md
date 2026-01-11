@@ -9,7 +9,43 @@
 Metadata sao informacoes que descrevem e identificam objetos Kubernetes. Incluem campos como name, namespace, labels, annotations, uid, resourceVersion, entre outros.
 
 ```plantuml,format=png
-../assets/diagrams/general/metadata-metadata-estrutura-2.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title METADATA - ESTRUTURA
+
+rectangle "Object Kubernetes" {
+  rectangle "metadata" #lightblue {
+    card "name: nginx-deployment" as n
+    card "namespace: production" as ns
+    card "uid: abc-123-def" as uid
+    card "resourceVersion: 12345" as rv
+    card "creationTimestamp: 2024-01-01" as ct
+
+    rectangle "labels" #lightgreen {
+      card "app: nginx"
+      card "env: prod"
+      card "version: v1"
+    }
+
+    rectangle "annotations" #lightyellow {
+      card "description: Web server"
+      card "prometheus.io/scrape: true"
+    }
+
+    rectangle "ownerReferences" #lightcoral {
+      card "kind: ReplicaSet"
+      card "name: nginx-rs-abc123"
+    }
+
+    rectangle "finalizers" #lightgray {
+      card "kubernetes.io/pvc-protection"
+    }
+  }
+}
+
+@enduml
 ```
 
 ### Campos do Metadata
@@ -34,7 +70,53 @@ Metadata sao informacoes que descrevem e identificam objetos Kubernetes. Incluem
 Labels sao pares key-value usados para **identificar** e **selecionar** objetos. Sao a base do modelo de selecao do Kubernetes.
 
 ```plantuml,format=png
-../assets/diagrams/general/metadata-labels-conceito-2.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title LABELS - CONCEITO
+
+rectangle "Pods" {
+  card "Pod A" as pa #lightblue
+  note right of pa
+    app: nginx
+    env: prod
+    version: v1
+  end note
+
+  card "Pod B" as pb #lightblue
+  note right of pb
+    app: nginx
+    env: prod
+    version: v2
+  end note
+
+  card "Pod C" as pc #lightgreen
+  note right of pc
+    app: redis
+    env: prod
+  end note
+
+  card "Pod D" as pd #lightyellow
+  note right of pd
+    app: nginx
+    env: dev
+  end note
+}
+
+rectangle "Selectors" {
+  card "Service\napp=nginx" as svc
+  card "Deployment\napp=nginx,env=prod" as dep
+}
+
+svc --> pa
+svc --> pb
+svc --> pd
+
+dep --> pa
+dep --> pb
+
+@enduml
 ```
 
 ### Sintaxe de Labels
@@ -93,7 +175,44 @@ O Kubernetes define labels padrao para melhor organizacao:
 O Kubernetes suporta dois tipos de selectors:
 
 ```plantuml,format=png
-../assets/diagrams/general/metadata-tipos-de-selectors-2.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title TIPOS DE SELECTORS
+
+rectangle "EQUALITY-BASED" #lightblue {
+  note as eq
+    Operadores: =, ==, !=
+
+    Exemplos:
+    app = nginx
+    env != production
+    tier == frontend
+  end note
+}
+
+rectangle "SET-BASED" #lightgreen {
+  note as set
+    Operadores: in, notin, exists, !
+
+    Exemplos:
+    env in (prod, staging)
+    tier notin (frontend)
+    release
+    !deprecated
+  end note
+}
+
+note bottom
+  Services e ReplicationControllers:
+  APENAS equality-based (matchLabels)
+
+  Deployments, ReplicaSets, Jobs, DaemonSets:
+  AMBOS (matchLabels + matchExpressions)
+end note
+
+@enduml
 ```
 
 ### Sintaxe de Selectors
@@ -180,7 +299,40 @@ kubectl label node worker-1 disktype-
 Annotations sao pares key-value para **metadata nao-identificadora**. NAO sao usadas para selecao, mas para armazenar informacoes auxiliares.
 
 ```plantuml,format=png
-../assets/diagrams/general/metadata-labels-vs-annotations-2.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title LABELS vs ANNOTATIONS
+
+rectangle "LABELS" #lightblue {
+  note as lab
+    Proposito: Identificar e Selecionar
+    Usadas em: Selectors, Services, Deployments
+    Tamanho: Max 63 chars (value)
+    Indexadas: Sim (etcd)
+
+    Exemplo:
+    app: nginx
+    env: prod
+  end note
+}
+
+rectangle "ANNOTATIONS" #lightgreen {
+  note as ann
+    Proposito: Metadata adicional
+    Usadas em: Ferramentas, humanos
+    Tamanho: Ate 256KB total
+    Indexadas: Nao
+
+    Exemplo:
+    description: "Servidor web principal"
+    prometheus.io/scrape: "true"
+    git-commit: "abc123def456"
+  end note
+}
+
+@enduml
 ```
 
 ### Sintaxe de Annotations
@@ -235,7 +387,43 @@ kubectl annotate pod nginx config="$(cat config.json)"
 OwnerReferences definem relacoes de **propriedade** entre objetos. Quando o owner e deletado, os dependentes sao deletados automaticamente (garbage collection).
 
 ```plantuml,format=png
-../assets/diagrams/general/metadata-ownerreferences-hierarquia-2.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title OWNERREFERENCES - HIERARQUIA
+
+rectangle "Deployment\nnginx-deployment" as dep #lightblue
+
+rectangle "ReplicaSet\nnginx-rs-abc123" as rs #lightgreen
+note right of rs
+  ownerReferences:
+  - kind: Deployment
+    name: nginx-deployment
+    controller: true
+end note
+
+rectangle "Pod\nnginx-rs-abc123-xyz" as pod1 #lightyellow
+rectangle "Pod\nnginx-rs-abc123-abc" as pod2 #lightyellow
+note right of pod1
+  ownerReferences:
+  - kind: ReplicaSet
+    name: nginx-rs-abc123
+    controller: true
+end note
+
+dep --> rs : owns
+rs --> pod1 : owns
+rs --> pod2 : owns
+
+note bottom
+  Ao deletar Deployment:
+  1. ReplicaSet e deletado
+  2. Pods sao deletados
+  (Garbage Collection em cascata)
+end note
+
+@enduml
 ```
 
 ### Estrutura do OwnerReference
@@ -270,7 +458,38 @@ kubectl delete deployment nginx --cascade=orphan
 ```
 
 ```plantuml,format=png
-../assets/diagrams/general/metadata-garbage-collection-policies-2.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title GARBAGE COLLECTION POLICIES
+
+rectangle "FOREGROUND" #lightblue {
+  note as fg
+    1. Owner marcado para delecao
+    2. Dependentes sao deletados
+    3. Owner e deletado
+    (Bloqueante)
+  end note
+}
+
+rectangle "BACKGROUND" #lightgreen {
+  note as bg
+    1. Owner e deletado imediatamente
+    2. Dependentes deletados em background
+    (Padrao)
+  end note
+}
+
+rectangle "ORPHAN" #lightyellow {
+  note as orph
+    1. Owner e deletado
+    2. Dependentes mantidos (orfaos)
+    3. ownerReferences removidos
+  end note
+}
+
+@enduml
 ```
 
 ## Finalizers
@@ -280,7 +499,35 @@ kubectl delete deployment nginx --cascade=orphan
 Finalizers sao strings que indicam que um **hook de pre-delecao** deve ser executado antes do objeto ser removido do etcd.
 
 ```plantuml,format=png
-../assets/diagrams/general/metadata-finalizers-fluxo-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title FLUXO DE FINALIZERS
+
+start
+
+:Usuario solicita DELETE;
+
+if (Objeto tem Finalizers?) then (sim)
+  :metadata.deletionTimestamp = now;
+  :metadata.deletionGracePeriodSeconds = X;
+  :Estado = Terminating;
+  
+  repeat
+    :Controller executa\npre-delete hook;
+    :Remove finalizer da lista;
+  repeat while (Lista de finalizers vazia?) is (nao)
+  -> sim;
+  
+  :Objeto removido do etcd;
+else (nao)
+  :Objeto removido\nimediatamente;
+endif
+
+stop
+
+@enduml
 ```
 
 ### Finalizers Comuns
@@ -398,7 +645,35 @@ kubectl get deployment nginx -o jsonpath='{.metadata.generation}'
 ### Problemas com Labels
 
 ```plantuml,format=png
-../assets/diagrams/general/metadata-troubleshooting-labels-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title TROUBLESHOOTING - PROBLEMAS COM LABELS
+
+rectangle "Problema: Service nao encontra Pods" {
+  card "Verificar selector do Service" as s1
+  card "Verificar labels dos Pods" as s2
+  card "Comparar e corrigir" as s3
+  s1 --> s2
+  s2 --> s3
+}
+
+rectangle "Problema: Deployment nao gerencia Pods" {
+  card "Verificar selector.matchLabels" as d1
+  card "Verificar template.metadata.labels" as d2
+  card "Labels devem ser iguais" as d3
+  d1 --> d2
+  d2 --> d3
+}
+
+rectangle "Comandos Uteis" {
+  card "kubectl get pods --show-labels" as c1
+  card "kubectl get pods -l 'key=value'" as c2
+  card "kubectl get endpoints <svc>" as c3
+}
+
+@enduml
 ```
 
 ### Debug de Selectors
@@ -489,7 +764,34 @@ kubectl explain deployment.spec.selector
 ### Labels
 
 ```plantuml,format=png
-../assets/diagrams/general/metadata-best-practices-labels-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title BEST PRACTICES - LABELS
+
+rectangle "Labels Recomendadas" {
+  card "app.kubernetes.io/name" as l1
+  card "app.kubernetes.io/instance" as l2
+  card "app.kubernetes.io/version" as l3
+  card "app.kubernetes.io/component" as l4
+  card "app.kubernetes.io/part-of" as l5
+  card "app.kubernetes.io/managed-by" as l6
+}
+
+rectangle "Organizacionais" {
+  card "team: backend" as o1
+  card "environment: production" as o2
+  card "cost-center: engineering" as o3
+}
+
+rectangle "Evitar" {
+  card "Labels muito longas" as e1
+  card "Dados sensiveis em labels" as e2
+  card "Labels nao padronizadas" as e3
+}
+
+@enduml
 ```
 
 ### Annotations

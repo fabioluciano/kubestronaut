@@ -20,7 +20,40 @@
 | `.csr` | Certificate Signing Request | Solicitacao de assinatura |
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/tls-pki-public-key-infrastructure-1.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title PKI - Public Key Infrastructure
+
+rectangle "Certificate Authority (CA)" as ca {
+    rectangle "CA Private Key" as cakey
+    rectangle "CA Certificate" as cacert
+}
+
+rectangle "Servidor" as server {
+    rectangle "Server Private Key" as serverkey
+    rectangle "Server Certificate" as servercert
+}
+
+rectangle "Cliente" as client {
+    rectangle "Client Private Key" as clientkey
+    rectangle "Client Certificate" as clientcert
+}
+
+cakey --> cacert : Autoassina
+cacert --> servercert : Assina
+cacert --> clientcert : Assina
+
+note right of ca
+  A CA e a raiz de confianca.
+  Todos confiam em certificados
+  assinados pela CA.
+end note
+
+@enduml
 ```
 
 ## PKI do Kubernetes
@@ -28,7 +61,51 @@
 O Kubernetes utiliza uma infraestrutura PKI complexa onde cada componente possui seus proprios certificados.
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/tls-certificados-do-kubernetes-1.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Certificados do Kubernetes
+
+package "Certificate Authorities" {
+    rectangle "kubernetes-ca\n/etc/kubernetes/pki/ca.crt" as k8sca #lightblue
+    rectangle "etcd-ca\n/etc/kubernetes/pki/etcd/ca.crt" as etcdca #lightgreen
+    rectangle "front-proxy-ca\n/etc/kubernetes/pki/front-proxy-ca.crt" as fpca #lightyellow
+}
+
+package "API Server Certificates" {
+    rectangle "kube-apiserver\n/etc/kubernetes/pki/apiserver.crt" as apiserver
+    rectangle "apiserver-kubelet-client\n/etc/kubernetes/pki/apiserver-kubelet-client.crt" as apikubelet
+    rectangle "apiserver-etcd-client\n/etc/kubernetes/pki/apiserver-etcd-client.crt" as apietcd
+}
+
+package "Control Plane Certificates" {
+    rectangle "kube-controller-manager" as kcm
+    rectangle "kube-scheduler" as sched
+    rectangle "front-proxy-client" as fpc
+}
+
+package "etcd Certificates" {
+    rectangle "etcd-server\n/etc/kubernetes/pki/etcd/server.crt" as etcdserver
+    rectangle "etcd-peer\n/etc/kubernetes/pki/etcd/peer.crt" as etcdpeer
+    rectangle "etcd-healthcheck-client" as etcdhc
+}
+
+k8sca --> apiserver
+k8sca --> apikubelet
+k8sca --> kcm
+k8sca --> sched
+
+etcdca --> etcdserver
+etcdca --> etcdpeer
+etcdca --> etcdhc
+etcdca --> apietcd
+
+fpca --> fpc
+
+@enduml
 ```
 
 ## Certificados dos Componentes
@@ -273,7 +350,34 @@ Os certificados do API Server NAO rotacionam automaticamente. Voce deve:
 ## Fluxo de Comunicacao TLS
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/tls-fluxo-tls-kubectl-para-api-server-1.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Fluxo TLS - kubectl para API Server
+
+actor "kubectl" as kubectl
+participant "API Server" as api
+database "etcd" as etcd
+
+kubectl -> api : 1. ClientHello
+api --> kubectl : 2. ServerHello + Certificado API Server
+kubectl -> kubectl : 3. Verifica certificado\ncom kubernetes-ca
+
+kubectl -> api : 4. Envia certificado cliente\n(do kubeconfig)
+api -> api : 5. Verifica certificado cliente\ncom kubernetes-ca
+
+kubectl <-> api : 6. Troca de chaves\n(TLS handshake completo)
+
+kubectl -> api : 7. Request criptografado\n(GET /api/v1/pods)
+
+api -> etcd : 8. Request criptografado\n(mTLS com etcd-ca)
+etcd --> api : 9. Response
+api --> kubectl : 10. Response criptografado
+
+@enduml
 ```
 
 ## Criando Certificados para Novos Usuarios

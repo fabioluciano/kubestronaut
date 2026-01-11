@@ -26,7 +26,60 @@ O kube-apiserver e o UNICO componente que se comunica diretamente com o etcd. To
 ### Visao Geral da Arquitetura
 
 ```plantuml,format=png
-!include ../assets/diagrams/cluster-components/kube-apiserver-arquitetura-do-kube-apiserver-no-cluster.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Arquitetura do kube-apiserver no Cluster
+
+package "Control Plane" {
+    rectangle "kube-apiserver" as api {
+        [REST API Handler] as rest
+        [Authentication] as authn
+        [Authorization] as authz
+        [Admission Controllers] as admission
+        [Validation] as valid
+        [etcd Client] as etcdclient
+    }
+    database "etcd" as etcd
+    [kube-scheduler] as sched
+    [kube-controller-manager] as ctrl
+    [cloud-controller-manager] as ccm
+}
+
+package "Worker Nodes" {
+    [kubelet] as kubelet
+    [kube-proxy] as proxy
+}
+
+cloud "Clientes Externos" {
+    [kubectl] as kubectl
+    [CI/CD Pipelines] as cicd
+    [Custom Controllers] as custom
+    [Dashboard] as dash
+}
+
+kubectl --> rest : HTTPS (6443)
+cicd --> rest : HTTPS
+custom --> rest : Watch/List
+dash --> rest : HTTPS
+
+rest --> authn
+authn --> authz
+authz --> admission
+admission --> valid
+valid --> etcdclient
+etcdclient <--> etcd : gRPC (2379)
+
+sched --> rest : Watch Pods\nBind Pods
+ctrl --> rest : Watch/Update\nResources
+ccm --> rest : Cloud Resources
+kubelet --> rest : Watch Pods\nReport Status
+proxy --> rest : Watch Services/Endpoints
+
+@enduml
 ```
 
 ### Fluxo Detalhado de uma Requisicao
@@ -34,7 +87,52 @@ O kube-apiserver e o UNICO componente que se comunica diretamente com o etcd. To
 Quando uma requisicao chega ao API Server, ela passa por uma pipeline bem definida:
 
 ```plantuml,format=png
-!include ../assets/diagrams/cluster-components/kube-apiserver-fluxo-completo-de-requisicao-no-kube-apiserver.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Fluxo Completo de Requisicao no kube-apiserver
+
+actor Cliente
+participant "API Server\nHandler" as api
+participant "Authentication\nChain" as auth
+participant "Authorization\nChain" as authz
+participant "Mutating\nAdmission" as mutate
+participant "Object Schema\nValidation" as schema
+participant "Validating\nAdmission" as validate
+database "etcd" as etcd
+
+Cliente -> api : kubectl create -f pod.yaml
+note right: POST /api/v1/namespaces/default/pods
+
+api -> auth : 1. Quem esta fazendo a requisicao?
+auth -> auth : X.509 Certificate?\nBearer Token?\nOIDC Token?
+auth --> api : Usuario: john\nGroups: [developers, system:authenticated]
+
+api -> authz : 2. John pode criar pods em default?
+authz -> authz : Node Authorizer?\nRBAC?\nWebhook?
+authz --> api : RBAC: Allow (Role: pod-creator)
+
+api -> mutate : 3. Modificacoes necessarias?
+mutate -> mutate : ServiceAccount injection\nDefault tolerations\nLimitRanger defaults
+mutate --> api : Pod com modificacoes aplicadas
+
+api -> schema : 4. Objeto e valido?
+schema -> schema : Required fields?\nValid types?\nKnown fields?
+schema --> api : Schema validation passed
+
+api -> validate : 5. Validacoes de politicas
+validate -> validate : ResourceQuota OK?\nPodSecurity OK?\nCustom webhooks OK?
+validate --> api : All validations passed
+
+api -> etcd : 6. Persistir no etcd
+etcd --> api : Pod persisted (revision: 12345)
+
+api --> Cliente : 201 Created\n{"kind": "Pod", ...}
+
+@enduml
 ```
 
 ### Etapas do Processamento
@@ -55,7 +153,55 @@ O API Server suporta multiplos metodos de autenticacao que podem ser usados simu
 ### Diagrama de Metodos de Autenticacao
 
 ```plantuml,format=png
-!include ../assets/diagrams/cluster-components/kube-apiserver-metodos-de-autenticacao-do-kube-apiserver.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Metodos de Autenticacao do kube-apiserver
+
+rectangle "Requisicao" as req {
+    [Credenciais]
+}
+
+rectangle "Authentication Chain" as chain {
+    package "Static Methods" {
+        [X.509 Client\nCertificates] as x509
+        [Static Token File] as static
+        [Bootstrap Tokens] as bootstrap
+    }
+
+    package "Dynamic Methods" {
+        [Service Account\nTokens] as sa
+        [OIDC Tokens] as oidc
+        [Webhook Token\nAuthentication] as webhook
+    }
+
+    package "Proxy" {
+        [Authenticating\nProxy] as proxy
+    }
+}
+
+actor "User" as user
+actor "Pod" as pod
+cloud "Identity Provider" as idp
+
+user --> x509 : Client certificate
+user --> oidc : JWT token
+user --> webhook : Custom token
+pod --> sa : Mounted JWT
+idp --> oidc : Validate JWT
+
+req --> chain
+
+note bottom of chain
+  Autenticadores sao avaliados em ordem
+  Primeiro a retornar usuario valido vence
+  Se todos falharem: 401 Unauthorized
+end note
+
+@enduml
 ```
 
 ### 1. Certificados X.509 (Client Certificates)
@@ -142,7 +288,36 @@ curl -k -H "Authorization: Bearer $TOKEN" \
 Integracao com provedores de identidade externos como Google, Okta, Keycloak, Azure AD.
 
 ```plantuml,format=png
-!include ../assets/diagrams/cluster-components/kube-apiserver-fluxo-de-autenticacao-oidc.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Fluxo de Autenticacao OIDC
+
+actor Usuario
+participant "Identity Provider\n(Google, Okta, etc)" as idp
+participant "kube-apiserver" as api
+database "etcd" as etcd
+
+Usuario -> idp : 1. Login (username/password)
+idp -> idp : Valida credenciais
+idp --> Usuario : 2. ID Token (JWT)\n+ Refresh Token
+
+Usuario -> Usuario : 3. Configura kubeconfig\ncom ID Token
+
+Usuario -> api : 4. kubectl get pods\n(com Bearer Token)
+api -> api : 5. Valida JWT:\n- Verifica assinatura (JWKS)\n- Verifica issuer\n- Verifica audience\n- Verifica expiracao\n- Extrai claims
+api --> Usuario : 6. Resposta (se valido)
+
+note right of api
+  O API Server NAO contata
+  o IdP em cada requisicao.
+  Apenas valida o JWT localmente.
+end note
+
+@enduml
 ```
 
 **Configuracao do kube-apiserver:**
@@ -264,7 +439,56 @@ Apos autenticacao, o API Server verifica se o usuario identificado tem permissao
 ### Diagrama de Autorizacao
 
 ```plantuml,format=png
-!include ../assets/diagrams/cluster-components/kube-apiserver-cadeia-de-autorizacao-do-kube-apiserver.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Cadeia de Autorizacao do kube-apiserver
+
+start
+
+:Requisicao Autenticada\nUser: john\nVerb: create\nResource: pods\nNamespace: default;
+
+partition "Authorization Chain" {
+    if (Node Authorizer) then (Allow/Deny)
+        if (Decisao?) then (Allow)
+            :Requisicao Permitida;
+            stop
+        else (Deny/NoOpinion)
+        endif
+    endif
+
+    if (ABAC) then (Allow/Deny)
+        if (Decisao?) then (Allow)
+            :Requisicao Permitida;
+            stop
+        else (Deny/NoOpinion)
+        endif
+    endif
+
+    if (RBAC) then (Allow/Deny)
+        if (Decisao?) then (Allow)
+            :Requisicao Permitida;
+            stop
+        else (Deny/NoOpinion)
+        endif
+    endif
+
+    if (Webhook) then (Allow/Deny)
+        if (Decisao?) then (Allow)
+            :Requisicao Permitida;
+            stop
+        else (Deny/NoOpinion)
+        endif
+    endif
+}
+
+:Nenhum autorizador permitiu\n**403 Forbidden**;
+stop
+
+@enduml
 ```
 
 ### Modos de Autorizacao
@@ -290,7 +514,37 @@ O modo de autorizacao mais usado e recomendado.
 #### Recursos RBAC
 
 ```plantuml,format=png
-!include ../assets/diagrams/cluster-components/kube-apiserver-recursos-rbac.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Recursos RBAC
+
+package "Namespace-scoped" {
+    rectangle "Role" as role {
+        [rules:\n- apiGroups\n- resources\n- verbs]
+    }
+    rectangle "RoleBinding" as rb {
+        [subjects:\n- User/Group/SA\nroleRef:\n- Role]
+    }
+}
+
+package "Cluster-scoped" {
+    rectangle "ClusterRole" as cr {
+        [rules:\n- apiGroups\n- resources\n- verbs\n- nonResourceURLs]
+    }
+    rectangle "ClusterRoleBinding" as crb {
+        [subjects:\n- User/Group/SA\nroleRef:\n- ClusterRole]
+    }
+}
+
+role <-- rb : referencia
+cr <-- crb : referencia
+cr <-- rb : pode referenciar\n(permissoes limitadas\nao namespace)
+
+@enduml
 ```
 
 #### Exemplos de Role e RoleBinding
@@ -388,7 +642,57 @@ Admission Controllers interceptam requisicoes apos autenticacao e autorizacao, p
 ### Tipos de Admission Controllers
 
 ```plantuml,format=png
-!include ../assets/diagrams/cluster-components/kube-apiserver-pipeline-de-admission-controllers.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Pipeline de Admission Controllers
+
+rectangle "Requisicao\nAutenticada e Autorizada" as req
+
+package "Mutating Admission Controllers" as mutating {
+    [NamespaceAutoProvision] as nap
+    [DefaultStorageClass] as dsc
+    [DefaultTolerationSeconds] as dts
+    [LimitRanger] as lr1
+    [ServiceAccount] as sa
+    [PodPreset] as pp
+    [MutatingAdmissionWebhook] as maw
+}
+
+rectangle "Object Schema\nValidation" as schema
+
+package "Validating Admission Controllers" as validating {
+    [NamespaceLifecycle] as nl
+    [LimitRanger ] as lr2
+    [ResourceQuota] as rq
+    [PodSecurity] as ps
+    [NodeRestriction] as nr
+    [ValidatingAdmissionWebhook] as vaw
+}
+
+database "etcd" as etcd
+
+req --> mutating
+mutating --> schema
+schema --> validating
+validating --> etcd
+
+note bottom of mutating
+  Executados sequencialmente
+  Podem MODIFICAR objetos
+  Ordem definida em --enable-admission-plugins
+end note
+
+note bottom of validating
+  Executados em paralelo
+  Podem ACEITAR ou REJEITAR
+  Nao modificam objetos
+end note
+
+@enduml
 ```
 
 ### Admission Controllers Importantes

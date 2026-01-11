@@ -37,7 +37,41 @@ mTLS (mutual TLS) e uma extensao do protocolo TLS onde:
 ### Componentes do mTLS
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/mtls-componentes-do-mtls-1.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Componentes do mTLS
+
+rectangle "Autoridade Certificadora (CA)" as CA {
+  component "Root CA" as root
+  component "Intermediate CA" as inter
+}
+
+rectangle "Entidade A (Cliente)" as A {
+  component "Certificado A" as certA
+  component "Chave Privada A" as keyA
+}
+
+rectangle "Entidade B (Servidor)" as B {
+  component "Certificado B" as certB
+  component "Chave Privada B" as keyB
+}
+
+root --> inter : assina
+inter --> certA : emite
+inter --> certB : emite
+
+A -[hidden]-> B
+
+note bottom of CA
+  CA e a entidade confiavel
+  que emite os certificados
+end note
+
+@enduml
 ```
 
 ### Terminologia Importante
@@ -60,7 +94,50 @@ mTLS (mutual TLS) e uma extensao do protocolo TLS onde:
 ### Ameacas que mTLS Mitiga
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/mtls-ameacas-mitigadas-pelo-mtls-1.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Ameacas Mitigadas pelo mTLS
+
+left to right direction
+
+actor "Atacante" as attacker
+
+rectangle "Sem mTLS" as sem {
+  component "Pod A" as podA1
+  component "Pod B" as podB1
+  component "Pod Malicioso" as malicious
+
+  podA1 --> podB1 : texto plano
+  attacker --> malicious
+  malicious --> podB1 : se passa por A
+}
+
+rectangle "Com mTLS" as com {
+  component "Pod A" as podA2
+  component "Pod B" as podB2
+
+  podA2 --> podB2 : criptografado + autenticado
+}
+
+note bottom of sem
+  Vulneravel a:
+  - Sniffing
+  - Man-in-the-middle
+  - Spoofing
+end note
+
+note bottom of com
+  Protegido contra:
+  - Interceptacao
+  - Falsificacao de identidade
+  - Ataques de replay
+end note
+
+@enduml
 ```
 
 ### Beneficios de Seguranca
@@ -87,7 +164,43 @@ O mTLS e fundamental para implementar **Zero Trust** em Kubernetes:
 ### Handshake mTLS
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/mtls-handshake-mtls-passo-a-passo-1.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Handshake mTLS - Passo a Passo
+
+participant "Cliente\n(Pod A)" as client
+participant "Servidor\n(Pod B)" as server
+
+== Fase 1: Inicio ==
+client -> server: ClientHello\n(versao TLS, cipher suites)
+
+== Fase 2: Servidor Responde ==
+server -> client: ServerHello\n(cipher suite escolhida)
+server -> client: Certificate\n(certificado do servidor)
+server -> client: CertificateRequest\n(solicita certificado do cliente)
+server -> client: ServerHelloDone
+
+== Fase 3: Cliente Responde ==
+client -> client: Valida certificado do servidor
+client -> server: Certificate\n(certificado do cliente)
+client -> server: ClientKeyExchange\n(chave de sessao)
+client -> server: CertificateVerify\n(assinatura com chave privada)
+client -> server: ChangeCipherSpec
+client -> server: Finished (criptografado)
+
+== Fase 4: Servidor Finaliza ==
+server -> server: Valida certificado do cliente
+server -> client: ChangeCipherSpec
+server -> client: Finished (criptografado)
+
+== Comunicacao Segura ==
+client <-> server: Dados criptografados
+
+@enduml
 ```
 
 ### Validacao de Certificados
@@ -113,7 +226,42 @@ O Istio e a forma mais comum de implementar mTLS em Kubernetes, usando um **side
 ### Arquitetura Istio mTLS
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/mtls-arquitetura-mtls-com-istio-1.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Arquitetura mTLS com Istio
+
+rectangle "Control Plane" as cp {
+  component "istiod" as istiod
+  component "CA (Citadel)" as citadel
+}
+
+rectangle "Pod A" <<namespace>> as podA {
+  component "App A" as appA
+  component "Envoy\nSidecar" as envoyA
+}
+
+rectangle "Pod B" <<namespace>> as podB {
+  component "App B" as appB
+  component "Envoy\nSidecar" as envoyB
+}
+
+citadel --> envoyA : certificados
+citadel --> envoyB : certificados
+
+appA --> envoyA : HTTP plano
+envoyA --> envoyB : mTLS
+envoyB --> appB : HTTP plano
+
+note bottom of envoyA
+  Sidecar intercepta
+  todo o trafego
+end note
+
+@enduml
 ```
 
 ### Habilitando Istio Injection
@@ -178,7 +326,43 @@ Este recurso habilita mTLS STRICT para **todo o mesh** quando aplicado no namesp
 ### Fluxo de Comunicacao com Istio
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/mtls-fluxo-de-requisicao-com-mtls-istio-1.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Fluxo de Requisicao com mTLS (Istio)
+
+participant "App Frontend" as frontend
+participant "Envoy\n(Frontend)" as envoyF
+participant "Envoy\n(Backend)" as envoyB
+participant "App Backend" as backend
+
+frontend -> envoyF: HTTP request\n(localhost:8080)
+
+activate envoyF
+envoyF -> envoyF: Intercepta outbound
+envoyF -> envoyF: Lookup service\nvia Pilot
+envoyF -> envoyB: mTLS request\n(TLS 1.3 + certificados)
+deactivate envoyF
+
+activate envoyB
+envoyB -> envoyB: Valida certificado
+envoyB -> envoyB: Decriptografa
+envoyB -> backend: HTTP request\n(localhost:80)
+deactivate envoyB
+
+backend --> envoyB: HTTP response
+envoyB --> envoyF: mTLS response
+envoyF --> frontend: HTTP response
+
+note over envoyF, envoyB
+  Toda comunicacao entre
+  sidecars usa mTLS
+end note
+
+@enduml
 ```
 
 ---
@@ -190,7 +374,40 @@ Linkerd e uma alternativa mais leve ao Istio, com mTLS habilitado **por padrao**
 ### Arquitetura Linkerd
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/mtls-arquitetura-mtls-com-linkerd-1.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Arquitetura mTLS com Linkerd
+
+rectangle "Control Plane" as cp {
+  component "linkerd-destination" as dest
+  component "linkerd-identity" as identity
+  component "linkerd-proxy-injector" as injector
+}
+
+rectangle "Pod A" <<namespace>> as podA {
+  component "App A" as appA
+  component "linkerd-proxy" as proxyA
+}
+
+rectangle "Pod B" <<namespace>> as podB {
+  component "App B" as appB
+  component "linkerd-proxy" as proxyB
+}
+
+identity --> proxyA : emite certificados
+identity --> proxyB : emite certificados
+proxyA --> proxyB : mTLS automatico
+
+note bottom of identity
+  Linkerd usa identidades
+  baseadas em ServiceAccount
+end note
+
+@enduml
 ```
 
 ### Instalacao do Linkerd
@@ -427,7 +644,53 @@ kubectl exec <pod> -- cat /etc/certs/tls.crt | \
 ### Fluxo de Diagnostico
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/mtls-fluxo-de-diagnostico-mtls-1.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Fluxo de Diagnostico mTLS
+
+start
+
+:Verificar se pods tem sidecar;
+if (Sidecar presente?) then (nao)
+  :Verificar label de injection\nno namespace;
+  :kubectl label ns <ns>\nistio-injection=enabled;
+  :Reiniciar pods;
+  stop
+else (sim)
+endif
+
+:Verificar PeerAuthentication;
+if (Modo STRICT?) then (sim)
+  :Verificar se todos os clientes\ntem certificados validos;
+else (nao)
+  :Verificar se trafego\nesta chegando;
+endif
+
+:Verificar certificados;
+if (Certificados validos?) then (nao)
+  :Verificar CA;
+  :Renovar certificados;
+  stop
+else (sim)
+endif
+
+:Verificar AuthorizationPolicy;
+if (Politica bloqueando?) then (sim)
+  :Ajustar regras de\nAuthorizationPolicy;
+  stop
+else (nao)
+endif
+
+:Verificar logs do sidecar;
+:kubectl logs <pod> -c istio-proxy;
+
+stop
+
+@enduml
 ```
 
 ### Comandos de Debug
@@ -483,7 +746,37 @@ istioctl analyze -n <namespace>
 ### Estrategia de Migracao
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/mtls-estrategia-de-migracao-para-mtls-strict-1.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Estrategia de Migracao para mTLS STRICT
+
+|Fase 1|
+start
+:Instalar service mesh;
+:Configurar PERMISSIVE global;
+:Injetar sidecars em todos pods;
+
+|Fase 2|
+:Monitorar metricas de mTLS;
+:Identificar trafego plaintext;
+:Corrigir servicos sem sidecar;
+
+|Fase 3|
+:Habilitar STRICT por namespace;
+:Comecar por namespaces menos criticos;
+:Validar funcionamento;
+
+|Fase 4|
+:STRICT em todos namespaces;
+:STRICT global no mesh;
+:Monitoramento continuo;
+stop
+
+@enduml
 ```
 
 ---

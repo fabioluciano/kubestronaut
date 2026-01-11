@@ -11,7 +11,36 @@ KCNA (18%), CKA (25%), CKAD (25%), CKS (10%)
 `kubectl` é a CLI oficial para interagir com clusters Kubernetes. Comunica-se com o API Server usando REST API sobre HTTPS.
 
 ```plantuml,format=png
-!include ../assets/diagrams/tools/kubectl-fluxo-do-kubectl-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title FLUXO DO KUBECTL
+
+rectangle "kubectl" as kubectl
+rectangle "API Server" as api
+database "etcd" as etcd
+
+kubectl -right-> api : HTTPS
+api -right-> etcd
+etcd -left-> api
+api -left-> kubectl : Response
+
+note bottom of kubectl
+  ~/.kube/config
+end note
+
+rectangle "kubeconfig" as kubeconfig {
+  note as N1
+    - clusters (onde conectar)
+    - users (como autenticar)
+    - contexts (cluster + user + namespace)
+  end note
+}
+
+kubectl -down-> kubeconfig
+
+@enduml
 ```
 
 ### Configuração Essencial para Exames
@@ -441,7 +470,25 @@ kubectl describe pvc my-pvc
 ### Atalhos Essenciais
 
 ```plantuml,format=png
-!include ../assets/diagrams/tools/kubectl-setup-inicial-do-exame-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title SETUP INICIAL DO EXAME
+
+note as N1
+  **# EXECUTAR PRIMEIRO!**
+  source <(kubectl completion bash)
+  alias k=kubectl
+  complete -o default -F __start_kubectl k
+  export do="--dry-run=client -o yaml"
+
+  **# Agora você pode usar:**
+  k get pods                    # ao invés de kubectl get pods
+  k run nginx --image=nginx $do  # gera YAML instantaneamente
+end note
+
+@enduml
 ```
 
 ### Shortnames Importantes

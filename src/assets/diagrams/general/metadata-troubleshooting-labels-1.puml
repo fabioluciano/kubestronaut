@@ -1,0 +1,29 @@
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title TROUBLESHOOTING - PROBLEMAS COM LABELS
+
+rectangle "Problema: Service nao encontra Pods" {
+  card "Verificar selector do Service" as s1
+  card "Verificar labels dos Pods" as s2
+  card "Comparar e corrigir" as s3
+  s1 --> s2
+  s2 --> s3
+}
+
+rectangle "Problema: Deployment nao gerencia Pods" {
+  card "Verificar selector.matchLabels" as d1
+  card "Verificar template.metadata.labels" as d2
+  card "Labels devem ser iguais" as d3
+  d1 --> d2
+  d2 --> d3
+}
+
+rectangle "Comandos Uteis" {
+  card "kubectl get pods --show-labels" as c1
+  card "kubectl get pods -l 'key=value'" as c2
+  card "kubectl get endpoints <svc>" as c3
+}
+
+@enduml

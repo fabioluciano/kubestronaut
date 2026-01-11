@@ -7,13 +7,61 @@
 O etcd armazena **todo o estado do cluster Kubernetes**. Perder o etcd significa perder todo o cluster.
 
 ```plantuml,format=png
-!include ../assets/diagrams/maintenance/backup-e-restore-diagram-1.puml
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Monospaced
+
+rectangle "O QUE O ETCD ARMAZENA" as etcdData
+
+note right of etcdData
+  • Configuração de todos os recursos
+  • Secrets e ConfigMaps
+  • Estado dos Deployments, Services, etc.
+  • RBAC (Roles, ClusterRoles, Bindings)
+  • Certificados e configurações
+  • Informações dos Nodes
+  
+  **SEM BACKUP = SEM CLUSTER!**
+end note
+@enduml
 ```
 
 ### Estratégias de Backup
 
 ```plantuml,format=png
-!include ../assets/diagrams/maintenance/backup-e-restore-diagram-2.puml
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Monospaced
+
+rectangle "ESTRATÉGIAS DE BACKUP" as main
+
+rectangle "1. SNAPSHOT DO ETCD\n(Recomendado para CKA)" as r1
+note right of r1
+  • Backup do banco de dados completo
+  • Rápido e consistente
+  • Usa etcdctl
+end note
+
+rectangle "2. BACKUP DOS RECURSOS (YAML)" as r2
+note right of r2
+  • Exportar todos os recursos via kubectl
+  • Útil para migração entre clusters
+  • Não inclui estado interno do etcd
+end note
+
+rectangle "3. BACKUP DO DIRETÓRIO DE DADOS" as r3
+note right of r3
+  • Copiar /var/lib/etcd diretamente
+  • Requer parar o etcd
+  • Menos recomendado
+end note
+
+main -down-> r1
+r1 -down-> r2
+r2 -down-> r3
+@enduml
 ```
 
 ### Fluxo Completo de Backup e Restore
@@ -21,7 +69,74 @@ O etcd armazena **todo o estado do cluster Kubernetes**. Perder o etcd significa
 O diagrama abaixo mostra o fluxo de decisões para realizar backup ou restore do etcd, considerando se está rodando como static pod ou serviço systemd:
 
 ```plantuml,format=png
-!include ../assets/diagrams/maintenance/backup-e-restore-fluxo-completo.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+skinparam defaultTextAlignment center
+
+title Fluxo Completo de Backup e Restore do etcd
+
+start
+:Identificar se o ""etcd"" está rodando\n como um pod estático ou como\n um serviço do ""systemd"";
+floating note left: Verificar se o manifesto do ""etcd""\n está presente no diretório de pod estáticos
+
+:Deve-se parar o ""kube-apiserver"" para que\nnovos recursos não sejam criados;
+:Defini-se a versão da API do etcd que deseja-se usar\n\n""export ETCDCTL_API=3"";
+
+if(""kube-apiserver"") then(systemd)
+	:Parar o serviço do ""kube-apiserver""\n\n""systemctl stop kube-apiserver"";
+else (static pod);
+	:Parar o pod do ""kube-apiserver"" \nremovendo-o(movendo-o) do diretório\nde pods estáticos;
+endif
+
+
+if(operação) then(backup)
+	:Efetua o backup do ""etcd"" em um dado arquivo\n\n""etcdctl ~--endpoints $ENDPOINT  \"" \n"" ~--cacert $CACERT \ ""\n  ""~--cert $CERT \ ""\n  ""~--key $KEY \ ""\n  ""**snapshot save snapshot.db**"";
+	note left
+	  Os certificados e chave utilizados, podem
+	  ser identificados usando as configurações
+	  usadas pelo ""kube-apiserver"".
+	  ----
+	  ""~--etcd-servers"" <&arrow-right> ""~--endpoints""
+	  ""~--etcd-cafile"" <&arrow-right> ""~--cacert""
+	  ""~--etcd-certfile"" <&arrow-right> ""~--cert""
+	  ""~--etcd-keyfile"" <&arrow-right> ""~--key""
+	end note
+	:Verificar status do backup\n\n""etcdctl **snapshot status snapshot.db**"";
+
+else (restore)
+	:""etcdctl snapshot restore snapshot.db""\n ""--data-dir /var/lib/etcd-from-backup"";
+	note right
+		Como a operação não utiliza o servidor do
+		""etcd"", não é necessário informar nenhum
+		certificado
+	end note
+
+	if(""kube-apiserver"") then(systemd)
+		:Parar o serviço do ""etcd""\n\n""systemctl stop etcd"";
+		:Identificar na saída do status do ""systemd""\n qual o caminho do unit do ""etcd"";
+		:Modificar a flag ""--data-dir"" no arquivo de unit\npara apontar para o novo caminho\n""/var/lib/etcd-from-backup"";
+		:Efetuar o reload das configurações do ""systemd""\n\n""systemctl daemon-reload"";
+		:Reiniciar o serviço do "etcd" no ""systemd""\n\n""systemctl restart etcd"";
+	else (static pod);
+		:Modificar o manifesto do ""etcd"" colocando\na flag ""--data-dir"" apontando para o novo caminho;
+		:Remover o pod do ""etcd"" do namespace ""kube-system"";
+	endif
+
+endif
+
+if(""kube-apiserver"") then(systemd)
+	:Reiniciar o serviço do ""kube-apiserver""\n\n""systemctl start kube-apiserver"";
+else (static pod);
+	:Retornar o pod do ""kube-apiserver"" \nrecriando-o(movendo-o) no diretório\nde pods estáticos;
+endif
+
+
+end
+@enduml
+
 ```
 
 ---
@@ -176,7 +291,23 @@ ls -t ${BACKUP_DIR}/etcd-snapshot-*.db | tail -n +8 | xargs -r rm
 ### Fluxo de Restore
 
 ```plantuml,format=png
-!include ../assets/diagrams/maintenance/backup-e-restore-fluxo-de-restore.puml
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Monospaced
+
+title FLUXO DE RESTORE
+
+start
+:1. Parar kube-apiserver;
+:2. Executar etcdctl snapshot restore;
+:3. Atualizar --data-dir no manifesto do etcd;
+:4. Reiniciar etcd (ou aguardar kubelet recriar);
+:5. Reiniciar kube-apiserver;
+:6. Verificar cluster;
+stop
+
+@enduml
 ```
 
 ### Passo 1: Parar kube-apiserver (Static Pod)
@@ -410,7 +541,43 @@ kubectl get nodes
 ## Dicas para o Exame CKA
 
 ```plantuml,format=png
-!include ../assets/diagrams/maintenance/backup-e-restore-diagram-4.puml
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Monospaced
+
+rectangle "DICAS CKA - BACKUP/RESTORE" as dicas {
+  rectangle "BACKUP" as bkp
+  rectangle "RESTORE" as rst
+  rectangle "LEMBRE-SE" as lembrese
+}
+
+note right of bkp
+  export ETCDCTL_API=3
+  etcdctl snapshot save backup.db \
+    --endpoints=https://127.0.0.1:2379 \
+    --cacert=/etc/kubernetes/pki/etcd/ca.crt \
+    --cert=/etc/kubernetes/pki/etcd/server.crt \
+    --key=/etc/kubernetes/pki/etcd/server.key
+end note
+
+note right of rst
+  etcdctl snapshot restore backup.db \
+    --data-dir=/var/lib/etcd-from-backup
+end note
+
+note right of lembrese
+  • Backup PRECISA de certificados
+  • Restore NÃO precisa de certificados
+  • Atualizar --data-dir no manifesto do etcd
+  • Verificar volumes (hostPath) também
+  • Parar apiserver antes, reiniciar depois
+  
+  **ENCONTRAR CERTIFICADOS:**
+  cat /etc/kubernetes/manifests/etcd.yaml
+end note
+
+@enduml
 ```
 
 ---

@@ -7,13 +7,69 @@
 Se um node ficar **NotReady por mais de 5 minutos** (padrão), o controller-manager irá marcar os pods para eviction.
 
 ```plantuml,format=png
-!include ../assets/diagrams/maintenance/os-upgrade-pod-eviction-timeout.puml
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Monospaced
+
+title POD EVICTION TIMEOUT
+
+start
+:Node fica NotReady;
+:Aguarda pod-eviction-timeout\n(default: 5 minutos);
+:Pods são marcados para eviction;
+fork
+  :Pods de ReplicaSet/Deployment:\nRecriados em outro node;
+fork again
+  :Pods standalone:\n**PERDIDOS!**;
+end fork
+stop
+
+@enduml
 ```
 
 ### Drain vs Cordon vs Uncordon
 
 ```plantuml,format=png
-!include ../assets/diagrams/maintenance/os-upgrade-comparação-drain-vs-cordon.puml
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Monospaced
+
+title COMPARAÇÃO: DRAIN vs CORDON
+
+rectangle "CORDON" as cordon
+note right of cordon
+  • Marca node como Unschedulable
+  • Pods existentes continuam rodando
+  • Novos pods NÃO são agendados no node
+  
+  **Usado para:** prevenir novos pods
+  antes de manutenção
+end note
+
+rectangle "DRAIN" as drain
+note right of drain
+  • Marca node como Unschedulable (cordon)
+  • MOVE pods existentes para outros nodes
+  
+  **Usado para:** manutenção que
+  requer node vazio
+end note
+
+rectangle "UNCORDON" as uncordon
+note right of uncordon
+  • Marca node como Schedulable novamente
+  • Permite novos pods serem agendados
+  
+  **Usado para:** após conclusão
+  da manutenção
+end note
+
+cordon -down-> drain
+drain -down-> uncordon
+
+@enduml
 ```
 
 ---
@@ -216,7 +272,25 @@ kubectl describe pdb app-pdb
 ## Fluxo de Manutenção Seguro
 
 ```plantuml,format=png
-!include ../assets/diagrams/maintenance/os-upgrade-fluxo-de-manutenção-seguro.puml
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Monospaced
+
+title FLUXO DE MANUTENÇÃO SEGURO
+
+start
+:1. VERIFICAR ESTADO ATUAL\nkubectl get nodes\nkubectl get pods -o wide;
+:2. VERIFICAR PDBs\nkubectl get pdb;
+:3. CORDON (opcional, para planejamento)\nkubectl cordon <node>;
+:4. DRAIN\nkubectl drain <node> --ignore-daemonsets;
+:5. EXECUTAR MANUTENÇÃO\nssh <node>\n# ... manutenção ...;
+:6. VERIFICAR NODE HEALTHY\nkubectl get nodes;
+:7. UNCORDON\nkubectl uncordon <node>;
+:8. VERIFICAR PODS RETORNARAM\nkubectl get pods -o wide;
+stop
+
+@enduml
 ```
 
 ---
@@ -245,7 +319,51 @@ kubectl describe node <node> | grep Taints
 ## Dicas para o Exame CKA
 
 ```plantuml,format=png
-!include ../assets/diagrams/maintenance/os-upgrade-diagram-4.puml
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Monospaced
+
+rectangle "DICAS CKA - MANUTENÇÃO DE NODES" as main
+
+rectangle "COMANDOS ESSENCIAIS" as cmds
+note right of cmds
+  **kubectl cordon <node>**
+  → Marca unschedulable, pods existentes continuam
+  
+  **kubectl drain <node> --ignore-daemonsets**
+  → Move pods E marca unschedulable
+  
+  **kubectl uncordon <node>**
+  → Retorna ao normal
+end note
+
+rectangle "FLAGS IMPORTANTES DO DRAIN" as flags
+note right of flags
+  --ignore-daemonsets → Ignora DaemonSets
+  --delete-emptydir-data → Deleta pods com emptyDir
+  --force → Deleta pods não gerenciados
+end note
+
+rectangle "SEQUÊNCIA TÍPICA" as seq
+note right of seq
+  1. kubectl drain <node> --ignore-daemonsets
+  2. Fazer manutenção
+  3. kubectl uncordon <node>
+end note
+
+rectangle "LEMBRE-SE" as remember
+note right of remember
+  • drain = cordon + evict pods
+  • DaemonSets não são drained (usam --ignore-daemonsets)
+  • Pods standalone são perdidos com --force
+end note
+
+main -down-> cmds
+cmds -down-> flags
+flags -down-> seq
+seq -down-> remember
+@enduml
 ```
 
 ---

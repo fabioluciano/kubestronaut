@@ -7,7 +7,36 @@
 Monitoramento de segurança é essencial para detectar comportamentos anômalos, responder a incidentes e manter compliance.
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/monitoring-logging-pilares-de-observabilidade-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title PILARES DE OBSERVABILIDADE
+
+map "LOGS" as logs {
+  1 => Container logs (stdout/stderr)
+  2 => System logs (kubelet, containerd)
+  3 => Audit logs (API Server)
+}
+
+map "METRICS" as metrics {
+  1 => Resource usage (CPU, memory)
+  2 => API Server metrics
+  3 => Custom application metrics
+}
+
+map "TRACES" as traces {
+  1 => Request tracing
+  2 => Distributed tracing
+}
+
+map "SECURITY EVENTS" as security {
+  1 => Syscall monitoring (Falco)
+  2 => Network anomalies
+  3 => Policy violations
+}
+
+@enduml
 ```
 
 ---
@@ -19,7 +48,28 @@ Monitoramento de segurança é essencial para detectar comportamentos anômalos,
 Falco é uma ferramenta de runtime security que monitora syscalls para detectar comportamentos anômalos em containers e hosts.
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/monitoring-logging-arquitetura-falco-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title ARQUITETURA FALCO
+
+rectangle "User Space" as userspace {
+  rectangle "Falco Engine" as engine
+}
+
+note right of engine
+  Rules processing
+  Alert generation
+end note
+
+rectangle "Kernel Space" as kernelspace {
+  rectangle "Falco Module / eBPF Probe\n(intercepta syscalls)" as probe
+}
+
+probe -up-> engine : syscalls
+
+@enduml
 ```
 
 ### Instalação
@@ -225,7 +275,44 @@ helm install kube-state-metrics prometheus-community/kube-state-metrics \
 ## Dicas para o Exame CKS
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/monitoring-logging-dicas-cks-monitoringlogging-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DICAS CKS - MONITORING/LOGGING
+
+map "FALCO" as falco {
+  Arquivos => /etc/falco/
+  Config => falco.yaml
+  Regras => falco_rules.yaml, falco_rules.local.yaml
+}
+
+map "ESTRUTURA DE REGRA" as regra {
+  rule => Nome da regra
+  desc => Descrição
+  condition => Quando alertar
+  output => Mensagem do alerta
+  priority => CRITICAL|WARNING|NOTICE|INFO
+}
+
+map "ELEMENTOS" as elementos {
+  rules => define alertas
+  macros => condições reutilizáveis
+  lists => listas de valores
+}
+
+map "COMANDOS" as comandos {
+  1 => journalctl -fu falco
+  2 => kubectl logs -f -n falco <pod>
+}
+
+map "LOGS IMPORTANTES" as logs {
+  1 => kubectl logs <pod>
+  2 => journalctl -u kubelet
+  3 => /var/log/kubernetes/audit/audit.log
+}
+
+@enduml
 ```
 
 ---

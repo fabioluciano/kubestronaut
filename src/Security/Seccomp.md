@@ -11,7 +11,34 @@ System calls (syscalls) sao a interface entre programas em user space e o kernel
 ```
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/seccomp-seccomp-no-kubernetes-1.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Seccomp no Kubernetes
+
+rectangle "Container" as container {
+    rectangle "Aplicacao" as app
+}
+
+rectangle "Kernel Linux" as kernel {
+    rectangle "Seccomp Filter" as filter
+    rectangle "System Calls" as syscalls
+}
+
+app --> filter : Requisicao
+filter --> syscalls : Permitido
+filter -[#red]-> app : Bloqueado (EPERM/KILL)
+
+note right of filter
+  O filtro Seccomp intercepta
+  todas as syscalls e decide
+  se permite ou bloqueia
+end note
+
+@enduml
 ```
 
 ## Tipos de Profiles Seccomp
@@ -25,7 +52,45 @@ O Kubernetes suporta tres tipos de profiles Seccomp:
 | `Unconfined` | Sem restricoes | Apenas para debug/desenvolvimento |
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/seccomp-tipos-de-profiles-seccomp-1.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Tipos de Profiles Seccomp
+
+package "Seccomp Profiles" {
+    rectangle "Unconfined" as unconf #ffcccc
+
+    rectangle "RuntimeDefault" as runtime #ffffcc
+
+    rectangle "Localhost" as local #ccffcc
+}
+
+note right of unconf
+  - Sem restricoes
+  - Todas syscalls permitidas
+  - NAO usar em producao
+end note
+
+note right of runtime
+  - Profile do containerd/CRI-O
+  - Bloqueia ~44 syscalls perigosas
+  - Recomendado como baseline
+end note
+
+note right of local
+  - Profile customizado em JSON
+  - Path: /var/lib/kubelet/seccomp/
+  - Maximo controle
+end note
+
+unconf -[hidden]down-> runtime
+runtime -[hidden]down-> local
+
+@enduml
+
 ```
 
 ## RuntimeDefault
@@ -278,7 +343,40 @@ cat /proc/1/status | grep Seccomp
 ## Arquitetura Seccomp no Kubernetes
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/seccomp-fluxo-seccomp-no-kubernetes-1.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Fluxo Seccomp no Kubernetes
+
+actor Admin
+participant "API Server" as api
+participant "kubelet" as kubelet
+participant "Container Runtime" as runtime
+participant "Kernel" as kernel
+
+Admin -> api : kubectl apply -f pod.yaml\n(com seccompProfile)
+
+api -> kubelet : Criar Pod
+
+kubelet -> kubelet : Ler profile\n/var/lib/kubelet/seccomp/
+
+kubelet -> runtime : Criar container\ncom profile seccomp
+
+runtime -> kernel : Configurar filtro\nseccomp para processo
+
+note right of kernel
+  Todas as syscalls do container
+  passam pelo filtro seccomp
+end note
+
+kernel --> runtime : Container iniciado
+runtime --> kubelet : Status
+kubelet --> api : Pod Running
+
+@enduml
 ```
 
 ## Comparacao: Seccomp vs AppArmor vs SELinux

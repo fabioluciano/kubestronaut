@@ -11,7 +11,44 @@ Conceda apenas as permissoes minimas necessarias para que um componente, usuario
 ```
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/hardening-camadas-de-hardening-no-kubernetes-1.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Camadas de Hardening no Kubernetes
+
+rectangle "Infraestrutura" as infra #lightblue {
+    rectangle "Sistema Operacional" as os
+    rectangle "Rede" as network
+    rectangle "Storage" as storage
+}
+
+rectangle "Cluster Kubernetes" as cluster #lightgreen {
+    rectangle "Control Plane" as cp
+    rectangle "Worker Nodes" as workers
+    rectangle "etcd" as etcd
+}
+
+rectangle "Workloads" as workloads #lightyellow {
+    rectangle "Pods" as pods
+    rectangle "Containers" as containers
+    rectangle "Imagens" as images
+}
+
+rectangle "Acesso" as access #pink {
+    rectangle "Autenticacao" as authn
+    rectangle "Autorizacao" as authz
+    rectangle "Auditoria" as audit
+}
+
+infra -down-> cluster
+cluster -down-> workloads
+access -right-> cluster
+access -right-> workloads
+
+@enduml
 ```
 
 ## Checklist Completo de Hardening
@@ -228,7 +265,45 @@ nmap -sT -p 1-65535 <node-ip>
 | CoreDNS | 53 | TCP/UDP | Interno cluster |
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/hardening-portas-do-kubernetes-visao-geral-1.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Portas do Kubernetes - Visao Geral
+
+rectangle "Control Plane Node" as cp {
+    card "API Server\n:6443" as api
+    card "etcd\n:2379-2380" as etcd
+    card "Controller\n:10257" as ctrl
+    card "Scheduler\n:10259" as sched
+}
+
+rectangle "Worker Node" as worker {
+    card "Kubelet\n:10250" as kubelet
+    card "Kubelet RO\n:10255 (OFF)" as kubeletro #lightcoral
+    card "NodePort\n:30000-32767" as nodeport
+}
+
+rectangle "External" as ext {
+    card "kubectl" as kubectl
+    card "Users" as users
+}
+
+kubectl --> api : 6443/TCP
+users --> nodeport : 30000+/TCP
+api --> kubelet : 10250/TCP
+api --> etcd : 2379/TCP
+ctrl --> api : interno
+sched --> api : interno
+
+note right of kubeletro
+  Deve estar DESABILITADO
+  em producao
+end note
+
+@enduml
 ```
 
 ## Hardening SSH
@@ -416,7 +491,49 @@ curl -s http://localhost:10255/pods
 ```
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/hardening-checklist-de-seguranca-de-pod-1.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Checklist de Seguranca de Pod
+
+rectangle "Pod Security" {
+    rectangle "1. Security Context" as sc {
+        card "runAsNonRoot: true" as nonroot
+        card "readOnlyRootFilesystem: true" as readonly
+        card "allowPrivilegeEscalation: false" as nopriv
+        card "capabilities: drop ALL" as caps
+    }
+
+    rectangle "2. Resource Limits" as res {
+        card "CPU limits definidos" as cpu
+        card "Memory limits definidos" as mem
+        card "Ephemeral storage limits" as ephemeral
+    }
+
+    rectangle "3. Network" as net {
+        card "NetworkPolicy aplicada" as netpol
+        card "Service account minimo" as sa
+        card "hostNetwork: false" as hostnet
+    }
+
+    rectangle "4. Image Security" as img {
+        card "Imagem de registro confiavel" as registry
+        card "Tag especifica (nao :latest)" as tag
+        card "ImagePullPolicy: Always" as pull
+        card "Image digest" as digest
+    }
+
+    rectangle "5. Linux Security" as linux {
+        card "Seccomp profile" as seccomp
+        card "AppArmor profile" as apparmor
+        card "SELinux context" as selinux
+    }
+}
+
+@enduml
 ```
 
 ### Campos de Seguranca do Pod
@@ -615,7 +732,48 @@ cat /var/log/kubernetes/audit.log | jq 'select(.responseStatus.code >= 400)'
 O CIS (Center for Internet Security) publica benchmarks de seguranca para Kubernetes.
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/hardening-cis-kubernetes-benchmark-categorias-1.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title CIS Kubernetes Benchmark - Categorias
+
+rectangle "CIS Benchmark" {
+    rectangle "1. Control Plane" as cp #lightblue {
+        card "1.1 Control Plane Node Config" as cp1
+        card "1.2 API Server" as cp2
+        card "1.3 Controller Manager" as cp3
+        card "1.4 Scheduler" as cp4
+    }
+
+    rectangle "2. etcd" as etcd #lightgreen {
+        card "2.1 Node Config Files" as etcd1
+        card "2.2 etcd" as etcd2
+    }
+
+    rectangle "3. Control Plane Config" as cpc #lightyellow {
+        card "3.1 Authentication" as cpc1
+        card "3.2 Logging" as cpc2
+    }
+
+    rectangle "4. Worker Nodes" as wn #pink {
+        card "4.1 Worker Node Config" as wn1
+        card "4.2 Kubelet" as wn2
+    }
+
+    rectangle "5. Policies" as pol #lightgray {
+        card "5.1 RBAC and SA" as pol1
+        card "5.2 Pod Security Standards" as pol2
+        card "5.3 Network Policies" as pol3
+        card "5.4 Secrets Management" as pol4
+        card "5.5 Extensible Admission" as pol5
+        card "5.7 General Policies" as pol7
+    }
+}
+
+@enduml
 ```
 
 ### Ferramentas de Verificacao
@@ -862,7 +1020,57 @@ kubectl get secrets -A -o json | kubectl replace -f -
 ## Arquitetura de Seguranca - Defense in Depth
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/hardening-defense-in-depth-kubernetes-1.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Defense in Depth - Kubernetes
+
+rectangle "Internet" as internet
+
+rectangle "Perimetro" as perimeter {
+    rectangle "Firewall" as fw
+    rectangle "WAF" as waf
+    rectangle "DDoS Protection" as ddos
+    rectangle "Load Balancer" as lb
+}
+
+rectangle "Rede" as network {
+    rectangle "Network Policies" as netpol
+    rectangle "Service Mesh" as mesh
+    rectangle "mTLS" as mtls
+    rectangle "Ingress Controller" as ingress
+}
+
+rectangle "Cluster" as cluster {
+    rectangle "RBAC" as rbac
+    rectangle "Pod Security" as psa
+    rectangle "Admission Controllers" as ac
+    rectangle "Audit Logging" as audit
+}
+
+rectangle "Workload" as workload {
+    rectangle "Container Security" as container
+    rectangle "Seccomp/AppArmor" as seccomp
+    rectangle "Runtime Security" as runtime
+    rectangle "Image Scanning" as scan
+}
+
+rectangle "Dados" as data {
+    rectangle "Encryption at Rest" as enc
+    rectangle "Secrets Management" as secrets
+    rectangle "Backup/Recovery" as backup
+}
+
+internet --> perimeter
+perimeter --> network
+network --> cluster
+cluster --> workload
+workload --> data
+
+@enduml
 ```
 
 ## Best Practices

@@ -34,7 +34,45 @@ O Kubernetes fornece respostas automatizadas para todas essas questoes, permitin
 ### Linha do Tempo
 
 ```plantuml,format=png
-!include assets/diagrams/general/introduction-historia-do-kubernetes.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Historia do Kubernetes
+
+rectangle "2003-2004" as Y1 {
+  card "Google desenvolve\no Borg internamente" as B1
+}
+
+rectangle "2013" as Y2 {
+  card "Docker e lancado\npopularizando containers" as B2
+}
+
+rectangle "2014" as Y3 {
+  card "Google anuncia\nKubernetes open-source" as B3
+}
+
+rectangle "2015" as Y4 {
+  card "Kubernetes v1.0\nCNCF e fundada" as B4
+}
+
+rectangle "2017" as Y5 {
+  card "Adocao massiva\npor cloud providers" as B5
+}
+
+rectangle "2018" as Y6 {
+  card "Primeiro projeto\ngraduated da CNCF" as B6
+}
+
+Y1 -right-> Y2
+Y2 -right-> Y3
+Y3 -down-> Y4
+Y4 -left-> Y5
+Y5 -left-> Y6
+
+@enduml
 ```
 
 ### Marcos Importantes
@@ -70,7 +108,38 @@ O nome "Kubernetes" vem do grego e significa "timoneiro" ou "piloto" - aquele qu
 #### 1. Escalabilidade Automatica
 
 ```plantuml,format=png
-!include assets/diagrams/general/introduction-horizontal-pod-autoscaler.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Horizontal Pod Autoscaler
+
+rectangle "HPA Controller" as HPA
+
+rectangle "Deployment" as D {
+  card "Pod 1" as P1
+  card "Pod 2" as P2
+  card "Pod 3" as P3
+  card "Pod N..." as PN #lightgray
+}
+
+cloud "Metricas" as M {
+  card "CPU: 80%" as CPU
+  card "Memoria: 70%" as MEM
+}
+
+M --> HPA : Monitora
+HPA --> D : Scale Up/Down
+
+note bottom of HPA
+  Kubernetes ajusta automaticamente
+  o numero de pods baseado em
+  metricas como CPU e memoria
+end note
+
+@enduml
 ```
 
 - **Escalonamento Horizontal**: Adiciona ou remove replicas de pods automaticamente
@@ -80,7 +149,38 @@ O nome "Kubernetes" vem do grego e significa "timoneiro" ou "piloto" - aquele qu
 #### 2. Alta Disponibilidade
 
 ```plantuml,format=png
-!include assets/diagrams/general/introduction-alta-disponibilidade-no-kubernetes.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Alta Disponibilidade no Kubernetes
+
+rectangle "Cluster Kubernetes" {
+  rectangle "Node 1" as N1 {
+    card "Pod A" as P1A
+    card "Pod B" as P1B
+  }
+
+  rectangle "Node 2" as N2 {
+    card "Pod A" as P2A
+    card "Pod C" as P2C
+  }
+
+  rectangle "Node 3" as N3 {
+    card "Pod B" as P3B
+    card "Pod C" as P3C
+  }
+}
+
+note bottom of N1
+  Se um node falhar,
+  os pods sao redistribuidos
+  automaticamente
+end note
+
+@enduml
 ```
 
 - **Self-healing**: Reinicia containers que falham
@@ -121,7 +221,48 @@ Kubernetes funciona de forma consistente em:
 ### Arquitetura de Alto Nivel
 
 ```plantuml,format=png
-!include assets/diagrams/general/introduction-arquitetura-do-kubernetes.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Arquitetura do Kubernetes
+
+rectangle "Control Plane" as CP {
+  component "API Server" as API
+  component "etcd" as ETCD
+  component "Scheduler" as SCHED
+  component "Controller Manager" as CM
+}
+
+rectangle "Worker Node 1" as W1 {
+  component "kubelet" as K1
+  component "kube-proxy" as KP1
+  component "Container Runtime" as CR1
+
+  rectangle "Pod" as POD1 {
+    card "Container" as C1
+  }
+}
+
+rectangle "Worker Node 2" as W2 {
+  component "kubelet" as K2
+  component "kube-proxy" as KP2
+  component "Container Runtime" as CR2
+
+  rectangle "Pod" as POD2 {
+    card "Container" as C2
+  }
+}
+
+API --> ETCD : Persiste estado
+API --> SCHED : Agenda pods
+API --> CM : Controla recursos
+API --> K1 : Gerencia node
+API --> K2 : Gerencia node
+
+@enduml
 ```
 
 ### Objetos Principais
@@ -169,7 +310,37 @@ Na pratica, voce raramente cria ReplicaSets diretamente. Use Deployments, que ge
 O **Service** expoe uma aplicacao rodando em Pods como um servico de rede.
 
 ```plantuml,format=png
-!include assets/diagrams/general/introduction-service-no-kubernetes.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Service no Kubernetes
+
+rectangle "Service (ClusterIP)" as SVC {
+  card "10.96.0.1:80" as VIP
+}
+
+rectangle "Pods Backend" as PODS {
+  card "Pod 1\n10.244.0.5" as P1
+  card "Pod 2\n10.244.0.6" as P2
+  card "Pod 3\n10.244.0.7" as P3
+}
+
+cloud "Cliente" as C
+
+C --> SVC : my-service:80
+SVC --> P1
+SVC --> P2
+SVC --> P3
+
+note bottom of SVC
+  O Service fornece um IP estavel
+  e faz load balancing entre os Pods
+end note
+
+@enduml
 ```
 
 ```yaml
@@ -227,7 +398,39 @@ kubectl get namespaces
 ### Hierarquia de Objetos
 
 ```plantuml,format=png
-!include assets/diagrams/general/introduction-hierarquia-de-objetos.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Hierarquia de Objetos
+
+rectangle "Deployment" as D {
+  rectangle "ReplicaSet v2 (atual)" as RS2 {
+    rectangle "Pod 1" as P1 {
+      card "Container" as C1
+    }
+    rectangle "Pod 2" as P2 {
+      card "Container" as C2
+    }
+    rectangle "Pod 3" as P3 {
+      card "Container" as C3
+    }
+  }
+
+  rectangle "ReplicaSet v1 (antiga)" as RS1 #lightgray {
+    note "Mantido para rollback" as N1
+  }
+}
+
+note right of D
+  Deployment gerencia ReplicaSets
+  ReplicaSet gerencia Pods
+  Pod contem Containers
+end note
+
+@enduml
 ```
 
 ### Relacao entre Objetos
@@ -247,7 +450,49 @@ kubectl get namespaces
 ### 1. Microservicos
 
 ```plantuml,format=png
-!include assets/diagrams/general/introduction-arquitetura-de-microservicos.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Arquitetura de Microservicos
+
+rectangle "Aplicacao E-commerce" {
+  rectangle "Frontend" as FE {
+    card "React App" as REACT
+  }
+
+  rectangle "API Gateway" as GW {
+    card "Kong/Nginx" as KONG
+  }
+
+  rectangle "Servicos" as SVCS {
+    card "Catalogo" as CAT
+    card "Carrinho" as CART
+    card "Pagamento" as PAY
+    card "Usuarios" as USER
+  }
+
+  rectangle "Dados" as DATA {
+    database "PostgreSQL" as PG
+    database "Redis" as REDIS
+    database "MongoDB" as MONGO
+  }
+}
+
+REACT --> KONG
+KONG --> CAT
+KONG --> CART
+KONG --> PAY
+KONG --> USER
+
+CAT --> PG
+CART --> REDIS
+PAY --> PG
+USER --> MONGO
+
+@enduml
 ```
 
 ### 2. CI/CD e DevOps
@@ -355,7 +600,32 @@ Na producao, sempre prefira a abordagem declarativa, pois permite versionamento,
 O Kubernetes trabalha continuamente para que o **estado atual** do cluster seja igual ao **estado desejado** definido nos manifestos.
 
 ```plantuml,format=png
-!include assets/diagrams/general/introduction-control-loop-do-kubernetes.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Control Loop do Kubernetes
+
+rectangle "Control Loop" {
+  card "Estado Desejado\n(YAML)" as DESIRED
+  card "Estado Atual\n(Cluster)" as ACTUAL
+  card "Controller" as CTRL
+}
+
+DESIRED --> CTRL : 1. Observa
+ACTUAL --> CTRL : 2. Compara
+CTRL --> ACTUAL : 3. Reconcilia
+
+note bottom of CTRL
+  O Controller continuamente:
+  1. Observa o estado desejado
+  2. Compara com estado atual
+  3. Faz alteracoes para reconciliar
+end note
+
+@enduml
 ```
 
 ### 3. Imutabilidade

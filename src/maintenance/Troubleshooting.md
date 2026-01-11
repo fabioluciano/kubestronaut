@@ -11,7 +11,28 @@ Troubleshooting representa **30% do exame CKA**. Este e o topico com maior peso 
 ### Abordagem Sistematica
 
 ```plantuml,format=png
-!include ../assets/diagrams/maintenance/troubleshooting-metodologia-de-troubleshooting.puml
+@startuml
+
+skinparam backgroundColor white
+
+title Metodologia de Troubleshooting
+
+start
+:Identificar o Sintoma;
+:Coletar Informacoes;
+:Formular Hipoteses;
+:Testar Hipoteses;
+if (Problema Resolvido?) then (sim)
+  :Documentar Solucao;
+  stop
+else (nao)
+  :Refinar Hipoteses;
+  :Coletar Mais Dados;
+endif
+:Escalar se necessario;
+stop
+
+@enduml
 ```
 
 ### Fluxo de Criação de Deployment
@@ -19,7 +40,20 @@ Troubleshooting representa **30% do exame CKA**. Este e o topico com maior peso 
 Entender o fluxo de criação ajuda a identificar onde pode estar o problema:
 
 ```plantuml,format=png
-!include ../assets/diagrams/maintenance/troubleshooting-fluxo-deployment.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Fluxo de Troubleshooting - Criação de Deployment
+
+:O Cliente envia o comando ""kubectl""\npara criação de um ""deployment"";
+:O Api server manda envia o objeto\na ser criado para o ""etcd"";
+:O ""kube-scheduller"" faz a análise de qual\nserá o melhor nó para alocar o pod, baseado\nem requisitos como recursos e affinities;
+
+@enduml
+
 ```
 
 ### Perguntas Iniciais
@@ -57,7 +91,23 @@ journalctl -u containerd -f
 ### Ciclo de Vida do Pod
 
 ```plantuml,format=png
-!include ../assets/diagrams/maintenance/troubleshooting-estados-do-pod.puml
+@startuml
+
+skinparam backgroundColor white
+
+title Estados do Pod
+
+[*] --> Pending
+Pending --> Running : Scheduled + Containers Started
+Pending --> Failed : Cannot Schedule
+Running --> Succeeded : All Containers Exit 0
+Running --> Failed : Container Exit != 0
+Running --> CrashLoopBackOff : Repeated Failures
+CrashLoopBackOff --> Running : Container Restarts
+Failed --> [*]
+Succeeded --> [*]
+
+@enduml
 ```
 
 ### Estados do Pod e Significados
@@ -77,7 +127,40 @@ journalctl -u containerd -f
 ### Pod em Pending
 
 ```plantuml,format=png
-!include ../assets/diagrams/maintenance/troubleshooting-diagnostico-de-pod-pending.puml
+@startuml
+
+skinparam backgroundColor white
+
+title Diagnostico de Pod Pending
+
+start
+:kubectl describe pod <nome>;
+:Verificar secao Events;
+
+if (Evento "FailedScheduling"?) then (sim)
+  if (Mensagem "Insufficient cpu/memory"?) then (sim)
+    :Verificar recursos disponiveis;
+    :Ajustar requests/limits;
+  else (nao)
+    if (Mensagem "node(s) had taint"?) then (sim)
+      :Verificar taints nos nodes;
+      :Adicionar tolerations;
+    else (nao)
+      if (Mensagem "nodeSelector"?) then (sim)
+        :Verificar labels dos nodes;
+        :Ajustar nodeSelector;
+      else (nao)
+        :Verificar affinity rules;
+      endif
+    endif
+  endif
+else (nao)
+  :Verificar se scheduler esta running;
+endif
+
+stop
+
+@enduml
 ```
 
 **Comandos de Diagnostico:**
@@ -108,7 +191,45 @@ kubectl get pods -n kube-system -l component=kube-scheduler
 ### Pod em CrashLoopBackOff
 
 ```plantuml,format=png
-!include ../assets/diagrams/maintenance/troubleshooting-diagnostico-de-crashloopbackoff.puml
+@startuml
+
+skinparam backgroundColor white
+
+title Diagnostico de CrashLoopBackOff
+
+start
+:kubectl logs <pod> --previous;
+
+if (Logs disponiveis?) then (sim)
+  :Analisar erro da aplicacao;
+  if (Erro de configuracao?) then (sim)
+    :Verificar ConfigMaps/Secrets;
+    :Verificar variaveis de ambiente;
+  else (nao)
+    if (Erro de dependencia?) then (sim)
+      :Verificar conexao com DB/servicos;
+      :Verificar DNS/network;
+    else (nao)
+      :Verificar codigo da aplicacao;
+    endif
+  endif
+else (nao)
+  :kubectl describe pod <pod>;
+  :Verificar Exit Code;
+  if (Exit Code 137?) then (sim)
+    :OOMKilled - aumentar memoria;
+  else (nao)
+    if (Exit Code 1?) then (sim)
+      :Erro no entrypoint/command;
+    else (nao)
+      :Verificar command e args;
+    endif
+  endif
+endif
+
+stop
+
+@enduml
 ```
 
 **Comandos de Diagnostico:**
@@ -197,7 +318,47 @@ kubectl get pod <pod-name> -o jsonpath='{.spec.containers[*].lifecycle}'
 ### Arquitetura do Control Plane
 
 ```plantuml,format=png
-!include ../assets/diagrams/maintenance/troubleshooting-componentes-do-control-plane-e-pontos-de-falha.puml
+@startuml
+
+skinparam backgroundColor white
+
+title Componentes do Control Plane e Pontos de Falha
+
+rectangle "Control Plane" {
+  rectangle "kube-apiserver" as api #lightblue
+  rectangle "etcd" as etcd #lightyellow
+  rectangle "kube-scheduler" as sched #lightgreen
+  rectangle "kube-controller-manager" as ctrl #lightpink
+}
+
+rectangle "Manifestos Static Pods" as manifests #lightgray
+
+api --> etcd : porta 2379
+sched --> api : porta 6443
+ctrl --> api : porta 6443
+manifests --> api : /etc/kubernetes/manifests/
+
+note right of api
+  Ponto central de comunicacao
+  Se falhar, kubectl nao funciona
+end note
+
+note right of etcd
+  Armazena todo o estado
+  Backup critico!
+end note
+
+note right of sched
+  Agenda pods nos nodes
+  Pod Pending = verificar
+end note
+
+note right of ctrl
+  Gerencia controllers
+  ReplicaSet nao escala = verificar
+end note
+
+@enduml
 ```
 
 ### Verificacao Rapida do Control Plane
@@ -223,7 +384,45 @@ sudo kubeadm certs check-expiration
 ### kube-apiserver Nao Responde
 
 ```plantuml,format=png
-!include ../assets/diagrams/maintenance/troubleshooting-troubleshooting-do-api-server.puml
+@startuml
+
+skinparam backgroundColor white
+
+title Troubleshooting do API Server
+
+start
+:kubectl nao responde;
+
+:Verificar se processo esta rodando;
+:sudo crictl ps | grep apiserver;
+
+if (Container rodando?) then (nao)
+  :Verificar manifesto;
+  :cat /etc/kubernetes/manifests/kube-apiserver.yaml;
+  if (Manifesto OK?) then (sim)
+    :Verificar logs do kubelet;
+    :journalctl -u kubelet | grep apiserver;
+  else (nao)
+    :Corrigir manifesto;
+  endif
+else (sim)
+  :Verificar logs do apiserver;
+  :sudo crictl logs <container-id>;
+  if (Erro de certificado?) then (sim)
+    :kubeadm certs renew apiserver;
+    :systemctl restart kubelet;
+  else (nao)
+    if (Erro etcd?) then (sim)
+      :Verificar etcd;
+    else (nao)
+      :Verificar configuracao;
+    endif
+  endif
+endif
+
+stop
+
+@enduml
 ```
 
 **Comandos de Diagnostico:**
@@ -357,7 +556,44 @@ kubectl get deploy <deployment> -o yaml | grep -A 5 status
 ### Node NotReady
 
 ```plantuml,format=png
-!include ../assets/diagrams/maintenance/troubleshooting-diagnostico-de-node-notready.puml
+@startuml
+
+skinparam backgroundColor white
+
+title Diagnostico de Node NotReady
+
+start
+:kubectl get nodes;
+:Node STATUS = NotReady;
+
+:kubectl describe node <node>;
+:Verificar Conditions;
+
+if (MemoryPressure = True?) then (sim)
+  :Verificar memoria;
+  :free -h;
+else (nao)
+  if (DiskPressure = True?) then (sim)
+    :Verificar disco;
+    :df -h;
+  else (nao)
+    if (PIDPressure = True?) then (sim)
+      :Verificar PIDs;
+      :ps aux | wc -l;
+    else (nao)
+      if (NetworkUnavailable = True?) then (sim)
+        :Verificar CNI;
+      else (nao)
+        :Verificar kubelet;
+        :systemctl status kubelet;
+      endif
+    endif
+  endif
+endif
+
+stop
+
+@enduml
 ```
 
 **Comandos de Diagnostico no Node:**
@@ -454,7 +690,48 @@ kubectl get cm kube-proxy -n kube-system -o jsonpath='{.data.config\.conf}' | gr
 ### Visao Geral dos Problemas de Rede
 
 ```plantuml,format=png
-!include ../assets/diagrams/maintenance/troubleshooting-camadas-de-rede-no-kubernetes.puml
+@startuml
+
+skinparam backgroundColor white
+
+title Camadas de Rede no Kubernetes
+
+rectangle "Aplicacao" {
+  rectangle "Pod A" as podA
+  rectangle "Pod B" as podB
+}
+
+rectangle "Service" as svc
+
+rectangle "DNS" as dns
+
+rectangle "CNI Plugin" as cni
+
+rectangle "Node Network" as node
+
+podA --> svc : ClusterIP
+svc --> podB : Endpoints
+podA --> dns : Resolucao de nome
+dns --> svc : kubernetes.default
+podA --> cni : Pod-to-Pod
+cni --> node : Overlay/Routing
+
+note right of dns
+  CoreDNS
+  Problemas: CrashLoop, Timeout
+end note
+
+note right of cni
+  Calico/Flannel/Cilium
+  Problemas: Pods sem IP
+end note
+
+note right of svc
+  kube-proxy
+  Problemas: Service inacessivel
+end note
+
+@enduml
 ```
 
 ### DNS Nao Funciona

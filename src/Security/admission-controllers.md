@@ -11,7 +11,36 @@ CKS (30%), CKA (5%)
 **Admission Controllers** são plugins que interceptam requisições ao API Server após autenticação e autorização, mas antes da persistência no etcd. Permitem validar, modificar ou rejeitar objetos.
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/admission-request-flow.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title FLUXO DE REQUISIÇÃO
+
+rectangle "Kubectl\nRequest" as kubectl
+rectangle "API\nServer" as api
+rectangle "Autenticação" as auth
+rectangle "Autorização\n(RBAC)" as rbac
+rectangle "etcd\n(persistência)" as etcd
+
+rectangle "Admission Controllers" as admission {
+  note as steps
+    1. Mutating Admission (modifica objetos)
+    2. Schema Validation (valida estrutura)
+    3. Validating Admission (aceita/rejeita)
+  end note
+}
+
+kubectl --> api
+api --> auth
+auth --> rbac
+rbac --> admission
+admission --> etcd
+
+@enduml
+
 ```
 
 ### Tipos de Admission Controllers
@@ -25,7 +54,30 @@ CKS (30%), CKA (5%)
 ### Ordem de Execução
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/admission-execution-order.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title ORDEM DE EXECUÇÃO
+
+rectangle "1. MUTATING ADMISSION CONTROLLERS\n(executados em ordem, modificam o objeto)" as mut
+rectangle "2. OBJECT SCHEMA VALIDATION\n(valida estrutura do objeto modificado)" as schema
+rectangle "3. VALIDATING ADMISSION CONTROLLERS\n(executados em paralelo, podem rejeitar)" as val
+rectangle "4. PERSIST TO ETCD" as etcd
+
+mut --> schema
+schema --> val
+val --> etcd
+
+note bottom of val
+  Se QUALQUER validating rejeitar,
+  a requisição é negada
+end note
+
+@enduml
+
 ```
 
 ## 📋 Admission Controllers Comuns
@@ -197,7 +249,36 @@ kubectl apply -f pod.yaml --dry-run=server
 ### Comandos Essenciais
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/admission-tips.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title DICAS ADMISSION CONTROLLERS
+
+note as dicas
+  **1. LOCALIZAÇÃO:**
+  /etc/kubernetes/manifests/kube-apiserver.yaml
+
+  **2. FLAGS:**
+  --enable-admission-plugins=Plugin1,Plugin2
+  --disable-admission-plugins=Plugin1
+
+  **3. VER WEBHOOKS:**
+  kubectl get mutatingwebhookconfigurations
+  kubectl get validatingwebhookconfigurations
+
+  **4. ORDEM:**
+  Mutating -> Schema Validation -> Validating -> etcd
+
+  **5. ImagePolicyWebhook:**
+  Requer admission-control-config-file
+  defaultAllow: false para segurança
+end note
+
+@enduml
+
 ```
 
 ## 📚 Referências

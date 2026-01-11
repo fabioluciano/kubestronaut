@@ -7,7 +7,31 @@
 Helm é o **gerenciador de pacotes** do Kubernetes, equivalente ao apt/yum para Linux ou npm para Node.js.
 
 ```plantuml,format=png
-!include ../assets/diagrams/tools/helm-arquitetura-helm-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title ARQUITETURA HELM
+
+rectangle "Chart (Pacote)" {
+  card "templates/ - Manifests com placeholders" as c1
+  card "values.yaml - Valores padrão" as c2
+  card "Chart.yaml - Metadados do chart" as c3
+}
+
+rectangle "Release (Instalação)" {
+  note as n1
+    Chart + Values aplicados no cluster
+  end note
+}
+
+rectangle "Repository (Repositório)" {
+  note as n2
+    Coleção de charts disponíveis
+  end note
+}
+
+@enduml
 ```
 
 ### Helm 3 vs Helm 2
@@ -293,7 +317,53 @@ helm show values bitnami/nginx
 ## Dicas para o Exame CKAD
 
 ```plantuml,format=png
-!include ../assets/diagrams/tools/helm-dicas-ckad-helm-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DICAS CKAD - HELM
+
+rectangle "1. Comandos mais usados no exame" {
+  note as n1
+    helm install <name> <chart> -n <ns>
+    helm upgrade --install <name> <chart>
+    helm list
+    helm uninstall <name>
+  end note
+}
+
+rectangle "2. Customizar valores" {
+  note as n2
+    --set key=value
+    -f values.yaml
+  end note
+}
+
+rectangle "3. Ver valores disponíveis" {
+  note as n3
+    helm show values <chart>
+  end note
+}
+
+rectangle "4. Dry-run para validar" {
+  note as n4
+    helm install ... --dry-run
+  end note
+}
+
+rectangle "5. Template para gerar YAML" {
+  note as n5
+    helm template <name> <chart> > output.yaml
+  end note
+}
+
+rectangle "6. Namespace" {
+  note as n6
+    -n <namespace> --create-namespace
+  end note
+}
+
+@enduml
 ```
 
 ---

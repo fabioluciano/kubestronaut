@@ -22,7 +22,43 @@ GitOps é uma prática operacional que usa Git como única fonte de verdade para
 ### GitOps vs CI/CD Tradicional
 
 ```plantuml,format=png
-!include ../assets/diagrams/tools/gitops-push-vs-pull.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title CI/CD Tradicional vs GitOps
+
+package "CI/CD Tradicional (Push)" {
+    [Dev] as DEV1
+    [CI Build] as CI
+    [CD Deploy] as CD
+    [Cluster] as CLUSTER1
+
+    DEV1 --> CI : push code
+    CI --> CD : artifact
+    CD --> CLUSTER1 : push deploy
+}
+
+package "GitOps (Pull)" {
+    [Dev] as DEV2
+    [Git Repo] as GIT
+    [Operator] as OP
+    [Cluster] as CLUSTER2
+
+    DEV2 --> GIT : push code
+    GIT <-- OP : pull
+    OP --> CLUSTER2 : apply
+    
+    note right of OP
+        Operator vive
+        dentro do cluster
+    end note
+}
+
+@enduml
+
 ```
 
 ### Benefícios
@@ -44,7 +80,35 @@ ArgoCD é uma ferramenta de continuous delivery declarativa para Kubernetes, seg
 ### Arquitetura
 
 ```plantuml,format=png
-!include ../assets/diagrams/tools/gitops-argocd-arquitetura.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Arquitetura ArgoCD
+
+package "ArgoCD" {
+    [API Server] as API
+    note bottom: UI/CLI
+    [Repo Server] as REPO
+    note bottom: Git sync
+    [Application Controller] as CTRL
+    note bottom: Reconciliation
+}
+
+[Git Repo] as GIT
+[Kubernetes Cluster] as K8S
+[CLI/UI] as CLI
+
+CLI --> API : commands
+API --> REPO
+REPO --> GIT : fetch
+CTRL --> K8S : deploy
+CTRL --> GIT : compare
+
+@enduml
+
 ```
 
 ### Instalação

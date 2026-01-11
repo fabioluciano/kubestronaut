@@ -11,7 +11,30 @@ CKAD (15%), CKA (10%)
 Jobs são recursos para executar tarefas que devem rodar até completar com sucesso. Diferente de Pods normais que são reiniciados, Jobs terminam após concluir sua tarefa.
 
 ```plantuml,format=png
-!include ../assets/diagrams/workloads/job-job-controller-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title JOB CONTROLLER
+
+rectangle "Job: batch-process" {
+  card "completions: 3 (quantas vezes completar)" as c1
+  card "parallelism: 2 (quantos pods simultâneos)" as c2
+  card "backoffLimit: 4 (tentativas em caso de falha)" as c3
+}
+
+rectangle "Execução" {
+  card "Batch 1: Pod-1 ✓  Pod-2 ✓" as b1
+  card "Batch 2: Pod-3 ✓" as b2
+  card "Status: 3/3 completions" as status
+}
+
+note bottom
+  📌 Pods finalizados permanecem (Completed)
+  📌 Job status: Complete
+end note
+
+@enduml
 ```
 
 ### Jobs vs Pods vs Deployments
@@ -27,7 +50,35 @@ Jobs são recursos para executar tarefas que devem rodar até completar com suce
 ### Campos Importantes
 
 ```plantuml,format=png
-!include ../assets/diagrams/workloads/job-campos-do-job-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title CAMPOS DO JOB
+
+rectangle "spec.completions: 5" as completions
+note right of completions : Quantas vezes o job deve completar com sucesso
+
+rectangle "spec.parallelism: 2" as parallelism
+note right of parallelism : Quantos pods podem rodar simultaneamente
+
+rectangle "spec.backoffLimit: 4" as backoffLimit
+note right of backoffLimit : Quantas falhas antes de considerar o job failed
+
+rectangle "spec.activeDeadlineSeconds: 300" as deadline
+note right of deadline : Tempo máximo de execução (inclui retries)
+
+rectangle "spec.ttlSecondsAfterFinished: 100" as ttl
+note right of ttl : Tempo até o job ser deletado automaticamente
+
+rectangle "spec.template.spec.restartPolicy: Never | OnFailure" {
+  note as n6
+    Never: não reinicia container
+    OnFailure: reinicia apenas se falhar
+  end note
+}
+
+@enduml
 ```
 
 ---
@@ -188,7 +239,35 @@ Status: 5/5 completions (SUCCESS)
 ### Work Queue Pattern
 
 ```plantuml,format=png
-!include ../assets/diagrams/workloads/job-work-queue-pattern-1.puml
+@startuml
+skinparam monochrome true
+skinparam defaultFontName Monospaced
+
+title WORK QUEUE PATTERN
+
+queue "Message Queue" as mq {
+  card "item1" as i1
+  card "item2" as i2
+  card "item3" as i3
+  card "item4" as i4
+}
+
+rectangle "Workers" as workers {
+  rectangle "Pod-1\n(worker)" as p1
+  rectangle "Pod-2\n(worker)" as p2
+  rectangle "Pod-3\n(worker)" as p3
+}
+
+mq --> p1
+mq --> p2
+mq --> p3
+
+note bottom of workers
+  📌 Pods consomem itens da fila
+  📌 Job termina quando fila está vazia
+end note
+
+@enduml
 ```
 
 ### Fixed Completion Count

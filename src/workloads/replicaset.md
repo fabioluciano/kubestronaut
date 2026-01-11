@@ -22,7 +22,43 @@ Na pratica, voce raramente criara ReplicaSets diretamente. O objeto **Deployment
 ### Arquitetura do ReplicaSet
 
 ```plantuml,format=png
-!include ../assets/diagrams/workloads/replicaset-arquitetura-do-replicaset-1.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Arquitetura do ReplicaSet
+
+package "Kubernetes Cluster" {
+    component "ReplicaSet Controller" as RSC {
+    }
+
+    note right of RSC
+        Monitora continuamente
+        o estado dos Pods
+    end note
+
+    database "etcd" as ETCD {
+    }
+
+    cloud "Desired State" as DS {
+        [replicas: 3]
+    }
+
+    cloud "Current State" as CS {
+        [Pod 1] as P1
+        [Pod 2] as P2
+        [Pod 3] as P3
+    }
+}
+
+RSC --> DS : Le estado desejado
+RSC --> CS : Monitora estado atual
+RSC --> ETCD : Persiste estado
+RSC ..> CS : Reconcilia\n(cria/deleta Pods)
+
+@enduml
 ```
 
 ## ReplicaSet vs ReplicationController
@@ -54,7 +90,46 @@ Os selectors sao fundamentais para o funcionamento do ReplicaSet, pois determina
 ### Diagrama de Selecao de Pods
 
 ```plantuml,format=png
-!include ../assets/diagrams/workloads/replicaset-selecao-de-pods-pelo-replicaset-1.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Selecao de Pods pelo ReplicaSet
+
+rectangle "ReplicaSet" as RS {
+    note "selector:\n  matchLabels:\n    app: web\n    tier: frontend" as N1
+}
+
+rectangle "Pods no Cluster" {
+    rectangle "Pod A" as PA #lightgreen {
+        note right: app: web\ntier: frontend
+    }
+    rectangle "Pod B" as PB #lightgreen {
+        note right: app: web\ntier: frontend
+    }
+    rectangle "Pod C" as PC #lightcoral {
+        note right: app: api\ntier: backend
+    }
+    rectangle "Pod D" as PD #lightyellow {
+        note right: app: web\ntier: backend
+    }
+}
+
+RS --> PA : Gerencia
+RS --> PB : Gerencia
+RS ..x PC : Nao corresponde
+RS ..x PD : Label tier diferente
+
+legend right
+    | Cor | Significado |
+    | <#lightgreen> | Gerenciado pelo RS |
+    | <#lightcoral> | Nao corresponde |
+    | <#lightyellow> | Correspondencia parcial |
+endlegend
+
+@enduml
 ```
 
 ### matchLabels
@@ -95,7 +170,37 @@ O `matchExpressions` oferece mais flexibilidade com operadores logicos:
 Os Deployments gerenciam ReplicaSets automaticamente. Quando voce cria um Deployment, ele cria um ReplicaSet por baixo dos panos.
 
 ```plantuml,format=png
-!include ../assets/diagrams/workloads/replicaset-hierarquia-deployment-replicaset-pod-1.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Hierarquia: Deployment -> ReplicaSet -> Pod
+
+package "Deployment" as DEP {
+    package "ReplicaSet (gerenciado)" as RS {
+        [Pod 1]
+        [Pod 2]
+        [Pod 3]
+    }
+}
+
+note bottom of DEP
+    O Deployment controla:
+    - Estrategia de update
+    - Historico de revisoes
+    - Rollback
+end note
+
+note bottom of RS
+    O ReplicaSet controla:
+    - Numero de replicas
+    - Selecao de Pods
+    - Self-healing
+end note
+
+@enduml
 ```
 
 ```admonish tip title="Dica para o Exame"
@@ -149,7 +254,39 @@ Um ReplicaSet pode "adotar" Pods existentes que correspondam ao seu selector, me
 ```
 
 ```plantuml,format=png
-!include ../assets/diagrams/workloads/replicaset-processo-de-adocao-de-pods-1.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Processo de Adocao de Pods
+
+state "Pod Existente" as PE {
+    state "Labels: app=adopt-me" as L1
+    state "ownerReferences: null" as O1
+}
+
+state "ReplicaSet Criado" as RS {
+    state "selector: app=adopt-me" as S1
+    state "replicas: 3" as R1
+}
+
+state "Pod Adotado" as PA {
+    state "Labels: app=adopt-me" as L2
+    state "ownerReferences: ReplicaSet" as O2
+}
+
+PE --> RS : ReplicaSet criado\ncom mesmo selector
+RS --> PA : Pod adotado\nownerReferences atualizado
+
+note right of PA
+    O Pod agora e gerenciado
+    pelo ReplicaSet e sera
+    deletado se o RS for deletado
+end note
+
+@enduml
 ```
 
 ### Demonstracao Pratica

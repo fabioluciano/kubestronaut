@@ -11,19 +11,76 @@ CKAD (15%), CKA (10%)
 CronJobs são recursos para executar Jobs em horários agendados, seguindo a sintaxe cron do Unix. É um wrapper que cria Jobs automaticamente baseado em um schedule.
 
 ```plantuml,format=png
-!include ../assets/diagrams/workloads/cronjob-cronjob-controller-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title CRONJOB CONTROLLER
+
+rectangle "CronJob: db-backup\nschedule: '0 2 * * *' (todo dia às 2:00)" as cj
+
+rectangle "Timeline de Execução" {
+  card "02:00 → Job-1 ✓" as j1
+  card "02:00 → Job-2 ✓ (próximo dia)" as j2
+  card "02:00 → Job-3 (rodando)" as j3
+}
+
+note bottom
+  📌 CronJob cria Jobs automaticamente
+  📌 Jobs criam Pods
+  📌 Histórico mantido por successfulJobsHistoryLimit
+end note
+
+@enduml
 ```
 
 ### Hierarquia de Objetos
 
 ```plantuml,format=png
-!include ../assets/diagrams/workloads/cronjob-hierarquia-de-objetos-cronjob-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title HIERARQUIA DE OBJETOS CRONJOB
+
+rectangle "CronJob" as cj
+rectangle "Job (criado automaticamente pelo schedule)" as job
+rectangle "Pod (criado pelo Job)" as pod
+rectangle "Container (executa a tarefa)" as container
+
+cj --> job
+job --> pod
+pod --> container
+
+@enduml
 ```
 
 ### Sintaxe Cron
 
 ```plantuml,format=png
-!include ../assets/diagrams/workloads/cronjob-sintaxe-cron-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title SINTAXE CRON
+
+note as N1
+  ┌───────────── minuto (0 - 59)
+  │ ┌───────────── hora (0 - 23)
+  │ │ ┌───────────── dia do mês (1 - 31)
+  │ │ │ ┌───────────── mês (1 - 12)
+  │ │ │ │ ┌───────────── dia da semana (0 - 6)
+  │ │ │ │ │                (domingo = 0)
+  * * * * *
+
+  Caracteres especiais:
+  *     = qualquer valor
+  ,     = lista de valores (1,3,5)
+  -     = range de valores (1-5)
+  /     = incremento (*/5 = a cada 5)
+end note
+
+@enduml
 ```
 
 ### Exemplos de Schedule

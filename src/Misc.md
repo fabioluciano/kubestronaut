@@ -19,7 +19,28 @@
 ### Ambiente do Exame
 
 ```plantuml,format=png
-!include assets/diagrams/general/misc-ambiente-de-exame-psi-bridge.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title AMBIENTE DE EXAME - PSI BRIDGE
+
+rectangle "Ambiente Permitido" {
+  card "Terminal com kubectl" as t1
+  card "Documentacao Kubernetes oficial" as t2
+  card "Notepad integrado" as t3
+  card "Uma aba adicional para docs" as t4
+}
+
+rectangle "NAO Permitido" {
+  card "Multiplos monitores" as n1
+  card "Fones de ouvido" as n2
+  card "Telefones/tablets" as n3
+  card "Notas pessoais" as n4
+  card "Outras pessoas no ambiente" as n5
+}
+
+@enduml
 ```
 
 ### Links Permitidos Durante o Exame
@@ -156,7 +177,46 @@ EOF
 ### Comandos Mais Usados nos Exames
 
 ```plantuml,format=png
-!include assets/diagrams/general/misc-top-20-comandos-para-o-exame.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title TOP 20 COMANDOS PARA O EXAME
+
+rectangle "CRIACAO RAPIDA" {
+  note as n1
+    kubectl run nginx --image=nginx
+    kubectl create deploy nginx --image=nginx
+    kubectl expose deploy nginx --port=80
+    kubectl create cm/secret/sa/role...
+  end note
+}
+
+rectangle "GERACAO DE YAML" {
+  note as n2
+    --dry-run=client -o yaml > file.yaml
+    kubectl get <resource> -o yaml
+  end note
+}
+
+rectangle "DEBUGGING" {
+  note as n3
+    kubectl describe <resource>
+    kubectl logs <pod>
+    kubectl exec -it <pod> -- sh
+    kubectl get events --sort-by='.lastTimestamp'
+  end note
+}
+
+rectangle "NAVEGACAO" {
+  note as n4
+    kubectl config use-context
+    kubectl config set-context --current --namespace
+    kubectl api-resources
+  end note
+}
+
+@enduml
 ```
 
 ### Criacao Rapida de Recursos
@@ -428,7 +488,47 @@ kubectl drain node1 --ignore-daemonsets --delete-emptydir-data
 ### Gerenciamento de Tempo
 
 ```plantuml,format=png
-!include assets/diagrams/general/misc-estrategia-de-tempo.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title ESTRATEGIA DE TEMPO
+
+rectangle "FASE 1: Varredura (10 min)" #LightGreen {
+  card "Ler TODAS as questoes" as f1_1
+  card "Marcar faceis vs dificeis" as f1_2
+  card "Anotar comandos chave" as f1_3
+}
+
+rectangle "FASE 2: Faceis Primeiro (50% tempo)" #LightBlue {
+  card "Resolver questoes faceis" as f2_1
+  card "Garantir pontos rapidos" as f2_2
+  card "Construir confianca" as f2_3
+}
+
+rectangle "FASE 3: Medias (30% tempo)" #LightYellow {
+  card "Questoes de complexidade media" as f3_1
+  card "Usar documentacao quando necessario" as f3_2
+}
+
+rectangle "FASE 4: Dificeis (20% tempo)" #LightPink {
+  card "Questoes complexas" as f4_1
+  card "Troubleshooting" as f4_2
+  card "Nao travar em uma questao" as f4_3
+}
+
+f1_1 --> f1_2
+f1_2 --> f1_3
+f1_3 --> f2_1
+f2_1 --> f2_2
+f2_2 --> f2_3
+f2_3 --> f3_1
+f3_1 --> f3_2
+f3_2 --> f4_1
+f4_1 --> f4_2
+f4_2 --> f4_3
+
+@enduml
 ```
 
 ### Dicas por Certificacao
@@ -612,7 +712,47 @@ etcdctl snapshot save/restore
 ### Fluxo de Debug
 
 ```plantuml,format=png
-!include assets/diagrams/general/misc-fluxo-de-troubleshooting.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title FLUXO DE TROUBLESHOOTING
+
+start
+
+:Pod nao inicia?;
+
+if (kubectl get pod - Status?) then (Pending)
+  :Verificar scheduler;
+  :kubectl describe pod;
+  :Verificar node resources;
+  :Verificar taints/tolerations;
+else (CrashLoopBackOff/Error)
+  :kubectl logs pod;
+  :kubectl logs pod --previous;
+  :Verificar command/args;
+  :Verificar probes;
+endif
+
+if (ImagePullBackOff?) then (yes)
+  :Verificar imagem existe;
+  :Verificar imagePullSecrets;
+  :Verificar registry access;
+else (no)
+endif
+
+if (CreateContainerConfigError?) then (yes)
+  :Verificar ConfigMap/Secret existe;
+  :Verificar volume mounts;
+else (no)
+endif
+
+:kubectl describe pod;
+:Verificar Events;
+
+stop
+
+@enduml
 ```
 
 ### Comandos de Debug Rapido

@@ -12,7 +12,25 @@ O Kubernetes implementa um modelo de rede flat onde:
 4. **O IP que o Pod vê é o mesmo** que outros veem
 
 ```plantuml,format=png
-!include ../assets/diagrams/networking/index-redes-do-kubernetes.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title REDES DO KUBERNETES
+
+package "CLUSTER NETWORK\n(Nodes, API Server, etcd)\n10.0.0.0/16" as cn {
+}
+
+package "POD NETWORK\n(Comunicação entre Pods - CNI)\n10.244.0.0/16" as pn {
+}
+
+package "SERVICE NETWORK\n(ClusterIP para Services)\n10.96.0.0/12" as sn {
+}
+
+cn -[hidden]down-> pn
+pn -[hidden]down-> sn
+
+@enduml
 ```
 
 ---
@@ -24,7 +42,21 @@ O Kubernetes implementa um modelo de rede flat onde:
 Containers no mesmo Pod compartilham o namespace de rede - mesmo IP.
 
 ```plantuml,format=png
-!include ../assets/diagrams/networking/index-container-para-container-mesmo-pod.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title CONTAINER PARA CONTAINER (mesmo Pod)
+
+package "POD\nIP: 10.244.1.5" as pod {
+  rectangle "Container A\n:8080" as ca
+  rectangle "Container B\n:9090" as cb
+  ca <--> cb : localhost:PORT
+}
+
+note bottom of pod: Comunicação via localhost:PORT
+
+@enduml
 ```
 
 ```yaml
@@ -42,7 +74,28 @@ sudo ip netns exec <netns> ip addr
 ### 2. Pod para Pod (mesmo Node)
 
 ```plantuml,format=png
-!include ../assets/diagrams/networking/index-pod-para-pod-mesmo-node.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title POD PARA POD (mesmo Node)
+
+package "NODE" {
+  package "POD A\n10.244.1.5" as poda {
+    rectangle "veth" as vetha
+  }
+  
+  package "POD B\n10.244.1.6" as podb {
+    rectangle "veth" as vethb
+  }
+  
+  rectangle "Bridge\n(cbr0)" as bridge
+  
+  vetha --> bridge
+  vethb --> bridge
+}
+
+@enduml
 ```
 
 ```bash
@@ -53,13 +106,68 @@ kubectl exec pod-a -- curl 10.244.1.6:8080
 ### 3. Pod para Pod (Nodes diferentes)
 
 ```plantuml,format=png
-!include ../assets/diagrams/networking/index-pod-para-pod-nodes-diferentes.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title POD PARA POD (Nodes diferentes)
+
+package "NODE 1" {
+  package "POD A\n10.244.1.5" as poda {
+  }
+  rectangle "Bridge" as bridge1
+  rectangle "eth0" as eth1
+  
+  poda --> bridge1
+  bridge1 --> eth1
+}
+
+package "NODE 2" {
+  package "POD B\n10.244.2.5" as podb {
+  }
+  rectangle "Bridge" as bridge2
+  rectangle "eth0" as eth2
+  
+  podb --> bridge2
+  bridge2 --> eth2
+}
+
+rectangle "CNI Plugin\n(Overlay/Routing)" as cni
+
+eth1 --> cni
+eth2 --> cni
+
+@enduml
 ```
 
 ### 4. Pod para Service
 
 ```plantuml,format=png
-!include ../assets/diagrams/networking/index-pod-para-service.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title POD para SERVICE
+
+rectangle "Pod Client" as client
+
+rectangle "Service\nmy-svc\n10.96.0.10" as svc
+
+rectangle "Pod 1" as pod1
+rectangle "Pod 2" as pod2
+rectangle "Pod 3" as pod3
+
+client --> svc : DNS
+svc --> pod1
+svc --> pod2
+svc --> pod3
+
+note bottom of svc
+  DNS: my-svc.default.svc.cluster.local → 10.96.0.10
+  kube-proxy mantém regras iptables/ipvs para load balance
+end note
+
+@enduml
 ```
 
 ```bash
@@ -76,7 +184,30 @@ kubectl exec my-pod -- cat /etc/resolv.conf
 ### 5. Externo para Service
 
 ```plantuml,format=png
-!include ../assets/diagrams/networking/index-acesso-externo.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title ACESSO EXTERNO
+
+cloud "Internet" as inet
+rectangle "LB / Ingress" as lb
+note right of lb: LoadBalancer Service ou\nIngress Controller
+
+rectangle "NodePort" as np
+note right of np: Porta 30000-32767 em cada Node
+
+rectangle "ClusterIP" as cip
+note right of cip: IP interno do Service
+
+rectangle "Pods" as pods
+
+inet --> lb
+lb --> np
+np --> cip
+cip --> pods
+
+@enduml
 ```
 
 ---
@@ -88,7 +219,33 @@ kubectl exec my-pod -- cat /etc/resolv.conf
 CNI é uma especificação e conjunto de bibliotecas para configurar interfaces de rede em containers Linux.
 
 ```plantuml,format=png
-!include ../assets/diagrams/networking/index-fluxo-do-cni.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title FLUXO DO CNI
+
+start
+
+:1. API Server → Kubelet: "Crie Pod X";
+:2. Kubelet → CRI (containerd): "Crie container";
+:3. CRI: Cria network namespace;
+:4. CRI → CNI Plugin: "Configure rede para namespace Y";
+
+:5. CNI Plugin;
+note right
+  - Cria veth pair
+  - Conecta à bridge
+  - Atribui IP
+  - Configura rotas
+end note
+
+:6. CNI → CRI: Retorna configuração de rede;
+:7. Pod está pronto com rede configurada;
+
+stop
+
+@enduml
 ```
 
 ### CNI Plugins Populares
@@ -131,7 +288,37 @@ kubectl get cm -n kube-system | grep -i cni
 ### Modos de Operação
 
 ```plantuml,format=png
-!include ../assets/diagrams/networking/index-modos-do-kube-proxy.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title MODOS DO KUBE-PROXY
+
+rectangle "iptables (default)" {
+  note as n1
+    Usa regras iptables para NAT
+    Random selection de backends
+    Não requer kernel modules extras
+  end note
+}
+
+rectangle "ipvs" {
+  note as n2
+    Usa IPVS (IP Virtual Server)
+    Melhor performance para muitos Services
+    Múltiplos algoritmos de balanceamento
+    Requer: ip_vs, ip_vs_rr, ip_vs_wrr, ip_vs_sh
+  end note
+}
+
+rectangle "userspace (legacy)" {
+  note as n3
+    Proxy em userspace
+    Lento, não usar
+  end note
+}
+
+@enduml
 ```
 
 ### Ver Regras iptables
@@ -151,7 +338,32 @@ sudo iptables-save | grep -i kube
 ### CoreDNS
 
 ```plantuml,format=png
-!include ../assets/diagrams/networking/index-dns-resolution.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DNS RESOLUTION
+
+rectangle "Formato FQDN" as fqdn
+note bottom of fqdn
+  <service>.<namespace>.svc.<cluster-domain>
+end note
+
+rectangle "Exemplos" {
+  card "my-svc.default.svc.cluster.local" as e1
+  card "my-svc.default (search domain)" as e2
+  card "my-svc (mesmo namespace)" as e3
+}
+
+rectangle "Para Pods (quando habilitado)" {
+  card "10-244-1-5.default.pod.cluster.local" as p1
+}
+
+rectangle "Para Headless Service" {
+  card "pod-name.my-svc.default.svc.cluster.local" as h1
+}
+
+@enduml
 ```
 
 ### Verificar DNS
@@ -236,7 +448,48 @@ sudo iptables -t nat -L -n | grep -i kube
 ## Dicas para os Exames
 
 ```plantuml,format=png
-!include ../assets/diagrams/networking/index-dicas-networking.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DICAS - NETWORKING
+
+rectangle "CKA" as cka {
+  note as ncka
+    • Entender fluxo de tráfego (Pod→Service→Pod)
+    • Troubleshooting de DNS (nslookup, dig)
+    • Verificar CNI e kube-proxy
+    • NetworkPolicy básica
+  end note
+}
+
+rectangle "CKAD" as ckad {
+  note as nckad
+    • Como Pods se comunicam (mesmo Pod, diferentes Pods)
+    • Resolução DNS de Services
+    • NetworkPolicy para restringir acesso
+  end note
+}
+
+rectangle "CKS" as cks {
+  note as ncks
+    • NetworkPolicy deny-all como baseline
+    • Segmentação de namespaces
+    • Egress policies
+  end note
+}
+
+rectangle "FQDN" as fqdn {
+  note as nfqdn
+    <service>.<namespace>.svc.cluster.local
+  end note
+}
+
+cka -[hidden]down-> ckad
+ckad -[hidden]down-> cks
+cks -[hidden]down-> fqdn
+
+@enduml
 ```
 
 ---

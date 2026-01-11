@@ -15,13 +15,112 @@ O runtime padrao (runc) compartilha o kernel do host com os containers. Runtimes
 Container runtimes sao os componentes responsaveis por executar containers. No Kubernetes, o kubelet se comunica com o runtime atraves do CRI (Container Runtime Interface).
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/runtime-classes-arquitetura-do-container-runtime-interface-cri-1.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Arquitetura do Container Runtime Interface (CRI)
+
+rectangle "Node Kubernetes" {
+    rectangle "kubelet" as kubelet #lightblue
+
+    rectangle "CRI (Container Runtime Interface)" as cri #lightyellow {
+        rectangle "containerd" as containerd
+        rectangle "CRI-O" as crio
+    }
+
+    rectangle "OCI Runtimes" as oci #lightgreen {
+        rectangle "runc\n(padrao)" as runc
+        rectangle "runsc\n(gVisor)" as runsc
+        rectangle "kata-runtime\n(Kata)" as kata
+        rectangle "crun" as crun
+    }
+
+    rectangle "Containers" as containers #pink {
+        rectangle "Pod A\n(runc)" as poda
+        rectangle "Pod B\n(gVisor)" as podb
+        rectangle "Pod C\n(Kata)" as podc
+    }
+}
+
+kubelet --> containerd : gRPC
+kubelet --> crio : gRPC
+containerd --> runc
+containerd --> runsc
+containerd --> kata
+crio --> runc
+crio --> crun
+
+runc --> poda
+runsc --> podb
+kata --> podc
+
+@enduml
 ```
 
 ## Comparacao de Isolamento
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/runtime-classes-container-runtimes-niveis-de-isolamento-1.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Container Runtimes - Niveis de Isolamento
+
+rectangle "Container Padrao (runc)" as runc #lightcoral {
+    rectangle "Container A" as c1
+    rectangle "Container B" as c2
+}
+rectangle "Host Kernel" as kernel1
+
+c1 --> kernel1 : Syscalls diretas
+c2 --> kernel1 : Syscalls diretas
+
+note right of kernel1
+  Containers compartilham
+  o kernel do host.
+  **Menor isolamento.**
+  Namespaces e cgroups apenas.
+end note
+
+rectangle "gVisor (runsc)" as gvisor #lightgreen {
+    rectangle "Container C" as c3
+    rectangle "Sentry\n(kernel userspace)" as sentry
+}
+rectangle "Host Kernel" as kernel2
+
+c3 --> sentry : Syscalls interceptadas
+sentry --> kernel2 : Syscalls limitadas (~60)
+
+note right of sentry
+  Sentry intercepta syscalls
+  e implementa kernel em userspace.
+  **Isolamento aumentado.**
+  Escrito em Go, memory-safe.
+end note
+
+rectangle "Kata Containers" as kata #lightyellow {
+    rectangle "MicroVM" as vm {
+        rectangle "Container D" as c4
+        rectangle "Guest Kernel\n(Linux)" as gkernel
+    }
+}
+rectangle "Host Kernel + KVM" as kernel3
+
+c4 --> gkernel : Syscalls
+gkernel --> kernel3 : Virtualizacao HW
+
+note right of vm
+  Container executa em VM leve.
+  **Isolamento de hardware.**
+  Kernel dedicado por Pod.
+end note
+
+@enduml
 ```
 
 ## Hierarquia de Seguranca dos Runtimes
@@ -36,7 +135,54 @@ Container runtimes sao os componentes responsaveis por executar containers. No K
 ## Arquitetura RuntimeClass
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/runtime-classes-fluxo-completo-runtimeclass-1.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Fluxo Completo RuntimeClass
+
+actor Admin as admin
+actor "Desenvolvedor" as dev
+participant "API Server" as api
+participant "Scheduler" as sched
+participant "kubelet" as kubelet
+database "etcd" as etcd
+participant "containerd" as containerd
+participant "Runtime\n(runsc/kata)" as runtime
+entity "Pod" as pod
+== Configuracao (Admin) ==
+admin -> api : 1. kubectl apply RuntimeClass
+api -> etcd : 2. Armazena RuntimeClass
+etcd --> api : OK
+
+admin -> kubelet : 3. Configura containerd\ncom handlers
+
+== Deployment (Dev) ==
+dev -> api : 4. kubectl apply Pod\n(runtimeClassName: gvisor)
+api -> etcd : 5. Armazena Pod spec
+api -> sched : 6. Schedule Pod
+
+sched -> sched : 7. Considera:\n- overhead de recursos\n- nodeSelector\n- tolerations
+
+sched -> api : 8. Pod scheduled para node X
+
+== Execucao (kubelet) ==
+api -> kubelet : 9. Criar Pod
+kubelet -> api : 10. Busca RuntimeClass
+api --> kubelet : RuntimeClass (handler: runsc)
+
+kubelet -> containerd : 11. Criar container\ncom runtime_handler: runsc
+containerd -> runtime : 12. Inicia container\nno runtime especificado
+
+runtime -> pod : 13. Container em execucao
+pod --> runtime : OK
+runtime --> containerd : OK
+containerd --> kubelet : Container criado
+kubelet --> api : 14. Pod Running
+
+@enduml
 ```
 
 ## Criando RuntimeClass
@@ -66,7 +212,57 @@ gVisor e um runtime que fornece um kernel em userspace, interceptando syscalls e
 ### Arquitetura do gVisor
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/runtime-classes-arquitetura-interna-do-gvisor-1.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Arquitetura Interna do gVisor
+
+rectangle "Container Process" as app {
+    card "Aplicacao" as aplicacao
+}
+
+rectangle "gVisor Sandbox" as gvisor #lightgreen {
+    rectangle "Sentry" as sentry {
+        card "Kernel em Userspace\n(Go)" as kernel
+        card "Network Stack\n(netstack)" as netstack
+        card "VFS" as vfs
+    }
+
+    rectangle "Gofer" as gofer {
+        card "Filesystem\nProxy" as fsproxy
+    }
+}
+
+rectangle "Host" as host {
+    card "Host Kernel" as hostkernel
+    card "Host Filesystem" as hostfs
+}
+
+aplicacao --> kernel : syscalls\n(interceptadas)
+kernel --> hostkernel : syscalls limitadas\n(~60 de ~330)
+kernel --> netstack : networking
+kernel --> vfs : file ops
+vfs --> gofer : 9P protocol
+gofer --> hostfs : host I/O
+
+note right of sentry
+  **Sentry**:
+  - Implementa ~200 syscalls
+  - Escrito em Go (memory-safe)
+  - Executa em userspace
+end note
+
+note right of gofer
+  **Gofer**:
+  - Proxy para filesystem
+  - Comunicacao via 9P
+  - Processo separado
+end note
+
+@enduml
 ```
 
 ### Componentes do gVisor
@@ -184,7 +380,70 @@ Kata Containers executa containers dentro de VMs leves (microVMs), fornecendo is
 ### Arquitetura do Kata Containers
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/runtime-classes-arquitetura-interna-do-kata-containers-1.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Arquitetura Interna do Kata Containers
+
+rectangle "Host" as host {
+    rectangle "kubelet" as kubelet
+    rectangle "containerd" as containerd
+    rectangle "kata-runtime" as kataruntime
+    rectangle "KVM/QEMU" as kvm
+}
+
+rectangle "MicroVM (Kata)" as vm #lightyellow {
+    rectangle "Guest Kernel\n(Linux otimizado)" as guestkernel
+
+    rectangle "kata-agent" as kataagent #lightblue
+
+    rectangle "Container" as container #lightgreen {
+        card "Aplicacao" as app
+    }
+
+    rectangle "Volumes" as volumes {
+        card "9pfs/virtio-fs" as virtio
+    }
+}
+
+rectangle "Virtio Devices" as virtio_dev {
+    card "virtio-net" as vnet
+    card "virtio-blk" as vblk
+    card "vsock" as vsock
+}
+
+kubelet --> containerd : CRI
+containerd --> kataruntime : OCI
+kataruntime --> kvm : VM lifecycle
+
+kvm --> guestkernel : boot
+guestkernel --> kataagent : init
+
+containerd <--> kataagent : vsock\n(container ops)
+
+app --> guestkernel : syscalls
+guestkernel --> kvm : trap
+kvm --> host : hypervisor
+
+virtio --> vblk : storage
+container --> virtio : files
+
+note right of kataagent
+  **kata-agent**:
+  Gerencia containers
+  dentro da VM
+end note
+
+note right of guestkernel
+  **Guest Kernel**:
+  Linux otimizado (~5s boot)
+  Kernel por Pod
+end note
+
+@enduml
 ```
 
 ### Componentes do Kata
@@ -327,7 +586,36 @@ apenas o scheduling.
 ### Calculo de Recursos com Overhead
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/runtime-classes-calculo-de-recursos-com-runtimeclass-overhead-1.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Calculo de Recursos com RuntimeClass Overhead
+
+rectangle "Pod Spec" as podspec {
+    card "requests.memory: 100Mi" as req
+    card "limits.memory: 256Mi" as lim
+}
+
+rectangle "RuntimeClass" as rc {
+    card "overhead.podFixed.memory: 120Mi" as overhead
+}
+
+rectangle "Scheduling" as sched {
+    card "Total para Scheduling:\n100Mi + 120Mi = **220Mi**" as total #lightgreen
+}
+
+rectangle "Limites Efetivos" as eff {
+    card "Container limits: 256Mi\n(overhead nao afeta)" as efflim
+}
+
+podspec --> sched
+rc --> sched
+podspec --> eff
+
+@enduml
 ```
 
 ## RuntimeClass com Scheduling
@@ -377,7 +665,41 @@ kubectl get nodes -l runtime.class/kata=true
 ### Multi-tenancy
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/runtime-classes-runtimeclass-para-multi-tenancy-1.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title RuntimeClass para Multi-tenancy
+
+rectangle "Cluster Kubernetes Multi-tenant" {
+    rectangle "Tenant A - Trusted\n(Aplicacoes internas)" as ta #lightgreen {
+        card "RuntimeClass: (padrao)" as ta1
+        card "Runtime: runc" as ta2
+        card "Isolamento: Namespaces" as ta3
+    }
+
+    rectangle "Tenant B - Semi-trusted\n(Parceiros)" as tb #lightyellow {
+        card "RuntimeClass: gvisor" as tb1
+        card "Runtime: runsc" as tb2
+        card "Isolamento: Kernel userspace" as tb3
+    }
+
+    rectangle "Tenant C - Untrusted\n(Codigo de terceiros)" as tc #lightcoral {
+        card "RuntimeClass: kata" as tc1
+        card "Runtime: kata-runtime" as tc2
+        card "Isolamento: VM completa" as tc3
+    }
+}
+
+note right of tc
+  Codigo nao auditado
+  ou potencialmente
+  malicioso
+end note
+
+@enduml
 ```
 
 ### RuntimeClass por Nivel de Confianca
@@ -418,7 +740,50 @@ Runtimes como Kata sao ideais para FaaS onde codigo nao confiavel e executado:
 ## Fluxo de Decisao
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/runtime-classes-escolhendo-o-runtime-correto-1.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Escolhendo o Runtime Correto
+
+start
+
+:Avaliar workload;
+
+if (Workload confiavel?\n(codigo interno auditado)) then (sim)
+  :Usar **runc** (padrao);
+  note right: Menor overhead\nMaior performance
+else (nao)
+  if (Precisa de isolamento\nde hardware maximo?) then (sim)
+    if (Node tem VT-x/AMD-V?) then (sim)
+      :Usar **Kata Containers**;
+      note right: Isolamento de VM\nKernel dedicado
+    else (nao)
+      :Usar **gVisor**;
+      note right: Alternativa sem\nvirtualizacao
+    endif
+  else (nao)
+    if (Performance e critica?) then (sim)
+      :Usar **gVisor**;
+      note right: Bom balanco\nseguranca/performance
+    else (nao)
+      if (Startup rapido necessario?) then (sim)
+        :Usar **gVisor** ou\n**Firecracker**;
+      else (nao)
+        :Usar **Kata Containers**;
+      endif
+    endif
+  endif
+endif
+
+:Criar RuntimeClass;
+:Aplicar ao Pod;
+
+stop
+
+@enduml
 ```
 
 ## Comandos Uteis

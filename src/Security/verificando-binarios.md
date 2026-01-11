@@ -11,7 +11,26 @@ A verificação de binários é uma prática essencial de **Supply Chain Securit
 3. **Segurança**: Não houve adulteração maliciosa (man-in-the-middle)
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/verificando-binarios-supply-chain-attack-1.puml
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Monospaced
+
+title SUPPLY CHAIN ATTACK
+
+actor Atacante as atk
+actor Você as you
+
+atk --> (Intercepta download) : ataque
+(Intercepta download) --> (Modifica binário)
+(Modifica binário) --> you : entrega
+
+note bottom
+  **Resultado:** Backdoor no seu cluster Kubernetes
+  **Solução:** Verificar HASH do binário após download
+end note
+
+@enduml
 ```
 
 ---
@@ -193,7 +212,30 @@ cosign verify \
 ### Binários do Kubernetes
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/verificando-binarios-urls-oficiais-1.puml
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Monospaced
+
+title URLs OFICIAIS
+
+note as base
+  **Base URL:** https://dl.k8s.io/release/<VERSION>/bin/
+end note
+
+rectangle "kubectl" {
+  card "Linux: /linux/amd64/kubectl" as k1
+  card "macOS: /darwin/amd64/kubectl" as k2
+  card "Windows: /windows/amd64/kubectl.exe" as k3
+}
+
+rectangle "Checksums" {
+  card ".sha256 para SHA256" as c1
+  card ".sha512 para SHA512" as c2
+  card ".sig para assinatura GPG" as c3
+}
+
+@enduml
 ```
 
 ### Exemplo Completo
@@ -262,7 +304,42 @@ echo "<HASH>  kubectl" | sha256sum --check
 ## Dicas para o Exame CKS
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/verificando-binarios-dicas-cks-verificação-de-binários-1.puml
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Monospaced
+
+title DICAS CKS - VERIFICAÇÃO DE BINÁRIOS
+
+rectangle "1. Comando básico" {
+  note as n1
+    sha256sum <binario>
+  end note
+}
+
+rectangle "2. Verificar processo em execução" {
+  note as n2
+    sha256sum /proc/$(pgrep kubelet)/exe
+  end note
+}
+
+rectangle "3. URL dos checksums" {
+  note as n3
+    https://dl.k8s.io/release/<VERSION>/bin/linux/amd64/
+  end note
+}
+
+rectangle "4. Comando de verificação completo" {
+  note as n4
+    echo "$(cat file.sha256)  file" | sha256sum --check
+  end note
+}
+
+rectangle "5. Conceito: Supply Chain Security" {
+  card "Garante que binários não foram adulterados" as c1
+}
+
+@enduml
 ```
 
 ---

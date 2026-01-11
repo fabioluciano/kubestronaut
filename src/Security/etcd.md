@@ -15,13 +15,82 @@ Acesso ao etcd significa acesso TOTAL ao cluster. Um atacante com acesso ao etcd
 ```
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/etcd-etcd-no-kubernetes-1.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title etcd no Kubernetes
+
+rectangle "Control Plane" {
+    rectangle "API Server" as api
+    database "etcd" as etcd
+}
+
+rectangle "Clients" {
+    actor "kubectl" as kubectl
+    actor "Controller Manager" as kcm
+    actor "Scheduler" as sched
+}
+
+kubectl --> api : HTTPS/TLS
+kcm --> api : HTTPS/TLS
+sched --> api : HTTPS/TLS
+
+api --> etcd : mTLS\n(client cert)
+
+note right of etcd
+  Armazena:
+  - Secrets
+  - ConfigMaps
+  - Pod specs
+  - RBAC rules
+  - Todos os recursos
+end note
+
+@enduml
 ```
 
 ## Arquitetura de Seguranca
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/etcd-camadas-de-seguranca-do-etcd-1.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Camadas de Seguranca do etcd
+
+rectangle "Seguranca do etcd" {
+    rectangle "1. TLS para Comunicacao" as tls #lightblue {
+        card "Client TLS" as ctls
+        card "Peer TLS" as ptls
+    }
+
+    rectangle "2. Criptografia em Repouso" as enc #lightgreen {
+        card "aescbc" as aescbc
+        card "aesgcm" as aesgcm
+        card "kms" as kms
+    }
+
+    rectangle "3. Controle de Acesso" as access #lightyellow {
+        card "RBAC do etcd" as rbac
+        card "Certificados cliente" as certs
+    }
+
+    rectangle "4. Backup Seguro" as backup #pink {
+        card "Snapshots criptografados" as snap
+        card "Armazenamento seguro" as store
+    }
+}
+
+tls -down-> enc
+enc -down-> access
+access -down-> backup
+
+@enduml
 ```
 
 ## TLS para Comunicacao
@@ -89,7 +158,52 @@ Por padrao, os dados no etcd sao armazenados em texto plano. A criptografia em r
 ### Processo Completo
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/etcd-habilitando-encryption-at-rest-1.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Habilitando Encryption at Rest
+
+start
+
+:1. Gerar chave de criptografia;
+note right
+  head -c 32 /dev/urandom | base64
+end note
+
+:2. Criar EncryptionConfiguration;
+note right
+  /etc/kubernetes/enc/enc.yaml
+end note
+
+:3. Editar API Server manifest;
+note right
+  --encryption-provider-config
+  volumeMounts
+  volumes
+end note
+
+:4. Reiniciar API Server;
+note right
+  Mover/restaurar manifest
+end note
+
+:5. Re-criptografar dados existentes;
+note right
+  kubectl get secrets --all-namespaces -o json | \
+  kubectl replace -f -
+end note
+
+:6. Verificar criptografia;
+note right
+  etcdctl get /registry/secrets/...
+end note
+
+stop
+
+@enduml
 ```
 
 ### Gerar Chave de Criptografia
@@ -369,7 +483,42 @@ curl -k --cert /etc/kubernetes/pki/etcd/server.crt \
 ## Fluxo de Seguranca
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/etcd-fluxo-de-dados-seguros-no-etcd-1.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Fluxo de Dados Seguros no etcd
+
+actor "Usuario" as user
+participant "kubectl" as kubectl
+participant "API Server" as api
+database "etcd" as etcd
+
+user -> kubectl : kubectl create secret
+kubectl -> api : POST /api/v1/secrets\n(HTTPS/TLS)
+
+api -> api : 1. Autenticacao\n(certificado/token)
+api -> api : 2. Autorizacao\n(RBAC)
+api -> api : 3. Admission\n(validacao)
+
+api -> api : 4. Criptografar dados\n(EncryptionConfiguration)
+
+api -> etcd : 5. Gravar dados\n(mTLS)
+
+etcd -> etcd : 6. Armazenar\n(dados criptografados)
+
+note right of etcd
+  Dados armazenados como:
+  k8s:enc:aescbc:v1:key1:<dados>
+end note
+
+etcd --> api : OK
+api --> kubectl : Secret created
+kubectl --> user : secret/mysecret created
+
+@enduml
 ```
 
 ## Best Practices

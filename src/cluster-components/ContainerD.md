@@ -10,7 +10,54 @@ O **containerd** e um runtime de containers de alto nivel, originalmente parte d
 O containerd e projetado como um daemon que gerencia o ciclo de vida completo dos containers, desde o download de imagens ate a execucao e monitoramento.
 
 ```plantuml,format=png
-!include ../assets/diagrams/cluster-components/containerd-arquitetura-do-containerd.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Arquitetura do ContainerD
+
+package "Control Plane" {
+    [kubelet] as kubelet
+}
+
+package "ContainerD" {
+    [CRI Plugin] as cri
+    [Image Service] as images
+    [Container Service] as containers
+    [Snapshotter] as snap
+    [Content Store] as content
+    [Metadata Store] as metadata
+}
+
+package "Low-Level Runtime" {
+    [runc] as runc
+    [kata-containers] as kata
+    [gVisor] as gvisor
+}
+
+package "Storage" {
+    database "BoltDB" as bolt
+    folder "Snapshots" as snapdir
+    folder "Content" as contentdir
+}
+
+kubelet --> cri : gRPC (CRI)
+cri --> images
+cri --> containers
+images --> content
+images --> snap
+containers --> snap
+containers --> metadata
+snap --> snapdir
+content --> contentdir
+metadata --> bolt
+containers --> runc
+containers --> kata
+containers --> gvisor
+
+@enduml
 ```
 
 ## Componentes Principais
@@ -20,7 +67,45 @@ O containerd e projetado como um daemon que gerencia o ciclo de vida completo do
 O **Container Runtime Interface (CRI)** e a interface padrao do Kubernetes para comunicacao com runtimes de containers.
 
 ```plantuml,format=png
-!include ../assets/diagrams/cluster-components/containerd-fluxo-cri-criacao-de-pod.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Fluxo CRI - Criacao de Pod
+
+actor kubelet
+participant "CRI Plugin" as cri
+participant "Image Service" as img
+participant "Container Service" as cont
+participant "runc" as runc
+
+kubelet -> cri : RunPodSandbox()
+cri -> cont : Cria sandbox (pause container)
+cont -> runc : Executa pause
+runc --> cont : Container ID
+cont --> cri : Sandbox ID
+cri --> kubelet : Sandbox Ready
+
+kubelet -> cri : PullImage()
+cri -> img : Pull image layers
+img --> cri : Image ID
+cri --> kubelet : Image Ready
+
+kubelet -> cri : CreateContainer()
+cri -> cont : Cria container no sandbox
+cont --> cri : Container ID
+cri --> kubelet : Container Created
+
+kubelet -> cri : StartContainer()
+cri -> cont : Inicia container
+cont -> runc : Executa processo
+runc --> cont : PID
+cont --> cri : Started
+cri --> kubelet : Container Running
+
+@enduml
 ```
 
 ### Namespaces do ContainerD
@@ -256,7 +341,35 @@ ctr -n k8s.io snapshots list
 O containerd usa snapshotters para gerenciar layers de imagens e filesystems de containers.
 
 ```plantuml,format=png
-!include ../assets/diagrams/cluster-components/containerd-snapshots-layers-de-imagem.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title Snapshots - Layers de Imagem
+
+package "Imagem nginx:latest" {
+    [Layer 1: Base OS] as l1
+    [Layer 2: nginx install] as l2
+    [Layer 3: config files] as l3
+}
+
+package "Container Runtime" {
+    [Layer 4: Writable] as l4
+}
+
+l1 --> l2 : parent
+l2 --> l3 : parent
+l3 --> l4 : parent (snapshot)
+
+note right of l4
+  Apenas esta layer
+  e gravavel.
+  Copy-on-Write (CoW)
+end note
+
+@enduml
 ```
 
 ### Tipos de Snapshotters

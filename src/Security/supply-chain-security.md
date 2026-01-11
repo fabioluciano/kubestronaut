@@ -7,13 +7,52 @@
 Supply Chain Security no contexto de containers envolve proteger todo o processo desde o desenvolvimento do código até a execução em produção. Isso inclui validação de imagens, dependências, configurações e infraestrutura.
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/supply-chain-security-software-supply-chain-1.puml
+@startuml
+skinparam monochrome true
+
+title SOFTWARE SUPPLY CHAIN
+
+rectangle "Código" as code
+rectangle "Build" as build
+rectangle "Image" as image
+rectangle "Registry" as registry
+rectangle "Deploy" as deploy
+rectangle "Runtime" as runtime
+
+code -> build : SAST\nLint
+build -> image : SBOM\nBuild
+image -> registry : Scan\nCVE
+registry -> deploy : Sign/Verify\nAdmission\nOPA
+deploy -> runtime : Policy\nPSA
+runtime -> runtime : Monitor\nRuntime Security
+
+note bottom of image
+  **Ferramentas:**
+  • Trivy - Scan de vulnerabilidades
+  • Syft - Gerar SBOM
+  • Grype - Scan de SBOM
+  • Cosign - Assinatura de imagens
+  • Kube-linter - Lint de manifests
+  • Kubesec - Security scan de manifests
+end note
+@enduml
 ```
 
 ### Benefícios
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/supply-chain-security-diagram-2-1.puml
+@startuml
+skinparam monochrome true
+
+map "BENEFÍCIOS" as benefits {
+  1 => Identificação precoce de vulnerabilidades
+  2 => Melhor gestão de dependências
+  3 => Compliance (SOC2, PCI-DSS, HIPAA)
+  4 => Resposta efetiva a incidentes
+  5 => Rastreabilidade completa
+  6 => Redução de superfície de ataque
+}
+@enduml
 ```
 
 ---
@@ -25,7 +64,25 @@ Supply Chain Security no contexto de containers envolve proteger todo o processo
 SBOM é uma lista completa de componentes que compõem um software - funciona como uma "receita" da imagem.
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/supply-chain-security-diagram-3-1.puml
+@startuml
+skinparam monochrome true
+
+map "CONTEÚDO DO SBOM" as sbom {
+  Componentes => Componentes de software
+  Dependências => Diretas e transitivas
+  Versões => Versões específicas
+  Licenças => Licenças de uso
+  Hashes => Checksums de verificação
+  CVEs => Vulnerabilidades conhecidas
+  Supplier => Autor/Fornecedor
+}
+
+note bottom of sbom
+  **Formatos:**
+  • SPDX (Software Package Data Exchange) - Linux Foundation
+  • CycloneDX - OWASP
+end note
+@enduml
 ```
 
 ### Syft - Gerar SBOM
@@ -180,7 +237,27 @@ kubesec scan deployment.yaml --format json
 ### O que Verificam
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/supply-chain-security-diagram-4-1.puml
+@startuml
+skinparam monochrome true
+
+map "VERIFICAÇÕES COMUNS" as checks {
+}
+
+note bottom of checks
+  **Kube-linter / Kubesec verificam:**
+
+  ✅ runAsNonRoot definido
+  ✅ readOnlyRootFilesystem
+  ✅ capabilities dropped
+  ✅ privileged: false
+  ✅ resource limits definidos
+  ✅ serviceAccountName específico
+  ✅ Não usar :latest tag
+  ✅ liveness/readiness probes
+  ✅ securityContext configurado
+  ✅ hostNetwork/hostPID/hostIPC: false
+end note
+@enduml
 ```
 
 ---
@@ -190,7 +267,20 @@ kubesec scan deployment.yaml --format json
 ### Minimizar Footprint
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/supply-chain-security-diagram-5-1.puml
+@startuml
+skinparam monochrome true
+
+map "BOAS PRÁTICAS DE IMAGENS" as images {
+  1 => Usar imagens base mínimas (distroless, alpine)
+  2 => Uma aplicação por container
+  3 => Usar multi-stage builds
+  4 => Não incluir secrets no build
+  5 => Usar tags específicas (não :latest)
+  6 => Imagens de registries confiáveis
+  7 => Rodar como non-root
+  8 => Escanear antes de usar
+}
+@enduml
 ```
 
 ### Exemplo: Multi-stage Build
@@ -274,7 +364,56 @@ cosign verify my-registry/my-image:tag
 ## Workflow de Supply Chain
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/supply-chain-security-pipeline-de-supply-chain-1.puml
+@startuml
+skinparam monochrome true
+
+title PIPELINE DE SUPPLY CHAIN
+
+rectangle "1. DESENVOLVIMENTO" as dev
+note right of dev
+  • SAST (análise estática de código)
+  • Dependency check (SCA)
+  • Secrets scanning
+end note
+
+rectangle "2. BUILD" as build
+note right of build
+  • Multi-stage Dockerfile
+  • Base image mínima
+  • Gerar SBOM (Syft)
+end note
+
+rectangle "3. SCAN" as scan
+note right of scan
+  • Trivy image scan
+  • Grype SBOM scan
+  • Fail on HIGH/CRITICAL
+end note
+
+rectangle "4. SIGN" as sign
+note right of sign : Cosign sign image
+
+rectangle "5. DEPLOY" as deploy
+note right of deploy
+  • Verify signature
+  • OPA/Gatekeeper policies
+  • PSA enforcement
+  • Kube-linter validation
+end note
+
+rectangle "6. RUNTIME" as runtime
+note right of runtime
+  • Runtime security (Falco)
+  • Continuous scanning
+  • Drift detection
+end note
+
+dev --> build
+build --> scan
+scan --> sign
+sign --> deploy
+deploy --> runtime
+@enduml
 ```
 
 ---
@@ -282,7 +421,41 @@ cosign verify my-registry/my-image:tag
 ## Dicas para o Exame CKS
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/supply-chain-security-diagram-7-1.puml
+@startuml
+skinparam monochrome true
+
+map "DICAS CKS - SUPPLY CHAIN" as dicas {
+}
+
+note bottom of dicas
+  **Trivy (mais usado no exame):**
+  trivy image nginx:latest
+  trivy image --severity HIGH,CRITICAL nginx:latest
+  trivy image --output /path/file.txt nginx:latest
+  trivy image --format json nginx:latest
+  trivy k8s pod/nginx
+  trivy config deployment.yaml
+
+  **Syft (SBOM):**
+  syft nginx:latest -o spdx-json > sbom.json
+
+  **Grype:**
+  grype sbom:sbom.json
+  grype nginx:latest
+
+  **Kube-linter:**
+  kube-linter lint deployment.yaml
+
+  **Kubesec:**
+  kubesec scan deployment.yaml
+
+  **Imagens seguras:**
+  • Usar distroless ou alpine
+  • Multi-stage builds
+  • Não usar :latest
+  • Scan antes de deploy
+end note
+@enduml
 ```
 
 ---

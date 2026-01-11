@@ -5,7 +5,33 @@
 O `etcdctl` e a ferramenta de linha de comando para interagir com o etcd, o banco de dados chave-valor distribuido que armazena todo o estado do cluster Kubernetes.
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/etcdctl-etcdctl-ferramenta-de-gerenciamento-do-etcd-1.puml
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Monospaced
+
+title ETCDCTL - Ferramenta de Gerenciamento do etcd
+
+rectangle "ETCDCTL" as etcdctl {
+  rectangle "Backup\n(snapshot save)" as backup
+  rectangle "Restore\n(snapshot restore)" as restore
+  rectangle "Health Check\n(endpoint health)" as health
+  rectangle "Gerenciamento\n(member list/add/remove)" as manage
+}
+
+rectangle "etcd Cluster" as etcd
+
+etcdctl --> etcd : TLS/mTLS
+
+note bottom of etcd
+  Armazena:
+  - Todos os recursos do cluster
+  - Secrets e ConfigMaps
+  - Estado dos workloads
+  - RBAC e certificados
+end note
+
+@enduml
 ```
 
 ---
@@ -24,7 +50,22 @@ O `etcdctl` e o cliente CLI oficial do etcd. No contexto Kubernetes, e usado pri
 ### Versoes da API
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/etcdctl-diagram-2-1.puml
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+
+map "VERSOES DA API ETCDCTL" as versoes {
+  API v2 => Legado, NAO usar com Kubernetes
+  API v3 => Obrigatorio para Kubernetes moderno
+}
+
+note bottom of versoes
+  **IMPORTANTE para o exame:**
+  Sempre definir ETCDCTL_API=3
+  antes de executar comandos!
+end note
+
+@enduml
 ```
 
 ---
@@ -156,7 +197,29 @@ etcdctl alarm disarm
 ### Fluxo de Backup
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/etcdctl-fluxo-de-backup-do-etcd-1.puml
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+
+title FLUXO DE BACKUP DO ETCD
+
+start
+:Configurar ETCDCTL_API=3;
+:Identificar certificados;
+:Executar snapshot save;
+:Verificar integridade do snapshot;
+:Armazenar em local seguro;
+stop
+
+note right
+  Backup REQUER:
+  - Certificados TLS
+  - Acesso ao endpoint
+  - Permissoes de escrita
+    no destino
+end note
+
+@enduml
 ```
 
 ### Criar Snapshot
@@ -244,7 +307,29 @@ echo "[$(date)] Backup concluido!"
 ### Fluxo de Restore
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/etcdctl-fluxo-de-restore-do-etcd-1.puml
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+
+title FLUXO DE RESTORE DO ETCD
+
+start
+:1. Parar kube-apiserver;
+note right: mv manifesto para /tmp
+:2. Parar etcd (se necessario);
+:3. etcdctl snapshot restore;
+note right
+  Restaura para NOVO diretorio
+  NAO precisa de certificados
+end note
+:4. Atualizar --data-dir no manifesto;
+:5. Atualizar hostPath volume;
+:6. Reiniciar etcd/kubelet;
+:7. Restaurar kube-apiserver;
+:8. Verificar cluster;
+stop
+
+@enduml
 ```
 
 ### Executar Restore
@@ -347,7 +432,22 @@ etcdctl get /registry/namespaces/default -w json | jq .
 ### Estrutura das Chaves no Kubernetes
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/etcdctl-diagram-5-1.puml
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+
+map "ESTRUTURA DE CHAVES" as chaves {
+  /registry/pods/<namespace>/<name> => Pods
+  /registry/deployments/<namespace>/<name> => Deployments
+  /registry/services/<namespace>/<name> => Services
+  /registry/secrets/<namespace>/<name> => Secrets
+  /registry/configmaps/<namespace>/<name> => ConfigMaps
+  /registry/namespaces/<name> => Namespaces
+  /registry/clusterroles/<name> => ClusterRoles
+  /registry/nodes/<name> => Nodes
+}
+
+@enduml
 ```
 
 ---
@@ -389,7 +489,60 @@ etcdctl member update 8e9e05c52164694d \
 ### Problemas Comuns
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/etcdctl-diagram-6-1.puml
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+
+rectangle "PROBLEMAS COMUNS" {
+  rectangle "context deadline exceeded" as p1
+  rectangle "permission denied" as p2
+  rectangle "connection refused" as p3
+  rectangle "certificate signed by unknown authority" as p4
+}
+
+note right of p1
+  Causas:
+  - Certificados incorretos
+  - etcd nao esta rodando
+  - Firewall bloqueando
+
+  Solucao:
+  - Verificar certificados
+  - crictl ps | grep etcd
+  - Verificar porta 2379
+end note
+
+note right of p2
+  Causas:
+  - Usuario sem permissao
+  - Diretorio de dados bloqueado
+
+  Solucao:
+  - sudo ou root
+  - chown nos diretorios
+end note
+
+note right of p3
+  Causas:
+  - etcd nao iniciou
+  - Endpoint incorreto
+
+  Solucao:
+  - Verificar logs do etcd
+  - Confirmar endpoint
+end note
+
+note right of p4
+  Causas:
+  - CA certificate incorreto
+  - Certificados expirados
+
+  Solucao:
+  - Verificar --cacert
+  - Renovar certificados
+end note
+
+@enduml
 ```
 
 ### Debug de Conectividade
@@ -466,7 +619,41 @@ grep -A5 "hostPath" /etc/kubernetes/manifests/etcd.yaml
 ## Dicas para os Exames
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/etcdctl-diagram-7-1.puml
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+
+rectangle "DICAS CKA/CKS - ETCDCTL" as main
+
+note bottom of main
+  **SEMPRE PRIMEIRO:**
+  export ETCDCTL_API=3
+
+  **BACKUP (precisa de certificados):**
+  etcdctl snapshot save backup.db \
+    --endpoints=https://127.0.0.1:2379 \
+    --cacert=/etc/kubernetes/pki/etcd/ca.crt \
+    --cert=/etc/kubernetes/pki/etcd/server.crt \
+    --key=/etc/kubernetes/pki/etcd/server.key
+
+  **RESTORE (NAO precisa de certificados):**
+  etcdctl snapshot restore backup.db \
+    --data-dir=/var/lib/etcd-from-backup
+
+  **ENCONTRAR CERTIFICADOS:**
+  cat /etc/kubernetes/manifests/etcd.yaml
+
+  **APOS RESTORE:**
+  1. Atualizar --data-dir no manifesto
+  2. Atualizar hostPath volume
+  3. Reiniciar kubelet se necessario
+
+  **VERIFICAR HEALTH:**
+  etcdctl endpoint health
+  etcdctl member list
+end note
+
+@enduml
 ```
 
 ---
@@ -480,7 +667,20 @@ O etcd pode armazenar Secrets criptografados. Veja a configuracao em [etcd - Cri
 ### Boas Praticas
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/etcdctl-diagram-8-1.puml
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+
+map "BOAS PRATICAS ETCD" as praticas {
+  TLS => Sempre usar HTTPS (mTLS)
+  Backup => Automatizar com cron
+  Acesso => Limitar ao control plane
+  Firewall => Bloquear portas 2379/2380 externamente
+  Criptografia => Habilitar encryption at rest
+  Monitoramento => Alertar em health check failures
+}
+
+@enduml
 ```
 
 ---

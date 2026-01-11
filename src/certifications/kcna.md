@@ -17,7 +17,25 @@
 ### Distribuição do Currículo
 
 ```plantuml,format=png
-!include ../assets/diagrams/certifications/kcna-domínios-do-kcna.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DOMÍNIOS DO KCNA
+
+card "Kubernetes Fundamentals" as kf #lightgray
+card "Container Orchestration" as co #lightgray
+card "Cloud Native Architecture" as cna #lightgray
+card "Cloud Native Observability" as cno #lightgray
+card "Application Delivery" as ad #lightgray
+
+note right of kf : 46%
+note right of co : 22%
+note right of cna : 16%
+note right of cno : 8%
+note right of ad : 8%
+
+@enduml
 ```
 
 ---
@@ -58,7 +76,28 @@ Pod = Menor unidade deployável no Kubernetes
 ### 1.2 Arquitetura Kubernetes
 
 ```plantuml,format=png
-!include ../assets/diagrams/certifications/kcna-arquitetura-k8s.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title ARQUITETURA K8S
+
+rectangle "CONTROL PLANE" {
+  component "kube-apiserver\n(API Gateway)" as api
+  component "etcd\n(Key-Value DB)" as etcd
+  component "kube-scheduler\n(Pod Placement)" as sched
+  component "controller-mgr\n(Controllers)" as ctrl
+}
+
+rectangle "WORKER NODES" {
+  component "kubelet\n(Node Agent)" as kubelet
+  component "kube-proxy\n(Network Rules)" as proxy
+  component "Container Runtime\n(CRI)" as cri
+}
+
+api <--> kubelet
+
+@enduml
 ```
 
 ### 1.3 API e Kubectl
@@ -81,7 +120,40 @@ kubectl explain pod.spec   # Documentação inline
 ### 1.4 RBAC
 
 ```plantuml,format=png
-!include ../assets/diagrams/certifications/kcna-rbac.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title RBAC
+
+rectangle "WHO (Subject)" {
+  card "User" as u
+  card "Group" as g
+  card "ServiceAccount" as sa
+}
+
+rectangle "WHAT (Rules)" {
+  card "Role" as r
+  card "ClusterRole" as cr
+}
+
+rectangle "BINDING" {
+  card "RoleBinding" as rb
+  card "ClusterRoleBinding" as crb
+}
+
+u --> rb
+g --> rb
+sa --> rb
+r --> rb
+cr --> crb
+
+note bottom
+  Role/RoleBinding = Namespace scope
+  ClusterRole/ClusterRoleBinding = Cluster scope
+end note
+
+@enduml
 ```
 
 ---
@@ -91,7 +163,51 @@ kubectl explain pod.spec   # Documentação inline
 ### 2.1 Conceitos de Containers
 
 ```plantuml,format=png
-!include ../assets/diagrams/certifications/kcna-containers-vs-virtual-machines.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title CONTAINERS vs VIRTUAL MACHINES
+
+rectangle "VM" {
+  card "App + Libs" as vm_app
+  card "Guest OS" as vm_os
+  card "Hypervisor" as vm_hyp
+  card "Host OS" as vm_host
+  card "Hardware" as vm_hw
+  
+  vm_app -[hidden]down- vm_os
+  vm_os -[hidden]down- vm_hyp
+  vm_hyp -[hidden]down- vm_host
+  vm_host -[hidden]down- vm_hw
+}
+
+rectangle "Container" {
+  card "App + Libs" as c_app
+  card "Container Runtime" as c_rt
+  card "Host OS" as c_host
+  card "Hardware" as c_hw
+  
+  c_app -[hidden]down- c_rt
+  c_rt -[hidden]down- c_host
+  c_host -[hidden]down- c_hw
+}
+
+note bottom of VM
+  • Mais pesado
+  • Isolamento total
+  • GB de tamanho
+  • Minutos para iniciar
+end note
+
+note bottom of Container
+  • Mais leve
+  • Compartilha kernel
+  • MB de tamanho
+  • Segundos para iniciar
+end note
+
+@enduml
 ```
 
 ### 2.2 Padrões de Interface (CxI)
@@ -124,7 +240,29 @@ OCI define padrões para:
 ### 2.4 Container Runtimes
 
 ```plantuml,format=png
-!include ../assets/diagrams/certifications/kcna-hierarquia-de-runtimes.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title HIERARQUIA DE RUNTIMES
+
+rectangle "High-Level Runtime (CRI)" {
+  component "containerd" as containerd
+  component "CRI-O" as crio
+}
+
+rectangle "Low-Level Runtime (OCI)" {
+  component "runc\n(processo isolado)" as runc
+  component "kata-containers\n(microVM)" as kata
+  component "gVisor\n(sandbox)" as gvisor
+}
+
+containerd --> runc
+containerd --> kata
+crio --> runc
+crio --> gvisor
+
+@enduml
 ```
 
 ---
@@ -134,7 +272,39 @@ OCI define padrões para:
 ### 3.1 Características Cloud Native
 
 ```plantuml,format=png
-!include ../assets/diagrams/certifications/kcna-12-factor-app-resumo.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title 12-FACTOR APP (Resumo)
+
+card "1. Codebase" as f1
+card "2. Dependencies" as f2
+card "3. Config" as f3
+card "4. Backing Services" as f4
+card "5. Build/Release/Run" as f5
+card "6. Processes" as f6
+card "7. Port Binding" as f7
+card "8. Concurrency" as f8
+card "9. Disposability" as f9
+card "10. Dev/Prod Parity" as f10
+card "11. Logs" as f11
+card "12. Admin Processes" as f12
+
+note right of f1 : Um repo, múltiplos deploys
+note right of f2 : Declarar e isolar dependências
+note right of f3 : Configuração via ambiente
+note right of f4 : Tratar como recursos anexados
+note right of f5 : Separar estágios estritamente
+note right of f6 : Executar como processos stateless
+note right of f7 : Exportar serviços via porta
+note right of f8 : Escalar via modelo de processo
+note right of f9 : Maximizar robustez
+note right of f10 : Manter ambientes similares
+note right of f11 : Tratar como event streams
+note right of f12 : Rodar admin tasks como one-offs
+
+@enduml
 ```
 
 ### 3.2 Microservices vs Monolith
@@ -150,7 +320,34 @@ OCI define padrões para:
 ### 3.3 Autoscaling
 
 ```plantuml,format=png
-!include ../assets/diagrams/certifications/kcna-tipos-de-autoscaling.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title TIPOS DE AUTOSCALING
+
+rectangle "Horizontal Pod Autoscaler (HPA)" {
+  note as n1
+    Ajusta número de réplicas baseado em métricas
+    Exemplo: CPU > 80% → adiciona pods
+  end note
+}
+
+rectangle "Vertical Pod Autoscaler (VPA)" {
+  note as n2
+    Ajusta recursos (CPU/memória) dos pods
+    Exemplo: Aumenta requests/limits automaticamente
+  end note
+}
+
+rectangle "Cluster Autoscaler" {
+  note as n3
+    Ajusta número de nodes no cluster
+    Exemplo: Pods pending → adiciona nodes
+  end note
+}
+
+@enduml
 ```
 
 ### 3.4 Serverless
@@ -178,7 +375,39 @@ Características:
 ### 4.1 Os Três Pilares
 
 ```plantuml,format=png
-!include ../assets/diagrams/certifications/kcna-três-pilares-da-observabilidade.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title TRÊS PILARES DA OBSERVABILIDADE
+
+rectangle "MÉTRICAS" {
+  card "Números agregados" as m
+  note bottom of m
+    Prometheus
+    Grafana
+  end note
+}
+
+rectangle "LOGS" {
+  card "Eventos discretos" as l
+  note bottom of l
+    Fluentd
+    Loki
+    Elasticsearch
+  end note
+}
+
+rectangle "TRACES" {
+  card "Requests end-to-end" as t
+  note bottom of t
+    Jaeger
+    Zipkin
+    Tempo
+  end note
+}
+
+@enduml
 ```
 
 ### 4.2 Prometheus
@@ -217,7 +446,34 @@ OpenTelemetry (CNCF Incubating):
 ### 5.1 GitOps
 
 ```plantuml,format=png
-!include ../assets/diagrams/certifications/kcna-gitops.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title GITOPS
+
+rectangle "Princípios" {
+  card "1. Git como single source of truth" as p1
+  card "2. Declarative configuration" as p2
+  card "3. Automated sync (reconciliation)" as p3
+  card "4. Continuous verification" as p4
+}
+
+rectangle "Fluxo" {
+  actor "Dev" as dev
+  component "Git" as git
+  component "Cluster" as cluster
+  
+  dev --> git : push
+  git <--> cluster : sync
+  cluster --> git : reconcile
+}
+
+note bottom
+  Ferramentas: ArgoCD, Flux
+end note
+
+@enduml
 ```
 
 ### 5.2 CI/CD
@@ -253,7 +509,38 @@ Ferramentas:
 ### Estágios de Projetos
 
 ```plantuml,format=png
-!include ../assets/diagrams/certifications/kcna-cncf-project-stages.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title CNCF PROJECT STAGES
+
+rectangle "SANDBOX" as sandbox
+rectangle "INCUBATING" as incubating
+rectangle "GRADUATED" as graduated
+
+sandbox --> incubating
+incubating --> graduated
+
+note bottom of sandbox
+  • Projetos em estágio inicial
+  • Revisão a cada 12 meses
+  • Pode ser removido
+end note
+
+note bottom of incubating
+  • Usado em produção por 3+ empresas
+  • Comunidade ativa de contribuidores
+  • Documentação e governança definidas
+end note
+
+note bottom of graduated
+  • Maturidade comprovada
+  • Adoção ampla
+  • Votação do TOC
+end note
+
+@enduml
 ```
 
 ### Projetos Graduated Importantes
@@ -278,7 +565,38 @@ Ferramentas:
 ### SRE - Site Reliability Engineer
 
 ```plantuml,format=png
-!include ../assets/diagrams/certifications/kcna-sli-slo-sla.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title SLI / SLO / SLA
+
+rectangle "SLI (Service Level Indicator)" {
+  note as n1
+    Métrica que mede aspecto do serviço
+    Exemplo: Latência, Error Rate, Throughput
+  end note
+}
+
+rectangle "SLO (Service Level Objective)" {
+  note as n2
+    Alvo/meta para o SLI
+    Exemplo: Latência p99 < 200ms
+  end note
+}
+
+rectangle "SLA (Service Level Agreement)" {
+  note as n3
+    Contrato com consequências
+    Exemplo: 99.9% uptime ou créditos
+  end note
+}
+
+note bottom
+  Relação: SLI mede → SLO define meta → SLA formaliza contrato
+end note
+
+@enduml
 ```
 
 ### Outros Papéis
@@ -296,7 +614,20 @@ Ferramentas:
 ## Dicas para o Exame
 
 ```plantuml,format=png
-!include ../assets/diagrams/certifications/kcna-dicas-kcna.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DICAS KCNA
+
+card "1. Foco nos conceitos, não em comandos\n   É múltipla escolha, não prático" as d1
+card "2. Conheça bem a arquitetura K8s\n   Componentes do control plane\n   Papel de cada componente" as d2
+card "3. Memorize os projetos CNCF importantes\n   Graduated vs Incubating vs Sandbox\n   Qual problema cada projeto resolve" as d3
+card "4. Entenda os padrões (CRI, CNI, CSI, OCI)\n   O que cada um padroniza" as d4
+card "5. GitOps e CI/CD\n   Princípios do GitOps\n   Diferença entre CD e CI" as d5
+card "6. Observabilidade\n   3 pilares: métricas, logs, traces\n   Prometheus, Jaeger, Fluentd" as d6
+
+@enduml
 ```
 
 ---

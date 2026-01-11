@@ -11,7 +11,28 @@ KCNA (16%)
 Cloud Native é uma abordagem para construir e executar aplicações que exploram ao máximo as vantagens do modelo de computação em nuvem.
 
 ```plantuml,format=png
-../assets/diagrams/general/cloud-native-pilares-cloud-native.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title PILARES CLOUD NATIVE
+
+rectangle "Cloud Native" {
+  card "Containers" as c
+  card "Microservices" as m
+  card "DevOps" as d
+  card "CI/CD" as ci
+}
+
+note bottom
+  Aplicações cloud native são:
+  • Escaláveis
+  • Resilientes
+  • Gerenciáveis
+  • Observáveis
+end note
+
+@enduml
 ```
 
 ### Definição da CNCF
@@ -33,7 +54,38 @@ A **Cloud Native Computing Foundation (CNCF)** define Cloud Native como:
 ### Estágios de Projetos CNCF
 
 ```plantuml,format=png
-../assets/diagrams/general/cloud-native-estágios-de-projetos-cncf.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title ESTÁGIOS DE PROJETOS CNCF
+
+rectangle "SANDBOX" as sandbox #lightgray
+rectangle "INCUBATING" as incubating #gray
+rectangle "GRADUATED" as graduated #darkgray
+
+sandbox --> incubating : Adoção crescente
+incubating --> graduated : Maturidade comprovada
+
+note bottom of sandbox
+  • Projetos em estágio inicial
+  • Experimental
+  • Revisão anual
+end note
+
+note bottom of incubating
+  • Usado em produção por 3+ empresas
+  • Comunidade ativa
+  • Governança definida
+end note
+
+note bottom of graduated
+  • Maturidade comprovada
+  • Adoção ampla
+  • Seguro para produção
+end note
+
+@enduml
 ```
 
 ### Projetos Graduated (Memorizar para KCNA)
@@ -71,7 +123,26 @@ A **Cloud Native Computing Foundation (CNCF)** define Cloud Native como:
 Metodologia para construir aplicações SaaS modernas. Essencial para KCNA.
 
 ```plantuml,format=png
-../assets/diagrams/general/cloud-native-12-factor-app.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title 12-FACTOR APP
+
+card "1. Codebase\nUm repo, múltiplos deploys" as f1
+card "2. Dependencies\nDeclarar e isolar" as f2
+card "3. Config\nArmazenar no ambiente" as f3
+card "4. Backing Services\nTratar como recursos" as f4
+card "5. Build/Release/Run\nSeparar estágios" as f5
+card "6. Processes\nExecutar stateless" as f6
+card "7. Port Binding\nExportar via porta" as f7
+card "8. Concurrency\nEscalar via processos" as f8
+card "9. Disposability\nInício rápido, shutdown graceful" as f9
+card "10. Dev/Prod Parity\nManter similares" as f10
+card "11. Logs\nTratar como streams" as f11
+card "12. Admin Processes\nRodar como one-offs" as f12
+
+@enduml
 ```
 
 ### Mapeamento para Kubernetes
@@ -98,7 +169,40 @@ Metodologia para construir aplicações SaaS modernas. Essencial para KCNA.
 ### Microservices vs Monolith
 
 ```plantuml,format=png
-../assets/diagrams/general/cloud-native-monolith-vs-microservices.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title MONOLITH vs MICROSERVICES
+
+rectangle "MONOLITH" {
+  rectangle "UI + Business Logic + Data" as mono
+}
+
+rectangle "MICROSERVICES" {
+  rectangle "Service A" as sa
+  rectangle "Service B" as sb
+  rectangle "Service C" as sc
+
+  sa <--> sb
+  sb <--> sc
+}
+
+note bottom of mono
+  • Deploy único
+  • Escala vertical
+  • Uma tecnologia
+  • Falha = tudo falha
+end note
+
+note bottom of sc
+  • Deploy independente
+  • Escala horizontal
+  • Polyglot
+  • Falha isolada
+end note
+
+@enduml
 ```
 
 ### Características de Microservices
@@ -114,7 +218,28 @@ Metodologia para construir aplicações SaaS modernas. Essencial para KCNA.
 ### Padrões de Comunicação
 
 ```plantuml,format=png
-../assets/diagrams/general/cloud-native-padrões-de-comunicação.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title PADRÕES DE COMUNICAÇÃO
+
+rectangle "Síncrono" {
+  card "REST/HTTP" as rest
+  card "gRPC" as grpc
+}
+
+rectangle "Assíncrono" {
+  card "Message Queue\n(RabbitMQ, Kafka)" as mq
+  card "Event-Driven" as event
+}
+
+note bottom
+  Síncrono: Request-Response
+  Assíncrono: Fire-and-forget ou Pub/Sub
+end note
+
+@enduml
 ```
 
 ---
@@ -126,7 +251,32 @@ Metodologia para construir aplicações SaaS modernas. Essencial para KCNA.
 Camada de infraestrutura dedicada para comunicação service-to-service.
 
 ```plantuml,format=png
-../assets/diagrams/general/cloud-native-service-mesh.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title SERVICE MESH
+
+rectangle "Pod A" {
+  component "App" as app1
+  component "Sidecar\nProxy" as proxy1
+}
+
+rectangle "Pod B" {
+  component "App" as app2
+  component "Sidecar\nProxy" as proxy2
+}
+
+rectangle "Control Plane" as cp
+
+app1 --> proxy1 : localhost
+proxy1 --> proxy2 : mTLS
+proxy2 --> app2 : localhost
+
+cp --> proxy1 : config
+cp --> proxy2 : config
+
+@enduml
 ```
 
 ### Funcionalidades
@@ -155,7 +305,25 @@ Camada de infraestrutura dedicada para comunicação service-to-service.
 Modelo onde o provedor gerencia a infraestrutura e escala automaticamente, incluindo scale-to-zero.
 
 ```plantuml,format=png
-../assets/diagrams/general/cloud-native-serverless.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title SERVERLESS
+
+rectangle "Características" {
+  card "Scale to Zero" as s1
+  card "Pay per Use" as s2
+  card "Event-Driven" as s3
+  card "No Server Management" as s4
+}
+
+note bottom
+  FaaS (Function as a Service)
+  é um tipo de serverless
+end note
+
+@enduml
 ```
 
 ### Serverless no Kubernetes
@@ -181,13 +349,48 @@ Modelo onde o provedor gerencia a infraestrutura e escala automaticamente, inclu
 ### Princípios GitOps
 
 ```plantuml,format=png
-../assets/diagrams/general/cloud-native-princípios-gitops.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title PRINCÍPIOS GITOPS
+
+card "1. Declarativo\nTodo estado é descrito declarativamente" as p1
+card "2. Versionado\nGit como single source of truth" as p2
+card "3. Automático\nMudanças aplicadas automaticamente" as p3
+card "4. Reconciliação\nAgentes garantem estado desejado" as p4
+
+p1 -[hidden]down-> p2
+p2 -[hidden]down-> p3
+p3 -[hidden]down-> p4
+
+@enduml
 ```
 
 ### Fluxo GitOps
 
 ```plantuml,format=png
-../assets/diagrams/general/cloud-native-fluxo-gitops.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title FLUXO GITOPS
+
+actor "Developer" as dev
+entity "Git Repo" as git
+entity "GitOps Agent\n(ArgoCD/Flux)" as agent
+entity "Kubernetes\nCluster" as k8s
+dev --> git : push
+git --> agent : detect changes
+agent --> k8s : apply
+k8s --> agent : reconcile
+
+note bottom of agent
+  Pull-based model
+  Agent dentro do cluster
+end note
+
+@enduml
 ```
 
 ### Ferramentas GitOps
@@ -223,7 +426,31 @@ Objetivo:
 ### Pipeline Típico
 
 ```plantuml,format=png
-../assets/diagrams/general/cloud-native-pipeline-cicd.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title PIPELINE CI/CD
+
+rectangle "CI" {
+  card "Build" as build
+  card "Test" as test
+  card "Scan" as scan
+}
+
+rectangle "CD" {
+  card "Push Image" as push
+  card "Deploy Staging" as staging
+  card "Deploy Prod" as prod
+}
+
+build --> test
+test --> scan
+scan --> push
+push --> staging
+staging --> prod
+
+@enduml
 ```
 
 ### Ferramentas CI/CD
@@ -241,7 +468,37 @@ Objetivo:
 ### Tipos de Autoscaling
 
 ```plantuml,format=png
-../assets/diagrams/general/cloud-native-tipos-de-autoscaling.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title TIPOS DE AUTOSCALING
+
+rectangle "HPA" as hpa {
+  note as n1
+    Horizontal Pod Autoscaler
+    Ajusta número de pods
+    Baseado em CPU/mem/custom
+  end note
+}
+
+rectangle "VPA" as vpa {
+  note as n2
+    Vertical Pod Autoscaler
+    Ajusta recursos dos pods
+    Requer restart
+  end note
+}
+
+rectangle "Cluster Autoscaler" as ca {
+  note as n3
+    Ajusta número de nodes
+    Pods pending → add nodes
+    Nodes ociosos → remove
+  end note
+}
+
+@enduml
 ```
 
 ### Quando Usar
@@ -260,7 +517,25 @@ Objetivo:
 ### Os Três Pilares
 
 ```plantuml,format=png
-../assets/diagrams/general/cloud-native-três-pilares-da-observabilidade.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title TRÊS PILARES DA OBSERVABILIDADE
+
+rectangle "MÉTRICAS" as m {
+  card "Números agregados\nPrometheus, Grafana" as m1
+}
+
+rectangle "LOGS" as l {
+  card "Eventos textuais\nFluentd, Loki, ELK" as l1
+}
+
+rectangle "TRACES" as t {
+  card "Requests distribuídos\nJaeger, Zipkin, Tempo" as t1
+}
+
+@enduml
 ```
 
 ### OpenTelemetry
@@ -283,7 +558,37 @@ Componentes:
 ### SRE - Site Reliability Engineering
 
 ```plantuml,format=png
-../assets/diagrams/general/cloud-native-sli-slo-sla.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title SLI / SLO / SLA
+
+rectangle "SLI" as sli {
+  note as n1
+    Service Level Indicator
+    Métrica: latência, error rate
+  end note
+}
+
+rectangle "SLO" as slo {
+  note as n2
+    Service Level Objective
+    Meta: p99 latência < 200ms
+  end note
+}
+
+rectangle "SLA" as sla {
+  note as n3
+    Service Level Agreement
+    Contrato: 99.9% uptime
+  end note
+}
+
+sli --> slo : define meta
+slo --> sla : formaliza contrato
+
+@enduml
 ```
 
 ### Papéis Cloud Native
@@ -300,7 +605,20 @@ Componentes:
 ## Dicas para o Exame KCNA
 
 ```plantuml,format=png
-../assets/diagrams/general/cloud-native-dicas-kcna-cloud-native.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DICAS KCNA - CLOUD NATIVE
+
+card "1. Memorize projetos CNCF\nGraduated vs Incubating" as d1
+card "2. Entenda 12-Factor App\nComo mapeia para K8s" as d2
+card "3. Conheça GitOps\nArgoCD, Flux, princípios" as d3
+card "4. Service Mesh\nIstio, Linkerd, funcionalidades" as d4
+card "5. Observabilidade\n3 pilares, OpenTelemetry" as d5
+card "6. Serverless\nKnative, KEDA, scale-to-zero" as d6
+
+@enduml
 ```
 
 ### Conceitos-Chave para Memorizar

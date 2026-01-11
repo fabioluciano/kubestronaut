@@ -9,7 +9,42 @@
 A API do Kubernetes e o coracao do sistema. Todas as operacoes e comunicacoes entre componentes sao feitas atraves de chamadas RESTful a API do kube-apiserver.
 
 ```plantuml,format=png
-../assets/diagrams/general/api-kubernetes-api-visao-geral.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title KUBERNETES API - VISAO GERAL
+
+actor "Usuario" as user
+actor "kubectl" as kubectl
+actor "SDK/Client" as sdk
+
+rectangle "kube-apiserver" as api {
+  component "REST API" as rest
+  component "Authentication" as auth
+  component "Authorization" as authz
+  component "Admission Control" as adm
+}
+
+database "etcd" as etcd
+
+user --> kubectl : comandos
+kubectl --> rest : HTTP/JSON
+sdk --> rest : HTTP/JSON
+rest --> auth : 1. Autenticar
+auth --> authz : 2. Autorizar
+authz --> adm : 3. Validar
+adm --> etcd : 4. Persistir
+
+note bottom of api
+  Toda comunicacao passa pelo API Server
+  Nenhum componente acessa etcd diretamente
+  (exceto o proprio API Server)
+end note
+
+@enduml
 ```
 
 ### RESTful API
@@ -17,7 +52,45 @@ A API do Kubernetes e o coracao do sistema. Todas as operacoes e comunicacoes en
 A API do Kubernetes segue os principios REST:
 
 ```plantuml,format=png
-../assets/diagrams/general/api-operacoes-rest.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title OPERACOES REST
+
+rectangle "Verbos HTTP" {
+  card "GET" as get
+  card "POST" as post
+  card "PUT" as put
+  card "PATCH" as patch
+  card "DELETE" as delete
+}
+
+rectangle "Operacoes Kubernetes" {
+  card "List/Get" as list
+  card "Create" as create
+  card "Update (replace)" as update
+  card "Update (partial)" as partial
+  card "Delete" as del
+}
+
+get --> list
+post --> create
+put --> update
+patch --> partial
+delete --> del
+
+note bottom
+  GET /api/v1/namespaces/default/pods
+  POST /api/v1/namespaces/default/pods
+  PUT /api/v1/namespaces/default/pods/nginx
+  PATCH /api/v1/namespaces/default/pods/nginx
+  DELETE /api/v1/namespaces/default/pods/nginx
+end note
+
+@enduml
 ```
 
 ### Estrutura da URL da API
@@ -56,13 +129,116 @@ Recursos cluster-scoped (sem namespace):
 ### Core API Group vs Named API Groups
 
 ```plantuml,format=png
-../assets/diagrams/general/api-api-groups.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title API GROUPS
+
+rectangle "Core API Group (legacy)" as core {
+  note as n1
+    apiVersion: v1
+    Path: /api/v1/...
+
+    Recursos:
+    - Pod
+    - Service
+    - ConfigMap
+    - Secret
+    - Namespace
+    - Node
+    - PersistentVolume
+    - PersistentVolumeClaim
+  end note
+}
+
+rectangle "Named API Groups" as named {
+  rectangle "apps" {
+    note as n2
+      apiVersion: apps/v1
+      Path: /apis/apps/v1/...
+
+      - Deployment
+      - ReplicaSet
+      - StatefulSet
+      - DaemonSet
+    end note
+  }
+
+  rectangle "batch" {
+    note as n3
+      apiVersion: batch/v1
+      Path: /apis/batch/v1/...
+
+      - Job
+      - CronJob
+    end note
+  }
+
+  rectangle "networking.k8s.io" {
+    note as n4
+      apiVersion: networking.k8s.io/v1
+      Path: /apis/networking.k8s.io/v1/...
+
+      - Ingress
+      - NetworkPolicy
+    end note
+  }
+}
+
+@enduml
 ```
 
 ### Versionamento de API
 
 ```plantuml,format=png
-../assets/diagrams/general/api-versionamento-de-api.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title VERSIONAMENTO DE API
+
+rectangle "alpha" as alpha #lightcoral {
+  note as n1
+    v1alpha1, v1alpha2, ...
+
+    - Pode ter bugs
+    - Pode ser removida sem aviso
+    - Desabilitada por padrao
+    - NAO usar em producao
+  end note
+}
+
+rectangle "beta" as beta #lightyellow {
+  note as n2
+    v1beta1, v1beta2, ...
+
+    - Bem testada
+    - Habilitada por padrao
+    - Pode mudar em versoes futuras
+    - OK para nao-criticos
+  end note
+}
+
+rectangle "stable" as stable #lightgreen {
+  note as n3
+    v1, v2, ...
+
+    - Estavel e confiavel
+    - Compatibilidade garantida
+    - Suportada por muitas versoes
+    - USAR EM PRODUCAO
+  end note
+}
+
+alpha --> beta : Maturidade
+beta --> stable : Maturidade
+
+@enduml
 ```
 
 ### Tabela de API Groups Principais
@@ -180,7 +356,33 @@ curl -k -H "Authorization: Bearer $TOKEN" \
 ### Politica de Depreciacao do Kubernetes
 
 ```plantuml,format=png
-../assets/diagrams/general/api-deprecation-policy.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title DEPRECATION POLICY
+
+rectangle "Regras de Depreciacao" {
+  card "1. APIs GA (v1, v2) sao suportadas\npor pelo menos 12 meses\nou 3 releases" as r1
+
+  card "2. APIs Beta sao suportadas\npor pelo menos 9 meses\nou 3 releases" as r2
+
+  card "3. APIs Alpha podem ser\nremovidas a qualquer momento" as r3
+
+  card "4. Depreciation warnings\ndevem ser emitidos antes\nda remocao" as r4
+}
+
+note bottom
+  Sempre verifique as release notes
+  antes de atualizar o cluster!
+
+  Use: kubectl deprecations
+  (plugin kubectl-deprecations)
+end note
+
+@enduml
 ```
 
 ### Exemplos de Migracoes Comuns
@@ -221,7 +423,37 @@ kubectl api-resources | grep ingress
 Custom Resources estendem a API do Kubernetes com novos tipos de objetos.
 
 ```plantuml,format=png
-../assets/diagrams/general/api-custom-resource-definitions.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title CUSTOM RESOURCE DEFINITIONS
+
+rectangle "Kubernetes API" {
+  rectangle "Built-in Resources" as builtin {
+    card "Pod" as pod
+    card "Service" as svc
+    card "Deployment" as deploy
+  }
+
+  rectangle "Custom Resources" as custom {
+    card "Certificate\n(cert-manager)" as cert
+    card "VirtualService\n(Istio)" as vs
+    card "Backup\n(Velero)" as backup
+  }
+}
+
+rectangle "CRD + Controller = Operator" as op
+
+note bottom of op
+  CRD: Define o tipo do recurso
+  Controller: Implementa a logica
+  Operator: CRD + Controller empacotados
+end note
+
+@enduml
 ```
 
 ### Exemplo de CRD
@@ -251,7 +483,40 @@ kubectl get crd | grep -E "cert-manager|istio|argo|prometheus"
 ### Operators Pattern
 
 ```plantuml,format=png
-../assets/diagrams/general/api-operator-pattern.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title OPERATOR PATTERN
+
+rectangle "Operator" {
+  component "Custom Resource\nDefinition (CRD)" as crd
+  component "Custom\nController" as ctrl
+}
+
+rectangle "Cluster" {
+  card "Custom Resource\n(CR)" as cr
+  card "Pods, Services,\nConfigMaps..." as resources
+}
+
+actor "Usuario" as user
+
+user --> cr : kubectl apply
+cr --> ctrl : watch
+ctrl --> resources : create/update/delete
+ctrl --> cr : update status
+
+note bottom of ctrl
+  O Controller:
+  1. Observa Custom Resources
+  2. Compara estado atual vs desejado
+  3. Reconcilia diferencas
+  4. Atualiza status
+end note
+
+@enduml
 ```
 
 ---
@@ -261,7 +526,55 @@ kubectl get crd | grep -E "cert-manager|istio|argo|prometheus"
 ### Fluxo de uma Requisicao
 
 ```plantuml,format=png
-../assets/diagrams/general/api-fluxo-de-requisicao-na-api.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title FLUXO DE REQUISICAO NA API
+
+actor "Cliente\n(kubectl)" as client
+
+rectangle "kube-apiserver" {
+  component "1. Authentication\n(quem e voce?)" as auth
+  component "2. Authorization\n(pode fazer isso?)" as authz
+  component "3. Admission Control\n(deve permitir?)" as adm
+  component "4. Validation\n(objeto valido?)" as valid
+  component "5. Persistence\n(salvar no etcd)" as persist
+}
+
+database "etcd" as etcd
+
+client --> auth
+auth --> authz : Usuario identificado
+authz --> adm : Autorizado
+adm --> valid : Admitido
+valid --> persist : Valido
+persist --> etcd : Persistir
+
+note right of auth
+  Metodos:
+  - Certificados X509
+  - Tokens
+  - OIDC
+end note
+
+note right of authz
+  Modos:
+  - RBAC
+  - ABAC
+  - Node
+  - Webhook
+end note
+
+note right of adm
+  Controllers:
+  - Mutating
+  - Validating
+end note
+
+@enduml
 ```
 
 ---
@@ -271,7 +584,53 @@ kubectl get crd | grep -E "cert-manager|istio|argo|prometheus"
 ### CKA/CKAD - Comandos Rapidos
 
 ```plantuml,format=png
-../assets/diagrams/general/api-dicas-para-o-exame.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+
+title DICAS PARA O EXAME
+
+rectangle "1. DESCOBRIR apiVersion" {
+  note as n1
+    kubectl api-resources | grep <recurso>
+    kubectl explain <recurso>
+  end note
+}
+
+rectangle "2. GERAR YAML BASE" {
+  note as n2
+    kubectl create deployment nginx --image=nginx \\
+      --dry-run=client -o yaml > deploy.yaml
+
+    kubectl run nginx --image=nginx \\
+      --dry-run=client -o yaml > pod.yaml
+  end note
+}
+
+rectangle "3. EXPLORAR ESTRUTURA" {
+  note as n3
+    kubectl explain pod.spec.containers
+    kubectl explain deploy.spec.strategy
+    kubectl explain svc.spec.type
+  end note
+}
+
+rectangle "4. SHORTNAMES" {
+  note as n4
+    po=pods, deploy=deployments
+    svc=services, cm=configmaps
+    ns=namespaces, no=nodes
+    pv=persistentvolumes
+    pvc=persistentvolumeclaims
+    sa=serviceaccounts
+    ing=ingresses
+    netpol=networkpolicies
+  end note
+}
+
+@enduml
 ```
 
 ### Tabela de Referencia Rapida

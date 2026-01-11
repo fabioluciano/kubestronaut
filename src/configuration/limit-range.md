@@ -11,7 +11,28 @@ CKA (10%), CKAD (10%)
 LimitRange define valores padrão, mínimos e máximos de recursos (CPU, memória) para Containers, Pods e PVCs em um namespace. É aplicado pelo Admission Controller durante a criação de recursos.
 
 ```plantuml,format=png
-!include ../assets/diagrams/configuration/limit-range-limitrange-overview.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title LIMITRANGE OVERVIEW
+
+rectangle "LimitRange: default-limits\nNamespace: development" {
+  rectangle "Container" {
+    rectangle "min:\ncpu: 50m\nmem: 64Mi" as min
+    rectangle "default:\ncpu: 200m\nmem: 256Mi" as def
+    rectangle "max:\ncpu: 1000m\nmem: 1Gi" as max
+    rectangle "defaultRequest:\ncpu: 100m\nmem: 128Mi" as defreq
+  }
+}
+
+note bottom
+  📌 Aplicado automaticamente se Pod não especificar recursos
+  📌 Validado pelo Admission Controller na criação
+  📌 Afeta apenas recursos criados APÓS o LimitRange
+end note
+
+@enduml
 ```
 
 ### LimitRange vs ResourceQuota
@@ -34,7 +55,36 @@ LimitRange define valores padrão, mínimos e máximos de recursos (CPU, memóri
 ### Como Funciona
 
 ```plantuml,format=png
-!include ../assets/diagrams/configuration/limit-range-fluxo-do-limitrange.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title FLUXO DO LIMITRANGE
+
+start
+
+:1. Pod criado sem resources definidos;
+
+:2. Admission Controller intercepta;
+
+:3. Aplica valores do LimitRange;
+note right
+  Se sem requests → aplica defaultRequest
+  Se sem limits → aplica default
+end note
+
+:4. Valida;
+note right
+  requests >= min
+  limits <= max
+  Se fora do range → rejeita criação
+end note
+
+:5. Pod criado com valores aplicados;
+
+stop
+
+@enduml
 ```
 
 ---
@@ -141,7 +191,28 @@ kubectl get events -n <namespace> | grep -i limit
 Controla a razão máxima entre limits e requests.
 
 ```plantuml,format=png
-!include ../assets/diagrams/configuration/limit-range-maxlimitrequestratio.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title MAXLIMITREQUESTRATIO
+
+note as N1
+  **maxLimitRequestRatio:**
+    cpu: "4"
+
+  **Significado:** limits.cpu / requests.cpu <= 4
+
+  **Exemplo válido:**
+    requests.cpu: 250m
+    limits.cpu: 1000m (1000/250 = 4) ✓
+
+  **Exemplo inválido:**
+    requests.cpu: 100m
+    limits.cpu: 1000m (1000/100 = 10 > 4) ✗
+end note
+
+@enduml
 ```
 
 ```yaml
@@ -153,7 +224,30 @@ Controla a razão máxima entre limits e requests.
 ## Interação com ResourceQuota
 
 ```plantuml,format=png
-!include ../assets/diagrams/configuration/limit-range-limitrange-resourcequota.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title LIMITRANGE + RESOURCEQUOTA
+
+note as N1
+  **CENÁRIO:** ResourceQuota requer requests/limits definidos
+
+  **ResourceQuota:**
+    requests.cpu: 4
+    limits.cpu: 8
+
+  **Sem LimitRange:**
+    Pod sem resources → REJEITADO
+    (quota requer requests/limits)
+
+  **Com LimitRange:**
+    Pod sem resources → valores padrão aplicados → ACEITO
+
+  **RECOMENDAÇÃO:** Sempre usar LimitRange junto com ResourceQuota
+end note
+
+@enduml
 ```
 
 ```yaml

@@ -7,13 +7,53 @@
 O Kubernetes suporta apenas as **3 últimas minor versions**. Upgrades devem ser feitos **uma minor version por vez**.
 
 ```plantuml,format=png
-!include ../assets/diagrams/maintenance/cluster-upgrade-compatibilidade-de-versões.puml
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Monospaced
+
+title COMPATIBILIDADE DE VERSÕES
+
+map "Versão Relativa ao API Server" as vmap {
+  kube-apiserver => X (base)
+  kube-controller-manager => X ou X-1
+  kube-scheduler => X ou X-1
+  kubelet => X, X-1 ou X-2
+  kube-proxy => X, X-1 ou X-2
+  kubectl => X+1, X ou X-1
+}
+
+note bottom of vmap
+  **Exemplo (API Server v1.30):**
+  • controller-manager: v1.30 ou v1.29
+  • scheduler: v1.30 ou v1.29
+  • kubelet: v1.30, v1.29 ou v1.28
+  • kubectl: v1.31, v1.30 ou v1.29
+end note
+
+@enduml
 ```
 
 ### Regras de Upgrade
 
 ```plantuml,format=png
-!include ../assets/diagrams/maintenance/cluster-upgrade-diagram-2.puml
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Monospaced
+
+rectangle "REGRAS IMPORTANTES" as rules
+
+note right of rules
+  ✓ Upgrade uma minor version por vez
+    (1.28 → 1.29 → 1.30, NÃO 1.28 → 1.30)
+  ✓ Control plane primeiro, workers depois
+  ✓ kubeadm não atualiza kubelet (manual)
+  ✓ Fazer backup do etcd antes!
+  ✓ Durante upgrade, workloads continuam rodando
+    (mas API pode ficar indisponível brevemente)
+end note
+@enduml
 ```
 
 ---
@@ -21,7 +61,30 @@ O Kubernetes suporta apenas as **3 últimas minor versions**. Upgrades devem ser
 ## Ordem de Upgrade
 
 ```plantuml,format=png
-!include ../assets/diagrams/maintenance/cluster-upgrade-ordem-de-upgrade.puml
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Monospaced
+
+title ORDEM DE UPGRADE
+
+rectangle "1. Control Plane (Master) - um node por vez" as cp
+note right of cp
+  a. kubeadm
+  b. Componentes do control plane (via kubeadm)
+  c. kubelet e kubectl
+end note
+
+rectangle "2. Worker Nodes - um node por vez" as wk
+note right of wk
+  a. Drain do node
+  b. kubeadm upgrade node
+  c. kubelet e kubectl
+  d. Uncordon do node
+end note
+
+cp -down-> wk
+@enduml
 ```
 
 ### Fluxo Completo de Upgrade
@@ -29,7 +92,52 @@ O Kubernetes suporta apenas as **3 últimas minor versions**. Upgrades devem ser
 O diagrama abaixo mostra o fluxo detalhado de upgrade, incluindo os comandos específicos para cada etapa:
 
 ```plantuml,format=png
-!include ../assets/diagrams/maintenance/cluster-upgrade-fluxo-completo.puml
+@startuml
+
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName monospace
+skinparam defaultTextAlignment center
+
+title Fluxo de Upgrade do Cluster Kubernetes
+
+start
+
+:Adiciona-se o repositório da nova \nversão a lista de repositórios\n disponíveis no sistema;
+:Executa o comando\n\n ""apt-cache madison kubeadm"";\n\n para descrobrir qual a última versão\n disponível para atualização;
+floating note left: Será apresentada uma lista\n de versões da ""minor"" selecionada.
+
+partition #lightPink """kubeadm""" {
+	:Descongela o pacote ""kubeadm""\n\n""apt-mark unhold kubeadm"";
+	:Atualiza o pacote ""kubeadm""\n\n""apt upgrade -y kubeadm=$VERSION"";
+	:Congela o pacote ""kubeadm""\n\n""apt-mark hold kubeadm"";
+}
+
+partition #lightGreen "Componentes do nó" {
+	if (É o controlplane principal) then(controlplane principal)
+		:Executa o comando para planejar a atualização\n\n""sudo kubeadm upgrade plan"";
+		:Atualiza os componentes do controlplane\n\n""sudo kubeadm upgrade apply v1.x.x"";
+	else (Controlplane secundário ou Worker)
+		:Atualiza os componentes do controlplane\n\n""sudo kubeadm upgrade node"";
+	endif
+}
+
+:Remove todos os pods do no e o coloca em manutenção\n\n""kubectl drain node --ignore-daemonsets"";
+
+partition #lightSkyBlue """kubelet""" {
+	:Descongela o pacote ""kubelet""\n\n""apt-mark unhold kubelet"";
+	:Atualiza o pacote ""kubelet""\n\n""apt upgrade -y kubelet=$VERSION"";
+	:Congela o pacote ""kubelet""\n\n""apt-mark hold kubelet"";
+	:Atualiza a lista de serviços\n\n""systemctl daemon-reload"";
+	:Reinicia o ""kubelet""\n\n""systemctl restart kubelet"";
+}
+
+:Desmarca a manutenção do nó\n\n""kubectl uncordon node"";
+
+stop
+
+@enduml
+
 ```
 
 ---
@@ -350,7 +458,34 @@ kubeadm reset
 ## Dicas para o Exame CKA
 
 ```plantuml,format=png
-!include ../assets/diagrams/maintenance/cluster-upgrade-diagram-4.puml
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Monospaced
+
+rectangle "DICAS CKA - CLUSTER UPGRADE" {
+  rectangle "SEQUÊNCIA CORRETA" {
+    :1. apt-mark unhold kubeadm;
+    :2. apt install kubeadm=X.X.X-1.1;
+    :3. apt-mark hold kubeadm;
+    :4. kubeadm upgrade plan (verificar);
+    :5. kubeadm upgrade apply vX.X.X (primeiro master)\n   OU kubeadm upgrade node (outros nodes);
+    :6. kubectl drain <node> --ignore-daemonsets;
+    :7. apt-mark unhold kubelet kubectl;
+    :8. apt install kubelet=X.X.X-1.1 kubectl=X.X.X-1.1;
+    :9. apt-mark hold kubelet kubectl;
+    :10. systemctl daemon-reload && systemctl restart kubelet;
+    :11. kubectl uncordon <node>;
+  }
+  rectangle "LEMBRE-SE" {
+    :• Control plane PRIMEIRO, workers DEPOIS;
+    :• kubeadm upgrade apply = primeiro master;
+    :• kubeadm upgrade node = outros nodes;
+    :• Sempre drain antes de atualizar kubelet;
+    :• Sempre uncordon depois;
+  }
+}
+@enduml
 ```
 
 ---

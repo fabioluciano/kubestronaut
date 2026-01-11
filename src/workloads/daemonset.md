@@ -11,7 +11,37 @@ CKA (15%), CKAD (5%), CKS (10%)
 DaemonSet garante que todos (ou alguns) Nodes executem uma cópia de um Pod. À medida que Nodes são adicionados ao cluster, Pods são automaticamente criados neles.
 
 ```plantuml,format=png
-!include ../assets/diagrams/workloads/daemonset-daemonset-controller-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DAEMONSET CONTROLLER
+
+rectangle "DaemonSet: fluentd-logging" as ds
+
+rectangle "Node 1" as n1 {
+  rectangle "fluentd Pod" as p1
+}
+
+rectangle "Node 2" as n2 {
+  rectangle "fluentd Pod" as p2
+}
+
+rectangle "Node 3" as n3 {
+  rectangle "fluentd Pod" as p3
+}
+
+ds --> n1
+ds --> n2
+ds --> n3
+
+note bottom
+  📌 Exatamente 1 Pod por Node
+  📌 Novo Node → Novo Pod automaticamente
+  📌 Node removido → Pod deletado
+end note
+
+@enduml
 ```
 
 ### Casos de Uso Típicos
@@ -175,7 +205,34 @@ kubectl get nodes --show-labels | grep gpu
 ## DaemonSet e Taints/Tolerations
 
 ```plantuml,format=png
-!include ../assets/diagrams/workloads/daemonset-daemonset-com-taints-1.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DAEMONSET COM TAINTS
+
+rectangle "Node (tainted)\nkey=value:NoSchedule" as node
+
+rectangle "DaemonSet SEM tolerations" as ds_sem {
+  card "Pod não criado" as pod_no #lightgray
+}
+
+rectangle "DaemonSet COM tolerations" as ds_com {
+  card "Pod criado" as pod_yes
+}
+
+node ..x ds_sem : Bloqueado
+node --> ds_com : Permitido
+
+note bottom
+  Tolerations necessárias:
+  - key: "key"
+    value: "value"
+    operator: Equal
+    effect: NoSchedule
+end note
+
+@enduml
 ```
 
 ### Taints Comuns do Sistema

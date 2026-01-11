@@ -20,7 +20,25 @@
 ### Distribuição do Currículo
 
 ```plantuml,format=png
-!include ../assets/diagrams/certifications/cka-domínios-do-cka.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DOMÍNIOS DO CKA
+
+card "Storage" as d1 #lightgray
+card "Troubleshooting" as d2 #lightgray
+card "Workloads & Scheduling" as d3 #lightgray
+card "Cluster Architecture, Installation & Configuration" as d4 #lightgray
+card "Services & Networking" as d5 #lightgray
+
+note right of d1 : 10%
+note right of d2 : 30%
+note right of d3 : 15%
+note right of d4 : 25%
+note right of d5 : 20%
+
+@enduml
 ```
 
 ---
@@ -156,7 +174,49 @@ kubectl run tmp --image=nicolaka/netshoot --rm -it --restart=Never -- bash
 ### 2.5 Problemas Comuns
 
 ```plantuml,format=png
-!include ../assets/diagrams/certifications/cka-problemas-comuns.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title PROBLEMAS COMUNS
+
+card "Pod não inicia" as p1
+card "CrashLoopBackOff" as p2
+card "ImagePullBackOff" as p3
+card "Node NotReady" as p4
+card "Service não funciona" as p5
+
+note right of p1
+  • Verificar eventos
+  • Recursos insuficientes
+  • Node selector/affinity
+end note
+
+note right of p2
+  • Verificar logs
+  • Probes falhando
+  • Comando errado
+end note
+
+note right of p3
+  • Imagem não existe
+  • Registry credentials
+  • Network issue
+end note
+
+note right of p4
+  • kubelet stopped
+  • Disk pressure
+  • Memory pressure
+end note
+
+note right of p5
+  • Selector não match
+  • Endpoints vazios
+  • Network Policy
+end note
+
+@enduml
 ```
 
 ---
@@ -465,7 +525,20 @@ kubectl get --raw /api/v1/namespaces
 ## Dicas para o Exame
 
 ```plantuml,format=png
-!include ../assets/diagrams/certifications/cka-dicas-cka.puml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+title DICAS CKA
+
+card "1. Troubleshooting = 30%\nPratique muito!" as d1
+card "2. etcd backup/restore\nMemorize comandos" as d2
+card "3. kubeadm upgrade\nSiga o processo" as d3
+card "4. RBAC\nRole + RoleBinding" as d4
+card "5. Network Policy\nEntenda ingress/egress" as d5
+card "6. Aliases\nk=kubectl, tempo é crucial" as d6
+
+@enduml
 ```
 
 ### Setup Inicial no Exame

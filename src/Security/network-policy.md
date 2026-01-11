@@ -7,13 +7,57 @@
 NetworkPolicy é um recurso do Kubernetes que controla o tráfego de rede entre Pods no cluster. Por padrão, todos os Pods podem se comunicar livremente - NetworkPolicies implementam segmentação de rede (microsegmentação).
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/network-policy-comportamento-padrão-1.puml
+@startuml
+skinparam monochrome true
+skinparam defaultTextAlignment center
+skinparam rectangle {
+  roundCorner 10
+}
+
+title COMPORTAMENTO PADRÃO
+
+rectangle "SEM NetworkPolicy" {
+  rectangle "Pod A" as PA1
+  rectangle "Pod B" as PB1
+  rectangle "Pod C" as PC1
+  
+  PA1 <--> PB1
+  PB1 <--> PC1
+  PA1 <--> PC1
+  
+  note bottom of PB1 : Todos se comunicam livremente
+}
+
+rectangle "COM NetworkPolicy" {
+  rectangle "Pod A\n(frontend)" as PA2
+  rectangle "Pod B\n(backend)" as PB2
+  rectangle "Pod C\n(database)" as PC2
+  
+  PA2 --> PB2 : permitido
+  PB2 ..> PC2 : bloqueado
+  
+  note bottom of PB2 : Tráfego controlado por políticas
+}
+@enduml
 ```
 
 ### Pré-requisitos
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/network-policy-diagram-2-1.puml
+@startuml
+skinparam monochrome true
+
+map "CNI COMPATÍVEIS" as cni {
+  Compatíveis => Calico, Cilium, Weave Net, Antrea, Romana
+  NÃO suportam => Flannel (padrão em alguns clusters)
+}
+
+note bottom of cni
+  ⚠️ **ATENÇÃO**
+  NetworkPolicy sem CNI compatível:
+  O recurso é criado mas NÃO é aplicado!
+end note
+@enduml
 ```
 
 ### Direções de Tráfego
@@ -36,7 +80,33 @@ NetworkPolicy é um recurso do Kubernetes que controla o tráfego de rede entre 
 ### Comportamento dos PolicyTypes
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/network-policy-diagram-3-1.puml
+@startuml
+skinparam monochrome true
+
+object "policyTypes: [Ingress]" as p1 {
+  Ingress = Apenas tráfego definido nas regras
+  Egress = Todo tráfego permitido (não restrito)
+}
+
+object "policyTypes: [Egress]" as p2 {
+  Ingress = Todo tráfego permitido (não restrito)
+  Egress = Apenas tráfego definido nas regras
+}
+
+object "policyTypes: [Ingress, Egress]" as p3 {
+  Ingress = Apenas tráfego definido nas regras
+  Egress = Apenas tráfego definido nas regras
+}
+
+object "Sem policyTypes definido" as p4 {
+  "Se houver ingress rules" = Ingress restrito
+  "Se houver egress rules" = Egress restrito
+}
+
+p1 -[hidden]-> p2
+p2 -[hidden]-> p3
+p3 -[hidden]-> p4
+@enduml
 ```
 
 ---
@@ -66,7 +136,27 @@ Seleciona Pods de **outros namespaces**.
 ```
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/network-policy-cuidado-com-a-sintaxe-1.puml
+@startuml
+skinparam monochrome true
+
+title ⚠️ CUIDADO COM A SINTAXE
+
+rectangle "OU lógico (dois itens)" {
+  note as N1
+    from:
+      - podSelector: {...}
+      - namespaceSelector: {...}
+  end note
+}
+
+rectangle "E lógico (um item)" {
+  note as N2
+    from:
+      - podSelector: {...}
+        namespaceSelector: {...}
+  end note
+}
+@enduml
 ```
 
 ### ipBlock
@@ -232,7 +322,27 @@ kubectl label namespace production env=production
 ### Múltiplas Policies
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/network-policy-múltiplas-networkpolicies-1.puml
+@startuml
+skinparam monochrome true
+
+title MÚLTIPLAS NETWORKPOLICIES
+
+rectangle "Pod" as pod
+rectangle "Policy A\n(permite porta 80)" as pA
+rectangle "Policy B\n(permite porta 443)" as pB
+
+pA --> pod
+pB --> pod
+
+note bottom of pod
+  **Resultado: permite porta 80 E 443**
+  
+  Se múltiplas NetworkPolicies selecionam o mesmo Pod:
+  • Regras são ADITIVAS (união)
+  • Tráfego é permitido se QUALQUER policy permite
+  • NÃO há ordem de precedência
+end note
+@enduml
 ```
 
 ---
@@ -240,7 +350,37 @@ kubectl label namespace production env=production
 ## Dicas para os Exames
 
 ```plantuml,format=png
-!include ../assets/diagrams/security/network-policy-diagram-6-1.puml
+@startuml
+skinparam monochrome true
+
+map "DICAS CKA/CKS - NETWORKPOLICY" as dicas {
+  Padrão => Sem NetworkPolicy = tudo permitido
+  podSelector: {} => Seleciona TODOS os pods do namespace
+}
+
+note bottom of dicas
+  **Seletores críticos:**
+  • podSelector - mesmo namespace
+  • namespaceSelector - outros namespaces
+  • ipBlock - IPs externos
+
+  **Cuidado com sintaxe AND vs OR:**
+  from:
+    - pod: A
+    - ns: B    → POD A **OU** NS B (itens separados)
+
+  from:
+    - pod: A
+      ns: B    → POD A **E** NS B (mesmo item)
+
+  **Default deny egress quebra DNS!**
+  Lembre de liberar porta 53 UDP/TCP para kube-dns
+
+  **CIDR:**
+  • 0.0.0.0/0 = todos os IPs
+  • x.x.x.x/32 = um único IP
+end note
+@enduml
 ```
 
 ---
